@@ -2,6 +2,15 @@
 
 日期：2026-11-11；状态：继续开发，不代表已验收或发布。
 
+## 权威开发依据与优先级
+1. **docs/ROADMAP.md**：唯一有效的 M2.0 任务清单（G0–G6）；以此确定开发顺序与范围。
+2. **docs/ACCEPTANCE.md**：唯一有效的 M2.0 验收矩阵（A01–A20）；不得以代码存在替代验收。
+3. **docs/PRD.md**：产品边界和禁止扩展的功能。
+4. 本文件：云端 Codex 的工作流程与权限边界。
+5. **docs/EXECUTION-STATUS.md**：每批次进度、证据与恢复检查点。
+
+以下旧版 A/B/C 列表是概要；如与 G0–G6 冲突，**以 ROADMAP 为准**。不开发其他仓库，不调用 Codex Bridge。
+
 ## 立即开始
 1. checkout gamehack/yunshang-xiaosi 的 develop 分支，确认 working tree clean；不要在 main 开发。
 2. 读取 README.md、docs/PRD.md、docs/ROADMAP.md、docs/ACCEPTANCE.md、docs/ARCHITECTURE.md、docs/VISUAL.md、docs/DOCUMENTATION-POLICY.md。
