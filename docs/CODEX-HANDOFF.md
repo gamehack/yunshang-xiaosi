@@ -2,6 +2,12 @@
 
 日期：2026-11-11；状态：继续开发，不代表已验收或发布。
 
+## 最新产品决策：PC 优先与云端浏览器自测
+- **桌面 PC Chrome/Chromium 是 M2.0 P0 主平台**；Edge P1，手机/iPhone P2 非阻断。优先完成 PC 交互、画面和性能优化。
+- 云端 Codex **必须优先使用其可用的浏览器或 Playwright** 启动 Vite、真实操作页面、截取关键视角、检查控制台错误、验证导航/坐姿/镜头/HUD。不能只运行 npm test/build 就宣称 PC 验收完成。
+- 浏览器不可用时记录环境限制、尝试步骤和未完成项；不要伪造截图或 FPS。云端虚拟 GPU 测得的 FPS 不能替代真实 PC 性能。
+- 不要求用户逐批截图或逐批回复；仅最终整体体验与真实设备性能等无法自动完成的事项交用户集中验收。
+
 ## 权威开发依据与优先级
 1. **docs/ROADMAP.md**：唯一有效的 M2.0 任务清单（G0–G6）；以此确定开发顺序与范围。
 2. **docs/ACCEPTANCE.md**：唯一有效的 M2.0 验收矩阵（A01–A20）；不得以代码存在替代验收。
@@ -37,7 +43,7 @@
 
 ### C. P0 发布候选质量
 7. 消除渲染帧循环无谓分配、内存泄漏和 WebGL 丢失后状态异常；保留画质分级与性能统计。
-8. 扩充 Vitest 与可自动执行的交互/逻辑测试；建立 PC Chrome/Edge、iPhone Chrome/Safari 的人工验证清单。没有真实设备数据时明确标记待验证，禁止伪造 FPS。
+8. 扩充 Vitest 与可自动执行的交互/逻辑测试；云端 Codex 自行执行 PC Chrome/Chromium 浏览器验证并保留截图；Edge P1、iPhone Chrome/Safari P2。没有真实设备数据时明确标记待验证，禁止伪造 FPS。
 9. 复核外部资源授权、隐私、公开运营监管事项，未确认部分保留发布闸门。
 10. 更新 docs/ACCEPTANCE.md 与 docs/ROADMAP.md 的逐项证据、README、ARCHITECTURE、VISUAL、CHANGELOG，形成 M2.0 RC 报告。
 
@@ -46,7 +52,7 @@
 - 普通失败自行修复重试；对无法解决的阻塞写入 docs/EXECUTION-STATUS.md，继续处理无依赖任务。不要每个批次等待用户回复 go。
 - 不修改其他业务仓库、不泄露密钥、不自动开启危险权限、不增加付费服务。
 - **禁止**自动 merge PR #27、直接 push main、触发 Cloudflare Pages 生产部署。最终统一验收由用户批准。
-- 实际手机截图、FPS、兼容性和合规检查若无法执行，必须列为未验证，不得声称完成。
+- 实际 PC 硬件 FPS、未覆盖的浏览器兼容性和合规检查若无法执行，必须列为未验证，不得声称完成。
 - 每次开发结束更新 docs/EXECUTION-STATUS.md，包含 commit SHA、测试/CI 结果、完成项、阻塞、下一步。
 
 ## 执行平台：云端 Codex（最终决策）
