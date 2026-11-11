@@ -14,7 +14,10 @@ const metrics = document.querySelector<HTMLSpanElement>('#metrics')!;
 const seatButton = document.querySelector<HTMLButtonElement>('#seat')!;
 const resetButton = document.querySelector<HTMLButtonElement>('#reset')!;
 const qualityButton = document.querySelector<HTMLButtonElement>('#quality')!;
-let quality = readQuality(window.localStorage);
+function safeStorage(): Storage | undefined {
+  try { return window.localStorage; } catch { return undefined; }
+}
+let quality = readQuality(safeStorage());
 function applyQuality(){
   renderer.setPixelRatio(qualityPixelRatio(quality, window.devicePixelRatio));
   qualityButton.textContent=`画质：${quality}`;
@@ -22,7 +25,7 @@ function applyQuality(){
 }
 qualityButton.addEventListener('click',()=>{
   quality=nextQuality(quality);
-  writeQuality(quality, window.localStorage);
+  writeQuality(quality, safeStorage());
   applyQuality();
 });
 const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'default' });
