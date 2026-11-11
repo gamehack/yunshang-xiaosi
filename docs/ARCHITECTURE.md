@@ -80,3 +80,12 @@ M0 完成：园门至望湖台可达并折返；桥面/路径导航连续；不�
 - 读取存档时，只有靠近茶室或望湖台的已知座椅才能恢复坐姿；恢复位置、镜头和稳定坐姿状态，不恢复中途移动指令。
 - 新增 `tests/guest-save.test.ts`：有效存档往返、损坏 JSON、不可行走位置、无效相机数值、座椅恢复位置及禁用 localStorage 的降级行为。
 - 本轮新提交仍需 Cloudflare CI 结果验证，未完成真实手机/PC 浏览器交互验收。
+
+## Cloudflare 免费构建额度保护：批量开发流程（2026-11-11 生效）
+
+- `main` 是唯一生产发布分支，连接 Cloudflare Pages `banrixian`；生产构建命令 `npm test && npm run build`，输出 `dist`。
+- `develop` 是日常开发集成分支。Cloudflare Pages 当前 `preview_deployment_setting=none`，因此 `develop` 的普通提交不应触发 Pages 预览构建；保持此设置，不要启用所有分支的预览部署。
+- 一个里程碑中允许多个文件修改、多次 `develop` 提交；先在本地或独立 CI 验证 `npm ci && npm test && npm run build`，再合并到 `main`。仅在批次验收时合并，目标每批次一次生产部署。
+- 文档、测试和代码在同一批次合并；避免直接修改 `main`。生产构建失败先在 `develop` 修复并完整验证，再合并一次。
+- 对于紧急线上修复，允许单独 hotfix 合并到 `main`；上线后同步回 `develop`，避免分支分叉。
+- Cloudflare Pages 的预览部署设置必须保持禁用；如未来更改配置，先检查预览分支筛选策略，避免开发分支消耗构建额度。
