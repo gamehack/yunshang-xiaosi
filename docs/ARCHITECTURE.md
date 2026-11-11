@@ -178,3 +178,6 @@ M0 完成：园门至望湖台可达并折返；桥面/路径导航连续；不�
 
 - 竹林叶片 InstancedMesh 添加 `cameraFoliage`、`groveCenter` 和 `groveRadius` 元数据，WalkController 在摄像机更新后调整小范围竹丛的材质透明度；大于 8 米半径的竹林不进行整体渐隐。
 - 该实现是小范围低成本试验，材质透明可能有排序伪影，尚不具备逐实例透明度控制；需真实设备验收后决定是否保留。
+
+- M1.4 修正：`addBambooGrove` 将竹林按 9m 空间网格分批，每批保留三组 InstancedMesh 与独立叶片材质；避免整片森林透明。渲染批次数和 Draw Calls 将增加，需通过手机 HUD 核验。
+- 透明模式切换时显式设置 `material.needsUpdate`，避免每帧无条件触发材质编译；逐帧只更新 opacity。
