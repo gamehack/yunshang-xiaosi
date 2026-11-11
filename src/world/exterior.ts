@@ -4,7 +4,8 @@ import * as THREE from 'three';
 export function buildExterior(scene: THREE.Scene): void {
   const soil=new THREE.MeshStandardMaterial({color:'#9da991',roughness:1});
   const trail=new THREE.MeshStandardMaterial({color:'#c5b99e',roughness:1});
-  const lake=new THREE.MeshStandardMaterial({color:'#7bacae',roughness:.7});
+  const lake=new THREE.MeshStandardMaterial({color:'#7bacae',roughness:.52,metalness:.03});
+  const shore=new THREE.MeshStandardMaterial({color:'#c3c4b0',roughness:1});
   const bamboo=new THREE.MeshStandardMaterial({color:'#688c6b',roughness:1});
   const leaves=new THREE.MeshStandardMaterial({color:'#54765e',roughness:1});
   const rock=new THREE.MeshStandardMaterial({color:'#9da29a',roughness:1});
@@ -18,6 +19,9 @@ export function buildExterior(scene: THREE.Scene): void {
   bench.position.set(0,.65,-97);scene.add(bench);
   const water=new THREE.Mesh(new THREE.PlaneGeometry(280,180),lake);
   water.rotation.x=-Math.PI/2;water.position.set(0,-.2,-189);scene.add(water);
+  // Low-poly shoreline transition near the lookout, outside the walkable platform.
+  const shoreline=new THREE.Mesh(new THREE.BoxGeometry(45,.11,1.6),shore);
+  shoreline.position.set(0,-.055,-102.6);scene.add(shoreline);
   // Instanced low-poly vegetation keeps draw calls stable as the route expands.
   const stems=new THREE.InstancedMesh(new THREE.CylinderGeometry(.08,.11,4.8,5),bamboo,150);
   // Two staggered leaf tiers soften the silhouette without creating a mesh per tree.
