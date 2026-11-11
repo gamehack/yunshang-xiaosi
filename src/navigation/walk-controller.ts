@@ -140,6 +140,7 @@ export class WalkController {
     const p=this.pointerStart;
     this.activePointers.delete(e.pointerId);
     if(this.activePointers.size<2)this.pinchDistance=null;
+    // A multi-touch gesture must never turn into a ground click on release.
     if(this.renderer.domElement.hasPointerCapture(e.pointerId))this.renderer.domElement.releasePointerCapture(e.pointerId);
     if(!p || p.id!==e.pointerId)return;
     this.pointerStart=null;
@@ -148,7 +149,9 @@ export class WalkController {
     this.pointer.set(((e.clientX-rect.left)/rect.width)*2-1,-((e.clientY-rect.top)/rect.height)*2+1);
     this.raycaster.setFromCamera(this.pointer,this.camera);
     if(this.raycaster.ray.intersectPlane(this.ground,this.target)){
-      this.route=findPath(this.avatar.position,this.target);
+      const next=findPath(this.avatar.position,this.target);
+      // Invalid targets must not unexpectedly cancel an existing route.
+      if(next.length || this.avatar.position.distanceTo(this.target)<1)this.route=next;
     }
   };
   private readonly onWheel = (e: WheelEvent) => {
