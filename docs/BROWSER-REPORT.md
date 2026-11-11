@@ -51,3 +51,12 @@
 ## 持续运行完成
 
 最终应用构建602.456秒按键移动及碰撞边界停留测试通过，实际到达湖台后折返入口，页面异常0；20次堆/位置采样与性能边界见 [PERFORMANCE.md](PERFORMANCE.md)。
+
+## 恢复执行的最终补证
+
+- 已核验同步修复 `06e6521` 对应 [Actions 43001773127](https://github.com/gamehack/yunshang-xiaosi/actions/runs/43001773127) 为Success。
+- 两项新增Chromium同步回归先失败后通过：指定超时不被页面默认值覆盖；延迟音频按钮完成后才读取状态。
+- 完整17类交互+独立无WebGL回退重新通过，真实AudioContext原生resume/suspend各延迟150ms，pageerror/requestfailed=0。
+- 湖台石凳同色问题修复后再次运行88项单测、构建、完整浏览器入口通过；此处只改材质，不改导航、锚点和动作。
+- 原12张图已逐张复核、11张随最新浏览器运行更新、原soak结束图保留其历史归属；另补2张侧视。共14张图片带尺寸和SHA-256的[清单](evidence/rc1/manifest.json)。
+- 侧视等待实测骨盆贴座面后截图并断言，茶座高度差约0.172mm、湖座约0.189mm；[数据](evidence/rc1/seat-details/report.json)与[逐图复核](VISUAL-REVIEW.md)可核查。

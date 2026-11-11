@@ -16,7 +16,9 @@ export function buildExterior(scene: THREE.Scene): void {
   const lookout=new THREE.Mesh(new THREE.CylinderGeometry(EXTERIOR.lookout.radius,EXTERIOR.lookout.radius,EXTERIOR.lookout.height,16),rock);
   lookout.position.set(EXTERIOR.lookout.x,EXTERIOR.lookout.height/2,EXTERIOR.lookout.z);scene.add(lookout);
   const lakeSeat=SEAT_GEOMETRY.lake;
-  const bench=new THREE.Mesh(new THREE.BoxGeometry(lakeSeat.width,lakeSeat.height,lakeSeat.depth),rock);
+  // Distinguish the seat top from the platform so a seated visitor has visible support.
+  const seatStone=new THREE.MeshStandardMaterial({color:'#69776d',roughness:1});
+  const bench=new THREE.Mesh(new THREE.BoxGeometry(lakeSeat.width,lakeSeat.height,lakeSeat.depth),seatStone);
   bench.position.set(0,lakeSeat.centerY,-97);scene.add(bench);
   const water=new THREE.Mesh(new THREE.PlaneGeometry(280,180),lake);
   water.rotation.x=-Math.PI/2;water.position.set(0,-.2,-189);scene.add(water);
