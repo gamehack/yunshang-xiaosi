@@ -1,3 +1,4 @@
+import { buildExterior } from './world/exterior';
 import { buildGarden } from './world/garden';
 import { WalkController } from './navigation/walk-controller';
 import * as THREE from 'three';
@@ -5,7 +6,7 @@ import './style.css';
 
 const root = document.querySelector<HTMLDivElement>('#app');
 if (!root) throw new Error('Missing #app');
-root.innerHTML = '<div id="hud"><strong>半日闲 · M0.3 漫步原型</strong><span>电脑：WASD 移动 · 拖动旋转 · 滚轮缩放<br>手机：轻点行走 · 拖动旋转视角</span><span id="metrics">初始化中…</span></div><div id="scene"></div>';
+root.innerHTML = '<div id="hud"><strong>半日闲 · M0.4 漫步路线白模</strong><span>电脑：WASD 移动 · 拖动旋转 · 滚轮缩放<br>手机：轻点行走 · 拖动旋转视角</span><span id="metrics">初始化中…</span></div><div id="scene"></div>';
 const mount = document.querySelector<HTMLDivElement>('#scene')!;
 const metrics = document.querySelector<HTMLSpanElement>('#metrics')!;
 const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'default' });
@@ -24,6 +25,7 @@ const sun = new THREE.DirectionalLight('#fff1d8', 2.5);
 sun.position.set(-12, 25, 8);
 scene.add(sun);
 buildGarden(scene);
+buildExterior(scene);
 const marker = new THREE.Mesh(new THREE.CapsuleGeometry(0.42, 1.05, 4, 8), new THREE.MeshStandardMaterial({ color: '#617e76' }));
 marker.position.set(0, 1, 8);
 scene.add(marker);
