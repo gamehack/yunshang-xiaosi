@@ -61,11 +61,11 @@
 **完成条件：** 自动化故障注入和单测通过；PC 目标 60 FPS、P95 ≤16.7ms 为待实测目标（云端虚拟 GPU 不代表真实硬件），不得伪造结果。
 
 ### G6 — 发布候选与交付（P0，依赖 G0–G5）
-- [ ] G6.1 全量 npm test、npm run build、文档门禁、GitHub Actions 通过；检查类型错误、资源路径、未引用资产和 console 异常。
-- [ ] G6.2 docs/ACCEPTANCE.md 按证据逐项更新；PC 浏览器操作和截图由云端 Codex 优先完成；真实 PC 硬件性能未测项保留待验收。
+- [x] G6.1 全量 npm test、npm run build、文档门禁、GitHub Actions 通过；检查类型错误、资源路径、未引用资产和 console 异常。
+- [x] G6.2 docs/ACCEPTANCE.md 按证据逐项更新；PC 浏览器操作和截图由云端 Codex 优先完成；真实 PC 硬件性能未测项保留待验收。
 - [x] G6.3 README、PRD、ARCHITECTURE、VISUAL、CHANGELOG 与代码一致；输出 docs/EXECUTION-STATUS.md（commit SHA、CI、完成项、风险和下一步）。
 - [x] G6.4 对素材授权、隐私、备案与监管分类形成待人工确认清单；不得自动认定合规。
-- [ ] G6.5 将 develop 整理成 M2.0 release candidate，保留 PR #27 供用户一次性验收，**不得合并或部署生产**。
+- [x] G6.5 将 develop 整理成 M2.0 release candidate，保留 PR #27 供用户一次性验收，**不得合并或部署生产**。
 **完成条件：** 自动化门槛通过，所有未验证项明确；只在用户授权后进行最终合并与发布。
 
 ## 持续开发协议
@@ -78,3 +78,5 @@
 ## RC.1 勾选依据与保留项
 
 勾选表示该开发条目的本轮实现和相应回归已执行，不代表产品最终人工验收。G0见M2-AUDIT；G1见G1-REPORT和最终圆台/家具回归；G2见G2-REPORT；G3–G5见BROWSER-REPORT、单测及截图。G3.1已完成墙体射线缩短/平滑恢复回归及浏览器旋转、缩放和关键视角检查；保留近景植物批次渐隐与全角度穷举限制，不声称所有视角绝无闪烁。G4按原创程序化风格实现并截图，最终审美独立验收。G5.4测量步骤见PERFORMANCE；G6最新CI/10分钟记录完成前保持未勾选；真实PC指标仍待硬件确认。
+
+最终602.456秒持续运行已通过，记录见PERFORMANCE；G6自主开发和证据归档完成，真实PC硬件/最终审美/法规以及生产发布授权仍分别保留。最终归档提交CI需按EXECUTION-STATUS核验。
