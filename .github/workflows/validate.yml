@@ -14,10 +14,13 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
       # Repository currently has no committed package-lock.json.
       - run: npm install --no-package-lock
+      - run: node scripts/check-docs.mjs
       - run: npm test
       - run: npm run build
