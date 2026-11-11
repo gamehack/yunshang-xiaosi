@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {shouldHandleMovementKey,shouldStopWalking} from './keyboard';
 
 type Cell = { x: number; z: number };
 const STEP = 1;
@@ -90,9 +91,15 @@ export class WalkController {
   private pitch = 0.43;
   private distance = 11;
   private pointerStart: {id:number;x:number;y:number;lastX:number;lastY:number;dragged:boolean}|null = null;
+  private keyboardOptions(e: KeyboardEvent) {
+    return {altKey:e.altKey,ctrlKey:e.ctrlKey,metaKey:e.metaKey,
+      inControl:e.target instanceof HTMLElement && e.target.closest('button, input, textarea, select, [contenteditable="true"]') !== null};
+  }
   private readonly onDown = (e: KeyboardEvent) => {
-    if(e.altKey || e.ctrlKey || e.metaKey || e.target instanceof HTMLElement && (e.target.closest('button, input, textarea, select, [contenteditable="true"]') !== null)) return;
-    if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
+    const options=this.keyboardOptions(e);
+    if(shouldStopWalking(e.key,options)){this.stop();return;}
+    if(!shouldHandleMovementKey(e.key,options))return;
+    if(e.key.startsWith('Arrow'))e.preventDefault();
     this.keys.add(e.key.toLowerCase());
   };
   private readonly onUp = (e: KeyboardEvent) => { this.keys.delete(e.key.toLowerCase()); };
