@@ -102,3 +102,9 @@ M0 完成：园门至望湖台可达并折返；桥面/路径导航连续；不�
 - 增加跨桥 A* 回归测试，确认路径经过桥面且邻近水面不可走。
 - 目前桥面为近地面白模，未实现真实拱桥坡度、人物高度适配、坡地 NavMesh；后续以统一可通行几何数据替代手写坐标。
 - 所有改动仅在 develop，Cloudflare 预览构建保持禁用，待完整测试后合并 main。
+
+## M0.6 release / M0.7 development (2026-11-11)
+- M0.6 merged into main via PR #9 (squash commit `c1d536c`), GitHub Actions 18/18 tests and Vite build passed; Cloudflare Pages production deployment succeeded. Browser-based PC/iPhone interaction acceptance is still pending.
+- After squash release, main was merged back into develop via PR #10 to keep the development branch synchronized.
+- M0.7 starts with three runtime rendering quality choices: 省电 (DPR cap 1), 均衡 (1.5), 精细 (2). This changes canvas render resolution only, not the A* navigation geometry. Real-device frame rate and battery impact must be measured before selecting mobile defaults.
+- Public repository uses standard GitHub-hosted Actions for pre-merge CI; do not commit secrets or proprietary assets. Cloudflare preview deployments remain disabled; merge to main only in validated batches.
