@@ -1,22 +1,37 @@
-# 技术架构 v1.0
+# 半日闲工程架构（M0.1）
 
-## 客户端
-React + TypeScript + Phaser 3；Tilemap + Sprite Atlas；本地寻路、碰撞、动画和音频；移动触控优先。
+> 本文替代早期 2.5D Phaser、宗教寺院和多人房间架构。当前不建设联机、聊天或服务端房间。
 
-## 网络
-HTTPS 接入，WebSocket 房间通信。消息类型 join/snapshot/move/action/leave/heartbeat；带 protocol_version、session_id、sequence、timestamp；服务端校验坐标、速率、动作合法性。客户端插值渲染，初始目标 5–10Hz 同步。
+## 当前技术栈
 
-## 服务端
-候选 Cloudflare Workers + Durable Objects，每房间一个 DO，目标 30 人，50 人压测；满房分片、断线会话超时回收、房间空闲回收、速率限制。**中国大陆网络实测及合规确认前，不锁定生产云厂商。** 定义 RoomTransport 接口隔离实现。
+- TypeScript + Vite + Three.js / WebGL。
+- M0.1 已提交静态 3D 场景占位、渲染循环、窗口自适应和基础 FPS / draw calls 读数。
+- React、NavMesh、IndexedDB、天气接口属于后续候选模块，**当前尚未安装或实现**。
 
-## 数据与隐私
-不采集真实姓名/手机号/自由文本；短期匿名会话，最小化事件统计；匿名标识与安全日志保留期限需在上线前确定；公开页面必须具备隐私告知。
+## 目标模块边界
 
-## 可观测性
-scene_ready, temple_entered, room_joined, interaction_used, share_clicked, session_ended；错误率、连接成功率、延迟、房间人数；后续对接独立 ops 服务。
+- engine：渲染器、生命周期、资源管理
+- world：园林、竹林、望湖台场景与分区加载
+- character：第三人称角色与输入
+- navigation：可通行网格、点击寻路、避障
+- camera：跟随、碰撞与坐姿镜头
+- interaction：座椅、茶室等
+- persistence：游客本地续游，后续可选云同步
+- performance：画质分档、P95 帧时间、内存与加载指标
+- ui：设置与提示
 
-## 测试
-单元：状态机、碰撞、消息校验；集成：双端同步、断线恢复、满房；压力：30/50 同房；真机：Android 微信浏览器/Chrome、iOS Safari/微信浏览器。
+## M0 实施顺序
 
-## 禁止事项
-未批准前不部署生产，不配置付费，不公开运营。
+1. M0.1 工程骨架/静态场景/基础监控（代码已提交，**构建未验证**）
+2. M0.2 角色漫步、点击寻路、镜头与碰撞
+3. M0.3 园林双环白模
+4. M0.4 竹林、望湖台、跨区资源加载
+5. M0.5 座椅交互、游客本地存档
+6. M0.6 多档画质、性能回归、验收
+
+## 验收与约束
+
+M0.1：npm install / npm run build、浏览器首帧、窗口调整、FPS 与 draw calls 读数。需要真实运行验证。
+M0 完成：园门至望湖台可达并折返；桥面/路径导航连续；不穿墙落水；可坐下起身；游客刷新续游；画质分档不改变路径。
+
+真实苏州时间、天气、季节与音效在后续阶段实现；不能把 M0.1 占位场景视为最终美术。公开运营前另行开展合规审查。
