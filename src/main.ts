@@ -80,7 +80,13 @@ resetButton.addEventListener('click',()=>{
   persist();
 });
 const saveInterval=window.setInterval(persist,5000);
-const onVisibilityChange=()=>{if(document.visibilityState==='hidden')persist();};
+const onVisibilityChange=()=>{
+  if(document.visibilityState==='hidden')persist();
+  previousFrame=0;
+  frameStats.clear();
+  frame=0;
+  last=performance.now();
+};
 document.addEventListener('visibilitychange',onVisibilityChange);
 const clock = new THREE.Clock();
 let frame = 0;
@@ -100,7 +106,11 @@ resize();
 applyQuality();
 function tick(now: number) {
   raf = requestAnimationFrame(tick);
-  if(previousFrame>0)frameStats.record(now-previousFrame);
+  if(previousFrame>0){
+    const delta=now-previousFrame;
+    if(delta>1000){frameStats.clear();frame=0;last=now;}
+    else frameStats.record(delta);
+  }
   previousFrame=now;
   walking.update(Math.min(clock.getDelta(), 0.05));
   const spot=nearbySeat();
