@@ -181,3 +181,9 @@ M0 完成：园门至望湖台可达并折返；桥面/路径导航连续；不�
 
 - M1.4 修正：`addBambooGrove` 将竹林按 9m 空间网格分批，每批保留三组 InstancedMesh 与独立叶片材质；避免整片森林透明。渲染批次数和 Draw Calls 将增加，需通过手机 HUD 核验。
 - 透明模式切换时显式设置 `material.needsUpdate`，避免每帧无条件触发材质编译；逐帧只更新 opacity。
+
+## M1.4 稳定性加固（2026-11-11，develop）
+
+- WebGL 初始化异常时在场景容器显示可读错误提示；`webglcontextlost` 阻止默认行为并暂停更新，`webglcontextrestored` 清理帧统计并重新应用画质。
+- 页面进入后台时暂停场景 update/render（requestAnimationFrame 回调仍注册），恢复后原有 visibilitychange 逻辑重置帧统计；避免后台恢复时巨大 dt。
+- 移动端 HUD 增加触控目标最小尺寸、安全区和最大高度约束。上述实现需要 CI 和真机复测。
