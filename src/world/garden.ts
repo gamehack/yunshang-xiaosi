@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { addBambooGrove } from './bamboo';
 
 /** M0.3 conceptual whitebox: garden footprint 42 x 36m, not the final 70 x 55m plan. */
 export function buildGarden(scene: THREE.Scene): void {
@@ -6,7 +7,6 @@ export function buildGarden(scene: THREE.Scene): void {
   const roof = new THREE.MeshStandardMaterial({color:'#4e5653',roughness:1});
   const stone = new THREE.MeshStandardMaterial({color:'#c7bda9',roughness:1});
   const timber = new THREE.MeshStandardMaterial({color:'#765d48',roughness:1});
-  const leaf = new THREE.MeshStandardMaterial({color:'#668477',roughness:1});
   const water = new THREE.MeshStandardMaterial({color:'#729f9b',roughness:0.45,metalness:.04});
   const waterHighlight=new THREE.MeshBasicMaterial({color:'#b7d5c7',transparent:true,opacity:.38,depthWrite:false});
   const earth = new THREE.MeshStandardMaterial({color:'#b3bea7',roughness:1});
@@ -23,12 +23,14 @@ export function buildGarden(scene: THREE.Scene): void {
   walk(-6,-14,13,2.6);walk(7,-14,15,2.6);
   walk(-6,11,13,2);walk(7,11,15,2);
   // Inset paving stones break up the uninterrupted walkway without altering collisions.
-  const tile=new THREE.BoxGeometry(.95,.018,.66);
+  const tile=new THREE.BoxGeometry(.88,.018,.72);
   const stones=new THREE.InstancedMesh(tile,paving,48);
   const tileMatrix=new THREE.Matrix4();
   for(let i=0;i<48;i++){
     const col=i%2,row=Math.floor(i/2);
-    tileMatrix.makeTranslation(-.53+col*1.06,.055,15-row*1.18);
+    const offset=(row%3-1)*.14;
+    tileMatrix.makeRotationY(((row*7+col*3)%5-2)*.035);
+    tileMatrix.setPosition(-.54+col*1.08+offset,.055,15-row*1.18+(col%2)*.09);
     stones.setMatrixAt(i,tileMatrix);
   }
   stones.instanceMatrix.needsUpdate=true;scene.add(stones);
@@ -51,6 +53,16 @@ export function buildGarden(scene: THREE.Scene): void {
   // Layered eaves and ridge hint at a Suzhou-style roof while retaining low geometry cost.
   box(9.6,.16,6.6,-8,3.1,-10,roof);
   box(9.1,.18,.26,-8,3.68,-10,roof);
+  // Two shallow sloping roof planes with a visible ridge; purely decorative.
+  const roofPlane=new THREE.BoxGeometry(4.8,.13,6.7);
+  for(const side of [-1,1]){
+    const slope=new THREE.Mesh(roofPlane,roof);
+    slope.rotation.z=side*.19;
+    slope.position.set(-8+side*2.35,3.68,-10);
+    scene.add(slope);
+  }
+  // Front facade retains the original doorway and adds fine lattice bays.
+  for(const x of [-11.4,-10.8,-5.2,-4.6])box(.065,1.35,.08,x,1.55,-12.43,timber);
   const lattice=new THREE.MeshStandardMaterial({color:'#92765b',roughness:1});
   for(const x of [-11.2,-10.3,-9.4,-8.5,-7.6,-6.7,-5.8])box(.055,1.65,.07,x,1.65,-12.35,lattice);
   box(6.6,.065,.08,-8,2.45,-12.35,lattice);
@@ -62,6 +74,20 @@ export function buildGarden(scene: THREE.Scene): void {
   pond.rotation.x=-Math.PI/2;pond.scale.set(8.3,5.2,1);pond.position.set(9,.045,0);scene.add(pond);
   const bay=new THREE.Mesh(new THREE.CircleGeometry(1,48),water);
   bay.rotation.x=-Math.PI/2;bay.scale.set(3.5,3.1,1);bay.position.set(7,.046,-4);scene.add(bay);
+  // Irregular shoreline stones stay decorative and outside the existing path/collision logic.
+  const bankStone=new THREE.MeshStandardMaterial({color:'#a6a99b',roughness:1,flatShading:true});
+  const bankGeometry=new THREE.DodecahedronGeometry(1,0);
+  const bank=new THREE.InstancedMesh(bankGeometry,bankStone,24);
+  const bankMatrix=new THREE.Matrix4();
+  const bankTransform=new THREE.Object3D();
+  for(let i=0;i<24;i++){
+    const a=i*Math.PI*2/24;
+    bankTransform.position.set(9+Math.cos(a)*8.4,.02,Math.sin(a)*5.35);
+    bankTransform.rotation.set(0,a,0);
+    bankTransform.scale.set(.35+(i%3)*.08,.13,.24+(i%4)*.04);
+    bankTransform.updateMatrix();bank.setMatrixAt(i,bankTransform.matrix);
+  }
+  bank.instanceMatrix.needsUpdate=true;scene.add(bank);
   // Thin static ripples are decorative and do not alter pond collision boundaries.
   const rippleGeometry=new THREE.RingGeometry(.52,.55,32);
   for(const [x,z,s] of [[5,-1,1],[11,-2,1.35],[13,3,.85],[6,-4,.6]]){
@@ -100,24 +126,11 @@ export function buildGarden(scene: THREE.Scene): void {
   box(5.6,.12,5.6,16,2.91,-11,roof);
   box(5.0,.17,.22,16,3.43,-11,roof);
   // Bamboo stand-in, placed outside the main north/south corridor.
-  const trunk=new THREE.MeshStandardMaterial({color:'#7c9475'});
   const bambooPositions: Array<{x:number;z:number;h:number}> = [];
   for(let i=0;i<34;i++){
     const x=-18+(i*7%13),z=-13+(i*11%25);
     if(x>-12 && x<-4 && z<-7)continue;
     bambooPositions.push({x,z,h:3.5+(i%5)*.45});
   }
-  const stems=new THREE.InstancedMesh(new THREE.CylinderGeometry(.08,.11,1,6),trunk,bambooPositions.length);
-  const crowns=new THREE.InstancedMesh(new THREE.ConeGeometry(.8,2.0,7),leaf,bambooPositions.length);
-  const leafTips=new THREE.MeshStandardMaterial({color:'#789486',roughness:1,flatShading:true});
-  const upperCrowns=new THREE.InstancedMesh(new THREE.ConeGeometry(.5,1.5,7),leafTips,bambooPositions.length);
-  bambooPositions.forEach(({x,z,h},i)=>{
-    transform.position.set(x,h/2,z);transform.scale.set(1,h,1);transform.updateMatrix();stems.setMatrixAt(i,transform.matrix);
-    transform.position.set(x,h+.45,z);transform.scale.set(1,1,1);transform.updateMatrix();crowns.setMatrixAt(i,transform.matrix);
-    transform.position.set(x,h+1.4,z);transform.updateMatrix();upperCrowns.setMatrixAt(i,transform.matrix);
-  });
-  stems.instanceMatrix.needsUpdate=true;
-  crowns.instanceMatrix.needsUpdate=true;
-  upperCrowns.instanceMatrix.needsUpdate=true;
-  scene.add(stems,crowns,upperCrowns);
+  addBambooGrove(scene,bambooPositions);
 }
