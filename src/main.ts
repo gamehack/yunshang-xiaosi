@@ -63,7 +63,7 @@ const marker = new THREE.Mesh(new THREE.CapsuleGeometry(0.42, 1.05, 4, 8), new T
 marker.position.set(0, 1, 8);
 scene.add(marker);
 
-const walking = new WalkController(marker, camera, renderer);
+const walking = new WalkController(marker, camera, renderer, scene);
 stopButton.addEventListener('click',()=>walking.stop());
 const saved=readGuestSave();
 let seated=false;
