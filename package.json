@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run"
   },
   "dependencies": {
     "three": "^0.180.0"
@@ -14,6 +15,7 @@
   "devDependencies": {
     "typescript": "^5.9.3",
     "vite": "^7.1.12",
-    "@types/three": "^0.180.0"
+    "@types/three": "^0.180.0",
+    "vitest": "^3.2.4"
   }
 }
