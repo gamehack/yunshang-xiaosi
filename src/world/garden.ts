@@ -9,6 +9,7 @@ export function buildGarden(scene: THREE.Scene): void {
   const leaf = new THREE.MeshStandardMaterial({color:'#668477',roughness:1});
   const water = new THREE.MeshStandardMaterial({color:'#729f9b',roughness:0.45});
   const earth = new THREE.MeshStandardMaterial({color:'#b3bea7',roughness:1});
+  const paving=new THREE.MeshStandardMaterial({color:'#d5cbb8',roughness:1});
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(42,36),earth);
   floor.rotation.x=-Math.PI/2;scene.add(floor);
   const box=(w:number,h:number,d:number,x:number,y:number,z:number,m:THREE.Material)=>{
@@ -20,6 +21,16 @@ export function buildGarden(scene: THREE.Scene): void {
   walk(-12,0,2.5,27);walk(18,0,2.5,27);
   walk(-6,-14,13,2.6);walk(7,-14,15,2.6);
   walk(-6,11,13,2);walk(7,11,15,2);
+  // Inset paving stones break up the uninterrupted walkway without altering collisions.
+  const tile=new THREE.BoxGeometry(.95,.018,.66);
+  const stones=new THREE.InstancedMesh(tile,paving,48);
+  const tileMatrix=new THREE.Matrix4();
+  for(let i=0;i<48;i++){
+    const col=i%2,row=Math.floor(i/2);
+    tileMatrix.makeTranslation(-.53+col*1.06,.055,15-row*1.18);
+    stones.setMatrixAt(i,tileMatrix);
+  }
+  stones.instanceMatrix.needsUpdate=true;scene.add(stones);
   // White walls with gaps; these are visual-only until mesh-derived collision is implemented.
   for(const z of [-16.5,16.5]){
     box(16,2.8,.35,-12,1.4,z,white);box(16,2.8,.35,12,1.4,z,white);
