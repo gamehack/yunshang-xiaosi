@@ -9,13 +9,24 @@ import './style.css';
 
 const root = document.querySelector<HTMLDivElement>('#app');
 if (!root) throw new Error('Missing #app');
-root.innerHTML = '<div id="hud"><strong>半日闲 · M0.8 园林漫游</strong><span>电脑：WASD / 方向键移动 · Esc 停止 · 拖动旋转 · 滚轮缩放<br>手机：轻点行走 · 停止行走按钮 · 拖动旋转 · 双指缩放</span><span id="metrics">初始化中…</span><button id="seat" type="button" hidden>坐下</button><button id="reset" type="button">回到入口</button><button id="stop" type="button" aria-label="停止当前自动行走" hidden>停止行走</button><button id="quality" type="button">画质：均衡</button></div><div id="scene"></div>';
+root.innerHTML = '<div id="hud"><div class="hud-heading"><strong>半日闲 · M0.9 园林漫游</strong><button id="hud-toggle" type="button" aria-expanded="true" aria-controls="hud-details" aria-label="收起操作面板">收起</button></div><div id="hud-details"><span>电脑：WASD / 方向键移动 · Esc 停止 · 拖动旋转 · 滚轮缩放<br>手机：轻点行走 · 停止行走按钮 · 拖动旋转 · 双指缩放</span><span id="metrics">初始化中…</span><button id="seat" type="button" hidden>坐下</button><button id="reset" type="button">回到入口</button><button id="stop" type="button" aria-label="停止当前自动行走" hidden>停止行走</button><button id="quality" type="button">画质：均衡</button></div></div><div id="scene"></div>';
 const mount = document.querySelector<HTMLDivElement>('#scene')!;
 const metrics = document.querySelector<HTMLSpanElement>('#metrics')!;
 const seatButton = document.querySelector<HTMLButtonElement>('#seat')!;
 const resetButton = document.querySelector<HTMLButtonElement>('#reset')!;
 const stopButton = document.querySelector<HTMLButtonElement>('#stop')!;
 const qualityButton = document.querySelector<HTMLButtonElement>('#quality')!;
+const hudToggle = document.querySelector<HTMLButtonElement>('#hud-toggle')!;
+const hudDetails = document.querySelector<HTMLDivElement>('#hud-details')!;
+let hudCollapsed = window.matchMedia('(max-width: 600px)').matches;
+function updateHud(){
+  hudDetails.hidden=hudCollapsed;
+  hudToggle.textContent=hudCollapsed?'展开':'收起';
+  hudToggle.setAttribute('aria-expanded',String(!hudCollapsed));
+  hudToggle.setAttribute('aria-label',hudCollapsed?'展开操作面板':'收起操作面板');
+}
+hudToggle.addEventListener('click',()=>{hudCollapsed=!hudCollapsed;updateHud();});
+updateHud();
 function safeStorage(): Storage | undefined {
   try { return window.localStorage; } catch { return undefined; }
 }
