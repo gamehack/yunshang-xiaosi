@@ -86,6 +86,8 @@ export class WalkController {
   private raycaster = new THREE.Raycaster();
   private cameraRaycaster = new THREE.Raycaster();
   private cameraOccluders: THREE.Object3D[] = [];
+  private foliage: THREE.InstancedMesh[] = [];
+  private readonly foliageFadeDistance = 3.2;
   private pointer = new THREE.Vector2();
   private ground = new THREE.Plane(new THREE.Vector3(0,1,0),0);
   private target = new THREE.Vector3();
@@ -154,7 +156,10 @@ export class WalkController {
     this.distance=THREE.MathUtils.clamp(this.distance+Math.sign(e.deltaY)*.8,5,19);
   };
   constructor(private avatar: THREE.Object3D, private camera: THREE.PerspectiveCamera, private renderer: THREE.WebGLRenderer, scene?: THREE.Scene) {
-    if(scene)scene.traverse(o=>{if(o.userData.cameraOccluder)this.cameraOccluders.push(o);});
+    if(scene)scene.traverse(o=>{
+      if(o.userData.cameraOccluder)this.cameraOccluders.push(o);
+      if(o instanceof THREE.InstancedMesh && o.userData.cameraFoliage)this.foliage.push(o);
+    });
     window.addEventListener('keydown',this.onDown);
     window.addEventListener('keyup',this.onUp);
     window.addEventListener('blur',this.onBlur);
@@ -206,6 +211,21 @@ export class WalkController {
     const inward=desired.distanceTo(focus)<this.camera.position.distanceTo(focus);
     this.camera.position.lerp(desired,inward?1:Math.min(1,dt*7));
     this.camera.lookAt(focus);
+    // Fade nearby bamboo leaves only when the camera approaches their grove.
+    // Materials are unique to each grove and not shared with structural geometry.
+    for(const grove of this.foliage){
+      const material=grove.material;
+      if(!(material instanceof THREE.MeshStandardMaterial))continue;
+      const center=grove.userData.groveCenter as THREE.Vector3 | undefined;
+      const radius=grove.userData.groveRadius as number | undefined;
+      if(!center || radius===undefined)continue;
+      const horizontal=Math.hypot(this.camera.position.x-center.x,this.camera.position.z-center.z);
+      const proximity=Math.max(0,horizontal-radius);
+      const opacity=THREE.MathUtils.smoothstep(proximity,0,this.foliageFadeDistance);
+      material.transparent=opacity<.995;
+      material.opacity=Math.max(.18,opacity);
+      material.depthWrite=opacity>=.995;
+    }
   }
   private move(delta: THREE.Vector3) {
     const p=this.avatar.position;
