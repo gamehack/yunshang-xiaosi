@@ -76,6 +76,12 @@ try{
  assert.deepEqual(errors,[]);assert.deepEqual(requests,[]);
  console.log(JSON.stringify({checks,errors,requests,metrics:await page.locator('#metrics').textContent()}));
  await writeFile(`${out}/report.json`,JSON.stringify({date:new Date().toISOString(),browser:browser.version(),viewport:'1280x720',dpr:1,renderer:'Chromium SwiftShader software (not real PC performance)',checks,errors,requests,metrics:await page.locator('#metrics').textContent()},null,2));
+}catch(error){
+ const diagnostic={lastPassed:checks,errors,requests,error:String(error),stack:error.stack};
+ await writeFile(`${out}/failure.json`,JSON.stringify(diagnostic,null,2));
+ await page.screenshot({path:`${out}/failure.png`}).catch(()=>{});
+ console.error('::error title=PC browser regression::'+JSON.stringify(diagnostic).replaceAll('%','%25').replaceAll('\n','%0A').replaceAll('\r','%0D'));
+ throw error;
 }finally{await browser.close();}
 // A real WebGL-disabled browser must show a comprehensible fallback without an unhandled exception.
 const unsupported=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||(existsSync('/usr/bin/chromium')?'/usr/bin/chromium':chromium.executablePath()),args:['--no-sandbox','--disable-webgl']});
@@ -85,4 +91,4 @@ try{
  await p.screenshot({path:`${out}/10-webgl-unavailable.png`});
  console.log('WebGL-disabled initialization fallback passed');
  await writeFile(`${out}/fallback.json`,JSON.stringify({check:'WebGL-disabled initialization fallback',passed:true,errors:failures},null,2));
-}catch(error){throw error;}finally{await unsupported.close();}
+}catch(error){console.error('::error title=WebGL fallback::'+String(error));throw error;}finally{await unsupported.close();}
