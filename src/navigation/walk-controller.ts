@@ -72,7 +72,7 @@ export function findPath(from: THREE.Vector3, to: THREE.Vector3): THREE.Vector3[
 export class WalkController {
   private keys = new Set<string>();
   private seated = false;
-  setSeated(value: boolean) { this.seated = value; this.route = []; this.keys.clear(); }
+  setSeated(value: boolean) { this.seated = value; this.stop(); }
   getViewState() { return { yaw:this.yaw, pitch:this.pitch, distance:this.distance }; }
   restoreViewState(v:{yaw:number;pitch:number;distance:number}) {
     if(Number.isFinite(v.yaw)) this.yaw=v.yaw;
@@ -80,6 +80,8 @@ export class WalkController {
     if(Number.isFinite(v.distance)) this.distance=THREE.MathUtils.clamp(v.distance,5,19);
   }
   private route: THREE.Vector3[] = [];
+  get isMoving(): boolean { return this.route.length > 0; }
+  stop(): void { this.route = []; this.keys.clear(); }
   private raycaster = new THREE.Raycaster();
   private pointer = new THREE.Vector2();
   private ground = new THREE.Plane(new THREE.Vector3(0,1,0),0);
