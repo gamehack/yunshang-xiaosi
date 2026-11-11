@@ -7,8 +7,9 @@ const HALF_Z = 17;
 const KEY = (c: Cell) => c.x + ',' + c.z;
 const blocked = (x: number, z: number): boolean =>
   Math.abs(x) > HALF_X || Math.abs(z) > HALF_Z ||
-  (x > 2 && x < 17 && z > -6 && z < 6) || // pond
-  (x > -13 && x < -3 && z > -14 && z < -7); // building
+  (((x-9)/8.3)**2 + (z/5.2)**2 < 1) || // main pond
+  (((x-7)/3.5)**2 + ((z+4)/3.1)**2 < 1) || // northern bay
+  (x > -12 && x < -4 && z > -12.5 && z < -7.5); // teahouse interior, pending doorway/NavMesh
 
 export function isWalkable(x: number, z: number): boolean {
   const radius = 0.48;
