@@ -95,19 +95,43 @@ stopButton.addEventListener('click',()=>walking.stop());
 const saved=readGuestSave();
 let seated=false;
 const seatSpots=[{x:-8,z:-10,standX:-8,standZ:-6.5},{x:0,z:-97,standX:0,standZ:-94}];
+let activeSeat:typeof seatSpots[number]|null=null;
+function nearestSeat(x:number,z:number,range=2.4){
+  return seatSpots.find(s=>Math.hypot(x-s.standX,z-s.standZ)<range)
+    ?? seatSpots.find(s=>Math.hypot(x-s.x,z-s.z)<range);
+}
+function snapToSeat(spot:typeof seatSpots[number]){
+  marker.position.set(spot.x,1,spot.z);
+  marker.rotation.y=Math.atan2(spot.standX-spot.x,spot.standZ-spot.z);
+}
+function standFromSeat(spot:typeof seatSpots[number]){
+  marker.position.set(spot.standX,1,spot.standZ);
+}
 if(saved){
   marker.position.set(saved.x,1,saved.z);
   walking.restoreViewState(saved);
-  seated=saved.seated;
+  activeSeat=saved.seated?nearestSeat(saved.x,saved.z,4):null;
+  seated=Boolean(activeSeat);
+  if(activeSeat)snapToSeat(activeSeat);
   walking.setSeated(seated);
   animateVisitor(marker,0,false,seated);
 }
-function nearbySeat(){return seatSpots.find(s=>Math.hypot(marker.position.x-s.standX,marker.position.z-s.standZ)<2.4);}
+function nearbySeat(){return nearestSeat(marker.position.x,marker.position.z);}
 function persist(){const v=walking.getViewState();writeGuestSave({version:1,x:marker.position.x,z:marker.position.z,seated,yaw:v.yaw,pitch:v.pitch,distance:v.distance,savedAt:Date.now()});}
 seatButton.addEventListener('click',()=>{
   const spot=nearbySeat();
   if(!spot && !seated)return;
-  seated=!seated;
+  if(seated){
+    seated=false;
+    if(activeSeat)standFromSeat(activeSeat);
+    activeSeat=null;
+  }else{
+    if(!spot)return;
+    walking.stop();
+    activeSeat=spot;
+    seated=true;
+    snapToSeat(spot);
+  }
   walking.setSeated(seated);
   animateVisitor(marker,0,false,seated);
   persist();
@@ -115,6 +139,7 @@ seatButton.addEventListener('click',()=>{
 resetButton.addEventListener('click',()=>{
   walking.stop();
   seated=false;
+  activeSeat=null;
   walking.setSeated(false);
   animateVisitor(marker,0,false,false);
   marker.position.set(0,1,8);
