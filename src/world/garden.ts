@@ -78,7 +78,6 @@ export function buildGarden(scene: THREE.Scene): void {
   const bankStone=new THREE.MeshStandardMaterial({color:'#a6a99b',roughness:1,flatShading:true});
   const bankGeometry=new THREE.DodecahedronGeometry(1,0);
   const bank=new THREE.InstancedMesh(bankGeometry,bankStone,24);
-  const bankMatrix=new THREE.Matrix4();
   const bankTransform=new THREE.Object3D();
   for(let i=0;i<24;i++){
     const a=i*Math.PI*2/24;
