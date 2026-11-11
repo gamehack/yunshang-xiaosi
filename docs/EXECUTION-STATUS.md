@@ -119,3 +119,11 @@
 - 后续报告归档提交不改变应用、测试或验收断言；其CI按当前develop的Actions核验。
 - main远端仍为 `b668659afbaa907c214fa69e6351686450697c3d`；未合并PR #27、未触发生产发布。没有需要逐项用户决策的代码阻塞。
 - 恢复后不要重复G0–G6；先核验远端HEAD/当前报告归档CI，再仅处理明确失败或集中体验反馈。
+
+## M2.1 视觉专项检查点
+- 唯一任务：M2-1-VISUAL-REMEDIATION，按V0→V4执行，不重做G0–G6。
+- V0基线：14b5ba6；工作区初始干净，develop远端相同；[Actions 43013275888](https://github.com/gamehack/yunshang-xiaosi/actions/runs/43013275888)成功。
+- V0真实Chromium基线完成：1920×1080、1366×768各14图，共28图；均衡、DPR1，含6主要场景、竹林近景、角色正侧背/行走/两坐姿；无pageerror/requestfailed。
+- before报告及相机/Draw Calls/三角形/实时读数存docs/evidence/m21/before，不用旧手机截图替代。
+- V1红测试已复现：前景竹竿不淡出、近镜头几何不清除、双臂与躯干分离、缺少前臂/手链。下一步实现仅局部遮挡处理与可见关节。
+- 禁止：不合并main、不发布生产、不改其他仓库。

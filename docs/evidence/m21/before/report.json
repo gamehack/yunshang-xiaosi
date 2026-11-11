@@ -1,0 +1,729 @@
+{
+  "stage": "before",
+  "browser": "156.0.8078.79",
+  "renderer": "SwiftShader software; not real PC performance",
+  "records": [
+    {
+      "name": "default",
+      "width": 1920,
+      "height": 1080,
+      "view": null,
+      "quality": "均衡",
+      "dpr": 1,
+      "camera": [
+        0,
+        6.6855788267213185,
+        17.998623246423737
+      ],
+      "fov": 62,
+      "avatar": [
+        0,
+        1,
+        8
+      ],
+      "drawCalls": 233,
+      "triangles": 61042,
+      "metrics": "FPS ≈ 4 · P95 766.7ms · Draw calls 233 · 三角形 61042"
+    },
+    {
+      "name": "gate",
+      "width": 1920,
+      "height": 1080,
+      "view": [
+        0.45,
+        0.65,
+        13
+      ],
+      "quality": "均衡",
+      "dpr": 1,
+      "camera": [
+        4.501497190231433,
+        9.967423274568514,
+        25.318807545234325
+      ],
+      "fov": 62,
+      "avatar": [
+        0,
+        1,
+        16
+      ],
+      "drawCalls": 222,
+      "triangles": 56722,
+      "metrics": "FPS ≈ 6 · P95 449.9ms · Draw calls 222 · 三角形 56722"
+    },
+    {
+      "name": "bamboo",
+      "width": 1920,
+      "height": 1080,
+      "view": [
+        0.8,
+        0.35,
+        11
+      ],
+      "quality": "均衡",
+      "dpr": 1,
+      "camera": [
+        7.412512109044632,
+        5.871875882009965,
+        -42.80086001219741
+      ],
+      "fov": 62,
+      "avatar": [
+        0,
+        1,
+        -50
+      ],
+      "drawCalls": 90,
+      "triangles": 35156,
+      "metrics": "FPS ≈ 6 · P95 366.6ms · Draw calls 90 · 三角形 35156"
+    },
+    {
+      "name": "bamboo-near",
+      "width": 1920,
+      "height": 1080,
+      "view": [
+        1.5707963267948966,
+        0.16,
+        7
+      ],
+      "quality": "均衡",
+      "dpr": 1,
+      "camera": [
+        6.910590983629389,
+        3.2152274462997217,
+        -50
+      ],
+      "fov": 62,
+      "avatar": [
+        0,
+        1,
+        -50
+      ],
+      "drawCalls": 63,
+      "triangles": 24436,
+      "metrics": "FPS ≈ 6 · P95 350.0ms · Draw calls 63 · 三角形 24436"
+    },
+    {
+      "name": "tea",
+      "width": 1920,
+      "height": 1080,
+      "view": [
+        0.7,
+        0.5,
+        11
+      ],
+      "quality": "均衡",
+      "dpr": 1,
+      "camera": [
+        2.218896292192582,
+        7.373680924646234,
+        0.38333382774853497
+      ],
+      "fov": 62,
+      "avatar": [
+        -4,
+        1,
+        -7
+      ],
+      "drawCalls": 180,
+      "triangles": 50526,
+      "metrics": "FPS ≈ 4 · P95 449.9ms · Draw calls 180 · 三角形 50526"
+    },
+    {
+      "name": "bridge",
+      "width": 1920,
+      "height": 1080,
+      "view": [
+        -1,
+        0.6,
+        11
+      ],
+      "quality": "均衡",
+      "dpr": 1,
+      "camera": [
+        -7.639455699425856,
+        8.311067207345388,
+        6.905238094358781
+      ],
+      "fov": 62,
+      "avatar": [
+        0,
+        1,
+        2
+      ],
+      "drawCalls": 140,
+      "triangles": 36434,
+      "metrics": "FPS ≈ 6 · P95 366.7ms · Draw calls 140 · 三角形 36434"
+    },
+    {
+      "name": "pond",
+      "width": 1920,
+      "height": 1080,
+      "view": [
+        1.5707963267948966,
+        0.65,
+        15
+      ],
+      "quality": "均衡",
+      "dpr": 1,
+      "camera": [
+        29.941256978235838,
+        11.177796086040592,
+        7.163907305623557e-16
+      ],
+      "fov": 62,
+      "avatar": [
+        18,
+        1,
+        0
+      ],
+      "drawCalls": 166,
+      "triangles": 29946,
+      "metrics": "FPS ≈ 7 · P95 316.7ms · Draw calls 166 · 三角形 29946"
+    },
+    {
+      "name": "lake",
+      "width": 1920,
+      "height": 1080,
+      "view": [
+        0,
+        0.3,
+        11
+      ],
+      "quality": "均衡",
+      "dpr": 1,
+      "camera": [
+        0,
+        5.650722273274735,
+        -83.49129861961833
+      ],
+      "fov": 62,
+      "avatar": [
+        0,
+        1.3,
+        -94
+      ],
+      "drawCalls": 29,
+      "triangles": 7028,
+      "metrics": "FPS ≈ 10 · P95 300.0ms · Draw calls 29 · 三角形 7028"
+    },
+    {
+      "name": "avatar-front",
+      "width": 1920,
+      "height": 1080,
+      "view": [
+        0,
+        0.18,
+        5
+      ],
+      "quality": "均衡",
+      "dpr": 1,
+      "camera": [
+        0,
+        2.9951478671291203,
+        12.919218463940608
+      ],
+      "fov": 62,
+      "avatar": [
+        0,
+        1,
+        8
+      ],
+      "drawCalls": 219,
+      "triangles": 59754,
+      "metrics": "FPS ≈ 5 · P95 433.3ms · Draw calls 219 · 三角形 59754"
+    },
+    {
+      "name": "avatar-side",
+      "width": 1920,
+      "height": 1080,
+      "view": [
+        1.5707963267948966,
+        0.18,
+        5
+      ],
+      "quality": "均衡",
+      "dpr": 1,
+      "camera": [
+        4.919218463940608,
+        2.9951478671291203,
+        8
+      ],
+      "fov": 62,
+      "avatar": [
+        0,
+        1,
+        8
+      ],
+      "drawCalls": 73,
+      "triangles": 14728,
+      "metrics": "FPS ≈ 8 · P95 299.9ms · Draw calls 73 · 三角形 14728"
+    },
+    {
+      "name": "avatar-back",
+      "width": 1920,
+      "height": 1080,
+      "view": [
+        3.141592653589793,
+        0.18,
+        5
+      ],
+      "quality": "均衡",
+      "dpr": 1,
+      "camera": [
+        6.024305146171424e-16,
+        2.9951478671291207,
+        3.0807815360593924
+      ],
+      "fov": 62,
+      "avatar": [
+        0,
+        1,
+        8
+      ],
+      "drawCalls": 42,
+      "triangles": 5832,
+      "metrics": "FPS ≈ 13 · P95 283.3ms · Draw calls 42 · 三角形 5832"
+    },
+    {
+      "name": "avatar-walk",
+      "width": 1920,
+      "height": 1080,
+      "view": [
+        0,
+        0.18,
+        5
+      ],
+      "quality": "均衡",
+      "dpr": 1,
+      "camera": [
+        0,
+        2.9951478671291207,
+        11.435868463940615
+      ],
+      "fov": 62,
+      "avatar": [
+        0,
+        1,
+        6.516650000000007
+      ],
+      "drawCalls": 216,
+      "triangles": 59658,
+      "metrics": "FPS ≈ 4 · P95 466.6ms · Draw calls 216 · 三角形 59658"
+    },
+    {
+      "name": "seat-tea",
+      "width": 1920,
+      "height": 1080,
+      "view": [
+        1.5707963267948966,
+        0.25,
+        5
+      ],
+      "quality": "均衡",
+      "dpr": 1,
+      "camera": [
+        -3.845331174027783,
+        2.891071999204882,
+        -8.3
+      ],
+      "fov": 62,
+      "avatar": [
+        -8,
+        0.7701148678376704,
+        -8.3
+      ],
+      "drawCalls": 83,
+      "triangles": 14266,
+      "metrics": "FPS ≈ 7 · P95 283.3ms · Draw calls 83 · 三角形 14266"
+    },
+    {
+      "name": "seat-lake",
+      "width": 1920,
+      "height": 1080,
+      "view": [
+        1.5707963267948966,
+        0.25,
+        5
+      ],
+      "quality": "均衡",
+      "dpr": 1,
+      "camera": [
+        4.844562108553224,
+        3.39205268921627,
+        -97
+      ],
+      "fov": 62,
+      "avatar": [
+        0,
+        1.0550243118565739,
+        -97
+      ],
+      "drawCalls": 34,
+      "triangles": 10028,
+      "metrics": "FPS ≈ 9 · P95 299.9ms · Draw calls 34 · 三角形 10028"
+    },
+    {
+      "name": "default",
+      "width": 1366,
+      "height": 768,
+      "view": null,
+      "quality": "均衡",
+      "dpr": 1,
+      "camera": [
+        0,
+        6.6855788267213185,
+        17.998623246423737
+      ],
+      "fov": 62,
+      "avatar": [
+        0,
+        1,
+        8
+      ],
+      "drawCalls": 233,
+      "triangles": 61042,
+      "metrics": "FPS ≈ 5 · P95 483.3ms · Draw calls 233 · 三角形 61042"
+    },
+    {
+      "name": "gate",
+      "width": 1366,
+      "height": 768,
+      "view": [
+        0.45,
+        0.65,
+        13
+      ],
+      "quality": "均衡",
+      "dpr": 1,
+      "camera": [
+        4.501497190231433,
+        9.967423274568514,
+        25.318807545234325
+      ],
+      "fov": 62,
+      "avatar": [
+        0,
+        1,
+        16
+      ],
+      "drawCalls": 222,
+      "triangles": 56722,
+      "metrics": "FPS ≈ 7 · P95 316.6ms · Draw calls 222 · 三角形 56722"
+    },
+    {
+      "name": "bamboo",
+      "width": 1366,
+      "height": 768,
+      "view": [
+        0.8,
+        0.35,
+        11
+      ],
+      "quality": "均衡",
+      "dpr": 1,
+      "camera": [
+        7.412512109044632,
+        5.871875882009965,
+        -42.80086001219741
+      ],
+      "fov": 62,
+      "avatar": [
+        0,
+        1,
+        -50
+      ],
+      "drawCalls": 90,
+      "triangles": 35156,
+      "metrics": "FPS ≈ 9 · P95 350.0ms · Draw calls 90 · 三角形 35156"
+    },
+    {
+      "name": "bamboo-near",
+      "width": 1366,
+      "height": 768,
+      "view": [
+        1.5707963267948966,
+        0.16,
+        7
+      ],
+      "quality": "均衡",
+      "dpr": 1,
+      "camera": [
+        6.910590983629389,
+        3.2152274462997217,
+        -50
+      ],
+      "fov": 62,
+      "avatar": [
+        0,
+        1,
+        -50
+      ],
+      "drawCalls": 63,
+      "triangles": 24436,
+      "metrics": "FPS ≈ 9 · P95 316.7ms · Draw calls 63 · 三角形 24436"
+    },
+    {
+      "name": "tea",
+      "width": 1366,
+      "height": 768,
+      "view": [
+        0.7,
+        0.5,
+        11
+      ],
+      "quality": "均衡",
+      "dpr": 1,
+      "camera": [
+        2.218896292192582,
+        7.373680924646234,
+        0.38333382774853497
+      ],
+      "fov": 62,
+      "avatar": [
+        -4,
+        1,
+        -7
+      ],
+      "drawCalls": 180,
+      "triangles": 50526,
+      "metrics": "FPS ≈ 7 · P95 316.7ms · Draw calls 180 · 三角形 50526"
+    },
+    {
+      "name": "bridge",
+      "width": 1366,
+      "height": 768,
+      "view": [
+        -1,
+        0.6,
+        11
+      ],
+      "quality": "均衡",
+      "dpr": 1,
+      "camera": [
+        -7.639455699425856,
+        8.311067207345388,
+        6.905238094358781
+      ],
+      "fov": 62,
+      "avatar": [
+        0,
+        1,
+        2
+      ],
+      "drawCalls": 140,
+      "triangles": 36434,
+      "metrics": "FPS ≈ 8 · P95 349.9ms · Draw calls 140 · 三角形 36434"
+    },
+    {
+      "name": "pond",
+      "width": 1366,
+      "height": 768,
+      "view": [
+        1.5707963267948966,
+        0.65,
+        15
+      ],
+      "quality": "均衡",
+      "dpr": 1,
+      "camera": [
+        29.941256978235838,
+        11.177796086040592,
+        7.266174260312514e-16
+      ],
+      "fov": 62,
+      "avatar": [
+        18,
+        1,
+        0
+      ],
+      "drawCalls": 166,
+      "triangles": 29946,
+      "metrics": "FPS ≈ 11 · P95 316.7ms · Draw calls 166 · 三角形 29946"
+    },
+    {
+      "name": "lake",
+      "width": 1366,
+      "height": 768,
+      "view": [
+        0,
+        0.3,
+        11
+      ],
+      "quality": "均衡",
+      "dpr": 1,
+      "camera": [
+        0,
+        5.650722273274735,
+        -83.49129861961833
+      ],
+      "fov": 62,
+      "avatar": [
+        0,
+        1.3,
+        -94
+      ],
+      "drawCalls": 29,
+      "triangles": 7028,
+      "metrics": "FPS ≈ 17 · P95 216.6ms · Draw calls 29 · 三角形 7028"
+    },
+    {
+      "name": "avatar-front",
+      "width": 1366,
+      "height": 768,
+      "view": [
+        0,
+        0.18,
+        5
+      ],
+      "quality": "均衡",
+      "dpr": 1,
+      "camera": [
+        0,
+        2.9951478671291203,
+        12.919218463940608
+      ],
+      "fov": 62,
+      "avatar": [
+        0,
+        1,
+        8
+      ],
+      "drawCalls": 219,
+      "triangles": 59754,
+      "metrics": "FPS ≈ 6 · P95 350.0ms · Draw calls 219 · 三角形 59754"
+    },
+    {
+      "name": "avatar-side",
+      "width": 1366,
+      "height": 768,
+      "view": [
+        1.5707963267948966,
+        0.18,
+        5
+      ],
+      "quality": "均衡",
+      "dpr": 1,
+      "camera": [
+        4.919218463940608,
+        2.9951478671291203,
+        8
+      ],
+      "fov": 62,
+      "avatar": [
+        0,
+        1,
+        8
+      ],
+      "drawCalls": 73,
+      "triangles": 14728,
+      "metrics": "FPS ≈ 12 · P95 283.3ms · Draw calls 73 · 三角形 14728"
+    },
+    {
+      "name": "avatar-back",
+      "width": 1366,
+      "height": 768,
+      "view": [
+        3.141592653589793,
+        0.18,
+        5
+      ],
+      "quality": "均衡",
+      "dpr": 1,
+      "camera": [
+        6.024305146171424e-16,
+        2.9951478671291207,
+        3.0807815360593924
+      ],
+      "fov": 62,
+      "avatar": [
+        0,
+        1,
+        8
+      ],
+      "drawCalls": 42,
+      "triangles": 5832,
+      "metrics": "FPS ≈ 20 · P95 233.3ms · Draw calls 42 · 三角形 5832"
+    },
+    {
+      "name": "avatar-walk",
+      "width": 1366,
+      "height": 768,
+      "view": [
+        0,
+        0.18,
+        5
+      ],
+      "quality": "均衡",
+      "dpr": 1,
+      "camera": [
+        0,
+        2.9951478671291207,
+        11.286708463936927
+      ],
+      "fov": 62,
+      "avatar": [
+        0,
+        1,
+        6.3674899999963195
+      ],
+      "drawCalls": 216,
+      "triangles": 59658,
+      "metrics": "FPS ≈ 5 · P95 466.7ms · Draw calls 216 · 三角形 59658"
+    },
+    {
+      "name": "seat-tea",
+      "width": 1366,
+      "height": 768,
+      "view": [
+        1.5707963267948966,
+        0.25,
+        5
+      ],
+      "quality": "均衡",
+      "dpr": 1,
+      "camera": [
+        -3.8447014155218935,
+        2.8909508841513305,
+        -8.3
+      ],
+      "fov": 62,
+      "avatar": [
+        -8,
+        0.7701042198430195,
+        -8.3
+      ],
+      "drawCalls": 83,
+      "triangles": 14266,
+      "metrics": "FPS ≈ 11 · P95 183.3ms · Draw calls 83 · 三角形 14266"
+    },
+    {
+      "name": "seat-lake",
+      "width": 1366,
+      "height": 768,
+      "view": [
+        1.5707963267948966,
+        0.25,
+        5
+      ],
+      "quality": "均衡",
+      "dpr": 1,
+      "camera": [
+        4.844562108553224,
+        3.3920488698612843,
+        -97
+      ],
+      "fov": 62,
+      "avatar": [
+        0,
+        1.0550233644621447,
+        -97
+      ],
+      "drawCalls": 34,
+      "triangles": 10028,
+      "metrics": "FPS ≈ 18 · P95 166.6ms · Draw calls 34 · 三角形 10028"
+    }
+  ],
+  "errors": [],
+  "requests": []
+}
