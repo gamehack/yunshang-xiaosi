@@ -27,10 +27,12 @@ export function createVisitor(): THREE.Group {
 export function animateVisitor(visitor:THREE.Group, time:number, moving:boolean, seated:boolean):void {
   const limbs=visitor.userData.limbs as {leftLeg:THREE.Mesh;rightLeg:THREE.Mesh;leftArm:THREE.Mesh;rightArm:THREE.Mesh;body:THREE.Mesh};
   const swing=moving&&!seated?Math.sin(time*9)*.4:0;
-  limbs.leftLeg.rotation.x=swing;
-  limbs.rightLeg.rotation.x=-swing;
-  limbs.leftArm.rotation.x=-swing*.65;
-  limbs.rightArm.rotation.x=swing*.65;
-  limbs.body.position.y=.1+(moving&&!seated?Math.abs(Math.sin(time*9))*.025:Math.sin(time*1.5)*.009);
-  visitor.scale.y=seated?.72:1;
+  // Sitting bends the legs forward and rests the arms, rather than flattening the whole model.
+  limbs.leftLeg.rotation.x=seated?-Math.PI*.43:swing;
+  limbs.rightLeg.rotation.x=seated?-Math.PI*.43:-swing;
+  limbs.leftArm.rotation.x=seated?-.3:-swing*.65;
+  limbs.rightArm.rotation.x=seated?-.3:swing*.65;
+  limbs.body.position.y=.1+(seated?0:moving?Math.abs(Math.sin(time*9))*.025:Math.sin(time*1.5)*.009);
+  visitor.position.y=seated?.69:1;
+  visitor.scale.y=1;
 }
