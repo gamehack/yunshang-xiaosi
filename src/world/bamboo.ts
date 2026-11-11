@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {installFoliageView} from './foliage-view';
 
 /** Lightweight bamboo: segmented culms and thin lanceolate leaves, shared across garden/exterior. */
 export function addBambooGrove(scene: THREE.Scene, positions: Array<{x:number;z:number;h:number}>): void {
@@ -19,6 +20,7 @@ function addBambooCell(scene: THREE.Scene, positions: Array<{x:number;z:number;h
   const stemMaterial=new THREE.MeshStandardMaterial({color:'#66896a',roughness:1});
   const leafMaterial=new THREE.MeshStandardMaterial({color:'#547e62',roughness:1,side:THREE.DoubleSide,flatShading:true});
   const nodeMaterial=new THREE.MeshStandardMaterial({color:'#426d50',roughness:1});
+  for(const material of [stemMaterial,leafMaterial,nodeMaterial])installFoliageView(material);
   const stemGeometry=new THREE.CylinderGeometry(.055,.075,1,6);
   const nodeGeometry=new THREE.CylinderGeometry(.083,.083,.035,6);
   const leafGeometry=new THREE.BufferGeometry();

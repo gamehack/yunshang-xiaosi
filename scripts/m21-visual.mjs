@@ -16,7 +16,7 @@ try{
  for(const [width,height] of [[1920,1080],[1366,768]]){
   const folder=`${out}/${width}x${height}`;await mkdir(folder,{recursive:true});
   const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});
-  page.on('pageerror',error=>errors.push(error.message));page.on('requestfailed',request=>requests.push({url:request.url(),error:request.failure()?.errorText}));
+  page.on('pageerror',error=>errors.push(error.message));page.on('console',message=>{if(message.type()==='error')errors.push(message.text());});page.on('requestfailed',request=>requests.push({url:request.url(),error:request.failure()?.errorText}));
   await page.addInitScript(()=>{
    window.__THREE_DEVTOOLS__=new EventTarget();
    window.__THREE_DEVTOOLS__.addEventListener('observe',event=>{
@@ -28,6 +28,7 @@ try{
   });
   await page.goto(process.env.TEST_URL||'http://127.0.0.1:5173');await waitForSceneReady(page,90000);
   for(const [name,x,z,view] of scenarios){
+   if(process.env.VISUAL_SCENES && !process.env.VISUAL_SCENES.split(',').includes(name))continue;
    await page.evaluate(({x,z,view})=>{if(view)sessionStorage.setItem('m21-fixture',JSON.stringify({version:1,x,z,seated:false,yaw:view[0],pitch:view[1],distance:view[2],savedAt:Date.now()}));else sessionStorage.removeItem('m21-fixture');},{x,z,view});
    await page.goto(process.env.TEST_URL||'http://127.0.0.1:5173');await waitForSceneReady(page,90000);
    if(name.startsWith('seat-')){
@@ -39,8 +40,9 @@ try{
    if(name==='avatar-walk')await page.keyboard.up('w');
    const details=await page.evaluate(()=>{
     const avatar=window.__scene.children.find(object=>object.userData.limbs);
-    return {camera:window.__camera.position.toArray(),fov:window.__camera.fov,avatar:avatar.position.toArray(),drawCalls:window.__renderer.info.render.calls,triangles:window.__renderer.info.render.triangles,metrics:document.querySelector('#metrics').textContent};
+    return {camera:window.__camera.position.toArray(),fov:window.__camera.fov,avatar:avatar.position.toArray(),drawCalls:window.__renderer.info.render.calls,triangles:window.__renderer.info.render.triangles,glError:window.__renderer.getContext().getError(),metrics:document.querySelector('#metrics').textContent};
    });
+   if(details.glError!==0)errors.push(`${name}: WebGL error ${details.glError}`);
    records.push({name,width,height,view,quality:'均衡',dpr:1,...details});
    console.log(`${stage} ${width}x${height} ${name}: ${details.drawCalls} calls / ${details.triangles} triangles`);
   }

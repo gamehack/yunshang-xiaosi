@@ -5,7 +5,7 @@ import { walkSurfaceHeight } from '../world/layout';
 const HIP_Y=-.08, UPPER_LEG=.42, LOWER_LEG=.42, FOOT_HEIGHT=.08;
 const PELVIS_HALF_HEIGHT=.1;
 const SEAT_ROOT_OFFSET=-HIP_Y+PELVIS_HALF_HEIGHT;
-type Limbs={leftLeg:THREE.Group;rightLeg:THREE.Group;leftKnee:THREE.Group;rightKnee:THREE.Group;leftFoot:THREE.Mesh;rightFoot:THREE.Mesh;leftArm:THREE.Mesh;rightArm:THREE.Mesh;body:THREE.Mesh;pelvis:THREE.Mesh};
+type Limbs={leftLeg:THREE.Group;rightLeg:THREE.Group;leftKnee:THREE.Group;rightKnee:THREE.Group;leftFoot:THREE.Mesh;rightFoot:THREE.Mesh;leftArm:THREE.Group;rightArm:THREE.Group;leftElbow:THREE.Group;rightElbow:THREE.Group;leftHand:THREE.Mesh;rightHand:THREE.Mesh;body:THREE.Mesh;pelvis:THREE.Mesh};
 
 /** Lightweight stylized visitor. Local +Z is the face and seated knee direction. */
 export function createVisitor(): THREE.Group {
@@ -25,20 +25,40 @@ export function createVisitor(): THREE.Group {
   const upperGeometry=new THREE.CapsuleGeometry(.085,UPPER_LEG-.17,3,6);
   const lowerGeometry=new THREE.CapsuleGeometry(.075,LOWER_LEG-.15,3,6);
   const footGeometry=new THREE.BoxGeometry(.18,FOOT_HEIGHT,.28);
+  const jointGeometry=new THREE.SphereGeometry(.09,8,6);
   const leg=(x:number)=>{
     const hip=new THREE.Group(),knee=new THREE.Group();
     hip.position.set(x,HIP_Y,0);visitor.add(hip);
+    hip.add(new THREE.Mesh(jointGeometry,trousers));
     const thigh=new THREE.Mesh(upperGeometry,trousers);thigh.position.y=-UPPER_LEG/2;hip.add(thigh);
     knee.position.y=-UPPER_LEG;hip.add(knee);
+    knee.add(new THREE.Mesh(jointGeometry,trousers));
     const shin=new THREE.Mesh(lowerGeometry,trousers);shin.position.y=-LOWER_LEG/2;knee.add(shin);
+    const ankle=new THREE.Mesh(new THREE.CylinderGeometry(.055,.06,.12,6),trousers);ankle.position.y=-LOWER_LEG+.015;knee.add(ankle);
     const foot=new THREE.Mesh(footGeometry,trousers);foot.position.set(0,-LOWER_LEG-FOOT_HEIGHT/2,.05);knee.add(foot);
     return {hip,knee,foot};
   };
   const left=leg(-.17),right=leg(.17);
-  const armGeometry=new THREE.CapsuleGeometry(.085,.38,3,6);
-  const leftArm=new THREE.Mesh(armGeometry,coat),rightArm=new THREE.Mesh(armGeometry,coat);
-  leftArm.position.set(-.4,.2,0);rightArm.position.set(.4,.2,0);visitor.add(leftArm,rightArm);
-  visitor.userData.limbs={leftLeg:left.hip,rightLeg:right.hip,leftKnee:left.knee,rightKnee:right.knee,leftFoot:left.foot,rightFoot:right.foot,leftArm,rightArm,body,pelvis} satisfies Limbs;
+  const shoulderGeometry=new THREE.SphereGeometry(.115,8,6);
+  const upperArmGeometry=new THREE.CapsuleGeometry(.085,.13,3,6);
+  const forearmGeometry=new THREE.CapsuleGeometry(.073,.12,3,6);
+  const handGeometry=new THREE.SphereGeometry(.078,8,6);
+  const arm=(side:number)=>{
+    const root=new THREE.Group(),elbow=new THREE.Group();root.position.set(side*.29,.47,0);visitor.add(root);
+    root.add(new THREE.Mesh(shoulderGeometry,coat));
+    const upper=new THREE.Mesh(upperArmGeometry,coat);upper.position.y=-.15;root.add(upper);
+    elbow.position.y=-.29;root.add(elbow);elbow.add(new THREE.Mesh(jointGeometry,coat));
+    const forearm=new THREE.Mesh(forearmGeometry,coat);forearm.position.y=-.13;elbow.add(forearm);
+    const hand=new THREE.Mesh(handGeometry,skin);hand.position.y=-.30;elbow.add(hand);
+    return {root,elbow,hand};
+  };
+  const armLeft=arm(-1),armRight=arm(1);
+  const neck=new THREE.Mesh(new THREE.CylinderGeometry(.095,.10,.17,8),skin);neck.position.y=.74;visitor.add(neck);
+  const eyeMaterial=new THREE.MeshStandardMaterial({color:'#353a37',roughness:1});
+  const eyeGeometry=new THREE.SphereGeometry(.022,6,4);
+  for(const x of [-.078,.078]){const eye=new THREE.Mesh(eyeGeometry,eyeMaterial);eye.position.set(x,.92,.22);visitor.add(eye);}
+  const nose=new THREE.Mesh(new THREE.SphereGeometry(.045,6,4),skin);nose.scale.set(.65,.8,1);nose.position.set(0,.87,.24);visitor.add(nose);
+  visitor.userData.limbs={leftLeg:left.hip,rightLeg:right.hip,leftKnee:left.knee,rightKnee:right.knee,leftFoot:left.foot,rightFoot:right.foot,leftArm:armLeft.root,rightArm:armRight.root,leftElbow:armLeft.elbow,rightElbow:armRight.elbow,leftHand:armLeft.hand,rightHand:armRight.hand,body,pelvis} satisfies Limbs;
   visitor.userData.seatBlend=0;
   return visitor;
 }
@@ -80,6 +100,8 @@ export function animateVisitor(visitor:THREE.Group,time:number,moving:boolean,se
   }
   limbs.leftArm.rotation.x=THREE.MathUtils.lerp(-swing*.65,-.3,seatedBlend);
   limbs.rightArm.rotation.x=THREE.MathUtils.lerp(swing*.65,-.3,seatedBlend);
+  limbs.leftElbow.rotation.x=THREE.MathUtils.lerp(-.12,-.85,seatedBlend);
+  limbs.rightElbow.rotation.x=THREE.MathUtils.lerp(-.12,-.85,seatedBlend);
   const breathing=Number.isFinite(time)?Math.sin(time*1.5)*.009:0;
   limbs.body.position.y=.32+(1-seatedBlend)*(moving?Math.abs(swing)*.06:breathing);
   // During the blend the knees may not yet clear the floor: lift the root only as needed.

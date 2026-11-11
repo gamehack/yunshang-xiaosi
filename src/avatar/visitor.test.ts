@@ -95,3 +95,22 @@ describe('procedural visitor on real surfaces', () => {
     expect(visitor.rotation.y).toBeLessThan(Math.PI + .05);
   });
 });
+
+describe('M2.1 limb continuity',()=>{
+ it('connects shoulders to the coat instead of floating separate arm capsules',()=>{
+  const visitor=createVisitor();animateVisitor(visitor,0,false,false);visitor.updateMatrixWorld(true);
+  const body=new Box3().setFromObject(visitor.userData.limbs.body);
+  for(const side of ['left','right'])expect(body.intersectsBox(new Box3().setFromObject(visitor.userData.limbs[`${side}Arm`]))).toBe(true);
+ });
+ it('keeps forearms and hands in the articulated chain in standing and seated poses',()=>{
+  const visitor=createVisitor();visitor.position.set(SEATS[0].x,1,SEATS[0].z);
+  for(const seated of [false,true]){
+   settle(visitor,seated);visitor.updateMatrixWorld(true);
+   for(const side of ['left','right']){
+    const elbow=visitor.userData.limbs[`${side}Elbow`],hand=visitor.userData.limbs[`${side}Hand`];
+    expect(elbow).toBeDefined();expect(hand).toBeDefined();expect(hand.parent).toBe(elbow);
+    expect(new Box3().setFromObject(elbow).intersectsBox(new Box3().setFromObject(hand))).toBe(true);
+   }
+  }
+ });
+});
