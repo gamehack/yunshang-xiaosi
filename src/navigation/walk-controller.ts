@@ -84,6 +84,8 @@ export class WalkController {
   get isMoving(): boolean { return this.route.length > 0; }
   stop(): void { this.route = []; this.keys.clear(); }
   private raycaster = new THREE.Raycaster();
+  private cameraRaycaster = new THREE.Raycaster();
+  private cameraOccluders: THREE.Object3D[] = [];
   private pointer = new THREE.Vector2();
   private ground = new THREE.Plane(new THREE.Vector3(0,1,0),0);
   private target = new THREE.Vector3();
@@ -151,7 +153,8 @@ export class WalkController {
     e.preventDefault();
     this.distance=THREE.MathUtils.clamp(this.distance+Math.sign(e.deltaY)*.8,5,19);
   };
-  constructor(private avatar: THREE.Object3D, private camera: THREE.PerspectiveCamera, private renderer: THREE.WebGLRenderer) {
+  constructor(private avatar: THREE.Object3D, private camera: THREE.PerspectiveCamera, private renderer: THREE.WebGLRenderer, scene?: THREE.Scene) {
+    if(scene)scene.traverse(o=>{if(o.userData.cameraOccluder)this.cameraOccluders.push(o);});
     window.addEventListener('keydown',this.onDown);
     window.addEventListener('keyup',this.onUp);
     window.addEventListener('blur',this.onBlur);
@@ -185,9 +188,24 @@ export class WalkController {
       Math.sin(this.pitch)*this.distance+1.1,
       Math.cos(this.yaw)*Math.cos(this.pitch)*this.distance
     );
+    const focus=this.avatar.position.clone().add(new THREE.Vector3(0,.8,0));
     const desired=this.avatar.position.clone().add(offset);
-    this.camera.position.lerp(desired,Math.min(1,dt*7));
-    this.camera.lookAt(this.avatar.position.x,this.avatar.position.y+.8,this.avatar.position.z);
+    const direction=desired.clone().sub(focus);
+    const fullDistance=direction.length();
+    if(fullDistance>0 && this.cameraOccluders.length){
+      this.cameraRaycaster.set(focus,direction.normalize());
+      this.cameraRaycaster.near=.1;
+      this.cameraRaycaster.far=fullDistance;
+      const hit=this.cameraRaycaster.intersectObjects(this.cameraOccluders,false)[0];
+      if(hit){
+        const safeDistance=Math.max(.65,hit.distance-.35);
+        desired.copy(focus).addScaledVector(direction,safeDistance);
+      }
+    }
+    // Snap inward to avoid passing through a wall during interpolation; ease outward.
+    const inward=desired.distanceTo(focus)<this.camera.position.distanceTo(focus);
+    this.camera.position.lerp(desired,inward?1:Math.min(1,dt*7));
+    this.camera.lookAt(focus);
   }
   private move(delta: THREE.Vector3) {
     const p=this.avatar.position;
