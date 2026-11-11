@@ -14,7 +14,7 @@ export function buildGarden(scene: THREE.Scene): void {
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(42,36),earth);
   floor.rotation.x=-Math.PI/2;scene.add(floor);
   const box=(w:number,h:number,d:number,x:number,y:number,z:number,m:THREE.Material)=>{
-    const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);scene.add(o);return o;
+    const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);if(m===white||m===roof)o.userData.cameraOccluder=true;scene.add(o);return o;
   };
   const walk=(x:number,z:number,w:number,d:number)=>box(w,.035,d,x,.025,z,stone);
   // South entrance and the three court sequence; routes are deliberately open for M0 grid navigation.
@@ -66,6 +66,7 @@ export function buildGarden(scene: THREE.Scene): void {
     const slope=new THREE.Mesh(roofPlane,roof);
     slope.rotation.z=-side*.19;
     slope.position.set(-8+side*2.4,3.48,-10);
+    slope.userData.cameraOccluder=true;
     scene.add(slope);
   }
   box(9.8,.10,.16,-8,3.94,-10,roof);
