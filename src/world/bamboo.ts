@@ -3,6 +3,19 @@ import * as THREE from 'three';
 /** Lightweight bamboo: segmented culms and thin lanceolate leaves, shared across garden/exterior. */
 export function addBambooGrove(scene: THREE.Scene, positions: Array<{x:number;z:number;h:number}>): void {
   if (positions.length === 0) return;
+  // Partition long forests into camera-local batches; fading one batch must not hide all bamboo.
+  const cellSize=9;
+  const cells=new Map<string, typeof positions>();
+  for(const p of positions){
+    const key=`${Math.floor(p.x/cellSize)}:${Math.floor(p.z/cellSize)}`;
+    const cell=cells.get(key)??[];
+    cell.push(p);
+    cells.set(key,cell);
+  }
+  for(const cell of cells.values()) addBambooCell(scene,cell);
+}
+
+function addBambooCell(scene: THREE.Scene, positions: Array<{x:number;z:number;h:number}>): void {
   const stemMaterial=new THREE.MeshStandardMaterial({color:'#66896a',roughness:1});
   const leafMaterial=new THREE.MeshStandardMaterial({color:'#547e62',roughness:1,side:THREE.DoubleSide,flatShading:true});
   const nodeMaterial=new THREE.MeshStandardMaterial({color:'#426d50',roughness:1});
