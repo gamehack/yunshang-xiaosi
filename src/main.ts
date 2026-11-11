@@ -5,6 +5,7 @@ import { FrameStats } from './performance/frame-stats';
 import { buildExterior } from './world/exterior';
 import { buildGarden } from './world/garden';
 import { WalkController } from './navigation/walk-controller';
+import { SEATS, findNearbySeat, type SeatAnchor } from './navigation/seats';
 import { AmbientSound } from './audio/ambient';
 import { createVisitor, animateVisitor } from './avatar/visitor';
 import * as THREE from 'three';
@@ -94,17 +95,15 @@ const walking = new WalkController(marker, camera, renderer, scene);
 stopButton.addEventListener('click',()=>walking.stop());
 const saved=readGuestSave();
 let seated=false;
-const seatSpots=[{x:-8,z:-10,standX:-8,standZ:-6.5},{x:0,z:-97,standX:0,standZ:-94}];
-let activeSeat:typeof seatSpots[number]|null=null;
+let activeSeat:SeatAnchor|null=null;
 function nearestSeat(x:number,z:number,range=2.4){
-  return seatSpots.find(s=>Math.hypot(x-s.standX,z-s.standZ)<range)
-    ?? seatSpots.find(s=>Math.hypot(x-s.x,z-s.z)<range);
+  return findNearbySeat(SEATS,x,z,range);
 }
-function snapToSeat(spot:typeof seatSpots[number]){
+function snapToSeat(spot:SeatAnchor){
   marker.position.set(spot.x,1,spot.z);
   marker.rotation.y=Math.atan2(spot.standX-spot.x,spot.standZ-spot.z);
 }
-function standFromSeat(spot:typeof seatSpots[number]){
+function standFromSeat(spot:SeatAnchor){
   marker.position.set(spot.standX,1,spot.standZ);
 }
 if(saved){
