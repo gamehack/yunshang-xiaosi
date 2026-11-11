@@ -7,7 +7,8 @@ export function buildGarden(scene: THREE.Scene): void {
   const stone = new THREE.MeshStandardMaterial({color:'#c7bda9',roughness:1});
   const timber = new THREE.MeshStandardMaterial({color:'#765d48',roughness:1});
   const leaf = new THREE.MeshStandardMaterial({color:'#668477',roughness:1});
-  const water = new THREE.MeshStandardMaterial({color:'#729f9b',roughness:0.45});
+  const water = new THREE.MeshStandardMaterial({color:'#729f9b',roughness:0.45,metalness:.04});
+  const waterHighlight=new THREE.MeshBasicMaterial({color:'#b7d5c7',transparent:true,opacity:.38,depthWrite:false});
   const earth = new THREE.MeshStandardMaterial({color:'#b3bea7',roughness:1});
   const paving=new THREE.MeshStandardMaterial({color:'#d5cbb8',roughness:1});
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(42,36),earth);
@@ -61,6 +62,12 @@ export function buildGarden(scene: THREE.Scene): void {
   pond.rotation.x=-Math.PI/2;pond.scale.set(8.3,5.2,1);pond.position.set(9,.045,0);scene.add(pond);
   const bay=new THREE.Mesh(new THREE.CircleGeometry(1,48),water);
   bay.rotation.x=-Math.PI/2;bay.scale.set(3.5,3.1,1);bay.position.set(7,.046,-4);scene.add(bay);
+  // Thin static ripples are decorative and do not alter pond collision boundaries.
+  const rippleGeometry=new THREE.RingGeometry(.52,.55,32);
+  for(const [x,z,s] of [[5,-1,1],[11,-2,1.35],[13,3,.85],[6,-4,.6]]){
+    const ripple=new THREE.Mesh(rippleGeometry,waterHighlight);
+    ripple.rotation.x=-Math.PI/2;ripple.position.set(x,.065,z);ripple.scale.setScalar(s);scene.add(ripple);
+  }
   // M0.6 low crossing over the pond at z=2, with a clear 1.8m walking deck.
   const bridgeWood=new THREE.MeshStandardMaterial({color:'#9b8062',roughness:1});
   const plankPositions: number[] = [];
