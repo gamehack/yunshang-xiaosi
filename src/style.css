@@ -26,3 +26,7 @@
 #hud-details button{min-height:44px}
 .scene-error{display:grid;place-items:center;min-height:100%;padding:28px;color:#30483d;background:#e9e7df;text-align:center;font-size:15px;line-height:1.8}
 @media(max-width:600px){#hud{left:calc(8px + env(safe-area-inset-left,0px));max-width:calc(100vw - 16px - env(safe-area-inset-left,0px) - env(safe-area-inset-right,0px))}}
+
+#ambient{pointer-events:auto;align-self:flex-start;border:1px solid #80968a;border-radius:7px;background:rgba(250,251,246,.92);color:#31493e;padding:7px 12px;font-size:12px;cursor:pointer}
+#ambient:focus-visible{outline:2px solid #244d3e;outline-offset:2px}
+#ambient[disabled]{opacity:.6;cursor:wait}
