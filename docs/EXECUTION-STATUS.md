@@ -3,14 +3,14 @@
 更新：2026-11-11。此文件由云端 Codex 按每个开发批次持续更新。**本轮已执行开发与自动回归，证据以文末检查点为准；不代表用户最终验收或生产发布。**
 
 ## 当前检查点
-- 任务：G0 — 基线审计（尚未启动）
+- 任务：G6 — M2.0 RC 最终验证与交付
 - 工作分支：develop
 - 权威任务：docs/ROADMAP.md
 - 验收矩阵：docs/ACCEPTANCE.md
 - 发布：禁止自动合并 main 或触发 Cloudflare Pages 生产部署
-- 最近已核验 CI：旧提交 `1f6ad69fd9587af4a8777ecd42d6c28ec8fbebb9` 成功；最新 HEAD 尚未核验
-- 已知未验收：iPhone Chrome/Safari、PC Chrome/Edge 动态操作，实际 FPS/P95，视觉截图，合规
-- 阻塞：无已知需用户立即决策的产品事项；实际云端运行与工作区状态待 Codex 核验
+- 最近已核验 CI：`e918bac` / [42997507466](https://github.com/gamehack/yunshang-xiaosi/actions/runs/42997507466) 成功（88项测试与浏览器回归）
+- 已完成云端Chromium交互与11张截图；真实PC硬件FPS/P95、Edge/iPhone、听感/最终审美与合规仍待验收
+- 阻塞：无已知P0代码阻断；10分钟最终构建持续运行测试中，完成后补证据
 
 ## 每批次记录模板
 ### YYYY-MM-DD / Gx.y / 任务标题
@@ -65,3 +65,7 @@
 - 本地最终：14个测试文件、88项全部通过，构建和带main基准的文档门禁通过；`git diff --check`通过。
 - `39aaa60` 对应 [Actions 42997050159](https://github.com/gamehack/yunshang-xiaosi/actions/runs/42997050159) GitHub页面明确显示 Success；该次含87项单测与新增浏览器CI。
 - 本次只新增相机回归和证据/文档，未改变已浏览器验证的应用运行代码；推送后核验新提交。
+
+### 最终加严浏览器回归
+- 17类交互 + 1类独立无WebGL初始化检查通过，pageerror=0、requestfailed=0；证据已更新到 docs/evidence/rc1。
+- 追加验证：ArrowUp、停止按钮、真实音频上下文的可见性暂停、context恢复清除按住W的位置断言。

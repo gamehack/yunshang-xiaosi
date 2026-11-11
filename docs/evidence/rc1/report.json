@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-11T09:40:57.253Z",
+  "date": "2026-11-11T09:47:53.592Z",
   "browser": "156.0.8078.79",
   "viewport": "1280x720",
   "dpr": 1,
@@ -7,20 +7,23 @@
   "checks": [
     "initialization",
     "gesture-only audio toggle and volume",
+    "visibility handler suspends real audio context",
     "W movement",
+    "ArrowUp movement",
     "refresh resume",
     "mouse rotation",
     "wheel zoom",
     "ground click routing and Escape stop",
+    "stop button cancels routing",
     "reset",
     "courtyard to tea approach via real ground click",
     "tea sit, reload and stand",
     "lake sit, reload and stand",
     "quality cycle",
-    "WebGL loss and restoration",
+    "WebGL loss and restoration clears held movement",
     "denied storage fallback"
   ],
   "errors": [],
   "requests": [],
-  "metrics": "FPS ≈ 6 · P95 150.0ms · Draw calls 29 · 三角形 7028"
+  "metrics": "FPS ≈ 8 · P95 183.3ms · Draw calls 29 · 三角形 7028"
 }
