@@ -2,6 +2,7 @@ import * as THREE from 'three';
 
 /** Lightweight bamboo: segmented culms and thin lanceolate leaves, shared across garden/exterior. */
 export function addBambooGrove(scene: THREE.Scene, positions: Array<{x:number;z:number;h:number}>): void {
+  if (positions.length === 0) return;
   const stemMaterial=new THREE.MeshStandardMaterial({color:'#66896a',roughness:1});
   const leafMaterial=new THREE.MeshStandardMaterial({color:'#547e62',roughness:1,side:THREE.DoubleSide,flatShading:true});
   const nodeMaterial=new THREE.MeshStandardMaterial({color:'#426d50',roughness:1});
