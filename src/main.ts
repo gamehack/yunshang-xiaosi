@@ -1,4 +1,5 @@
 import { readGuestSave, writeGuestSave } from './persistence/guest-save';
+import { nextQuality, qualityPixelRatio, readQuality, writeQuality } from './performance/quality';
 import { buildExterior } from './world/exterior';
 import { buildGarden } from './world/garden';
 import { WalkController } from './navigation/walk-controller';
@@ -13,21 +14,19 @@ const metrics = document.querySelector<HTMLSpanElement>('#metrics')!;
 const seatButton = document.querySelector<HTMLButtonElement>('#seat')!;
 const resetButton = document.querySelector<HTMLButtonElement>('#reset')!;
 const qualityButton = document.querySelector<HTMLButtonElement>('#quality')!;
-type Quality = '省电' | '均衡' | '精细';
-const qualities: Quality[] = ['省电','均衡','精细'];
-let quality: Quality = '均衡';
+let quality = readQuality(window.localStorage);
 function applyQuality(){
-  const scale=quality==='省电'?1:quality==='均衡'?1.5:2;
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio,scale));
+  renderer.setPixelRatio(qualityPixelRatio(quality, window.devicePixelRatio));
   qualityButton.textContent=`画质：${quality}`;
   resize();
 }
 qualityButton.addEventListener('click',()=>{
-  quality=qualities[(qualities.indexOf(quality)+1)%qualities.length];
+  quality=nextQuality(quality);
+  writeQuality(quality, window.localStorage);
   applyQuality();
 });
 const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'default' });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+renderer.setPixelRatio(qualityPixelRatio(quality, window.devicePixelRatio));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.shadowMap.enabled = false;
 mount.appendChild(renderer.domElement);
@@ -92,6 +91,7 @@ function resize() {
 }
 window.addEventListener('resize', resize);
 resize();
+applyQuality();
 function tick(now: number) {
   raf = requestAnimationFrame(tick);
   walking.update(Math.min(clock.getDelta(), 0.05));
