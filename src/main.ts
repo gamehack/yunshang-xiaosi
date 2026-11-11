@@ -42,7 +42,13 @@ qualityButton.addEventListener('click',()=>{
   writeQuality(quality, safeStorage());
   applyQuality();
 });
-const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'default' });
+let renderer: THREE.WebGLRenderer;
+try {
+  renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'default' });
+} catch {
+  mount.innerHTML = '<div class="scene-error" role="alert">当前浏览器无法启动 3D 场景。请开启硬件加速，或使用新版 Chrome / Safari。</div>';
+  throw new Error('WebGL initialization failed');
+}
 renderer.setPixelRatio(qualityPixelRatio(quality, window.devicePixelRatio));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.shadowMap.enabled = false;
@@ -109,6 +115,20 @@ let last = performance.now();
 const frameStats = new FrameStats(180);
 let previousFrame = 0;
 let raf = 0;
+let contextLost = false;
+const onContextLost = (event: Event) => {
+  event.preventDefault();
+  contextLost = true;
+  metrics.textContent = '图形设备暂时不可用，正在等待恢复…';
+};
+const onContextRestored = () => {
+  contextLost = false;
+  previousFrame = 0;
+  frameStats.clear();
+  applyQuality();
+};
+renderer.domElement.addEventListener('webglcontextlost', onContextLost);
+renderer.domElement.addEventListener('webglcontextrestored', onContextRestored);
 function resize() {
   const width = Math.max(1, mount.clientWidth);
   const height = Math.max(1, mount.clientHeight);
@@ -127,7 +147,9 @@ function tick(now: number) {
     else frameStats.record(delta);
   }
   previousFrame=now;
-  walking.update(Math.min(clock.getDelta(), 0.05));
+  const dt = Math.min(clock.getDelta(), 0.05);
+  if (document.hidden || contextLost) return;
+  walking.update(dt);
   const spot=nearbySeat();
   stopButton.hidden=!walking.isMoving;
   seatButton.hidden=!seated&&!spot;
@@ -142,4 +164,4 @@ function tick(now: number) {
   }
 }
 raf = requestAnimationFrame(tick);
-window.addEventListener('pagehide', () => { cancelAnimationFrame(raf); window.clearInterval(saveInterval); document.removeEventListener('visibilitychange',onVisibilityChange); persist(); walking.dispose(); renderer.dispose(); }, { once: true });
+window.addEventListener('pagehide', () => { cancelAnimationFrame(raf); window.clearInterval(saveInterval); document.removeEventListener('visibilitychange',onVisibilityChange); persist(); walking.dispose(); renderer.domElement.removeEventListener('webglcontextlost',onContextLost); renderer.domElement.removeEventListener('webglcontextrestored',onContextRestored); renderer.dispose(); }, { once: true });
