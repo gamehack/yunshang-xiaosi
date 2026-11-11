@@ -30,3 +30,7 @@
 #ambient{pointer-events:auto;align-self:flex-start;border:1px solid #80968a;border-radius:7px;background:rgba(250,251,246,.92);color:#31493e;padding:7px 12px;font-size:12px;cursor:pointer}
 #ambient:focus-visible{outline:2px solid #244d3e;outline-offset:2px}
 #ambient[disabled]{opacity:.6;cursor:wait}
+
+.ambient-volume-label{font-size:12px;color:#34483f;align-self:center}
+#ambient-volume{width:96px;min-height:28px;accent-color:#496f60;touch-action:pan-x}
+#ambient-volume:focus-visible{outline:2px solid #244d3e;outline-offset:2px}
