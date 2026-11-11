@@ -18,3 +18,11 @@
 #hud-toggle{pointer-events:auto;border:1px solid #80968a;border-radius:7px;background:rgba(250,251,246,.92);color:#31493e;padding:5px 10px;font-size:12px;cursor:pointer}
 #hud-toggle:focus-visible{outline:2px solid #244d3e;outline-offset:2px}
 @media(max-width:600px){#hud{max-width:min(290px,calc(100vw - 24px));padding:8px 10px}#hud .hud-heading strong{font-size:12px}}
+
+/* M1.4: minimum mobile touch targets, safe-area margins and WebGL fallback. */
+#hud{right:auto;max-height:calc(100dvh - 24px - env(safe-area-inset-top,0px));overflow-y:auto}
+#hud button{min-height:40px}
+#hud-toggle{min-width:52px}
+#hud-details button{min-height:44px}
+.scene-error{display:grid;place-items:center;min-height:100%;padding:28px;color:#30483d;background:#e9e7df;text-align:center;font-size:15px;line-height:1.8}
+@media(max-width:600px){#hud{left:calc(8px + env(safe-area-inset-left,0px));max-width:calc(100vw - 16px - env(safe-area-inset-left,0px) - env(safe-area-inset-right,0px))}}
