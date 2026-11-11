@@ -37,8 +37,9 @@ describe('M0 prototype navigation', () => {
     expect(isWalkable(0,-94)).toBe(true);
   });
   it('allows entering the teahouse from its open eastern frontage', () => {
-    expect(isWalkable(-8,-10)).toBe(true);
-    const route=findPath(new Vector3(0,1,-6),new Vector3(-8,0,-10));
+    expect(isWalkable(-9.5,-10)).toBe(true);
+    expect(isWalkable(-8,-10)).toBe(false);
+    const route=findPath(new Vector3(0,1,-6),new Vector3(-9,0,-10));
     expect(route.length).toBeGreaterThan(0);
     expect(route.every(p=>isWalkable(p.x,p.z))).toBe(true);
   });
