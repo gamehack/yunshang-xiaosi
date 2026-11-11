@@ -74,13 +74,19 @@ export function buildGarden(scene: THREE.Scene): void {
   box(5.1,.45,5.1,16,3.1,-11,roof);
   // Bamboo stand-in, placed outside the main north/south corridor.
   const trunk=new THREE.MeshStandardMaterial({color:'#7c9475'});
+  const bambooPositions: Array<{x:number;z:number;h:number}> = [];
   for(let i=0;i<34;i++){
     const x=-18+(i*7%13),z=-13+(i*11%25);
     if(x>-12 && x<-4 && z<-7)continue;
-    const h=3.5+(i%5)*.45;
-    const stem=new THREE.Mesh(new THREE.CylinderGeometry(.08,.11,h,6),trunk);
-    stem.position.set(x,h/2,z);scene.add(stem);
-    const crown=new THREE.Mesh(new THREE.ConeGeometry(.8,2.4,5),leaf);
-    crown.position.set(x,h+.6,z);scene.add(crown);
+    bambooPositions.push({x,z,h:3.5+(i%5)*.45});
   }
+  const stems=new THREE.InstancedMesh(new THREE.CylinderGeometry(.08,.11,1,6),trunk,bambooPositions.length);
+  const crowns=new THREE.InstancedMesh(new THREE.ConeGeometry(.8,2.4,5),leaf,bambooPositions.length);
+  bambooPositions.forEach(({x,z,h},i)=>{
+    transform.position.set(x,h/2,z);transform.scale.set(1,h,1);transform.updateMatrix();stems.setMatrixAt(i,transform.matrix);
+    transform.position.set(x,h+.6,z);transform.scale.set(1,1,1);transform.updateMatrix();crowns.setMatrixAt(i,transform.matrix);
+  });
+  stems.instanceMatrix.needsUpdate=true;
+  crowns.instanceMatrix.needsUpdate=true;
+  scene.add(stems,crowns);
 }
