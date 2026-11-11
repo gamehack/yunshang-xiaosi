@@ -36,6 +36,13 @@ export function buildGarden(scene: THREE.Scene): void {
   box(8,.25,5,-8,.12,-10,stone);
   for(const x of [-11.7,-4.3])for(const z of [-12.2,-7.8])box(.26,3,.26,x,1.6,z,timber);
   box(9,.48,6,-8,3.35,-10,roof);
+  // Layered eaves and ridge hint at a Suzhou-style roof while retaining low geometry cost.
+  box(9.6,.16,6.6,-8,3.1,-10,roof);
+  box(9.1,.18,.26,-8,3.68,-10,roof);
+  const lattice=new THREE.MeshStandardMaterial({color:'#92765b',roughness:1});
+  for(const x of [-11.2,-10.3,-9.4,-8.5,-7.6,-6.7,-5.8])box(.055,1.65,.07,x,1.65,-12.35,lattice);
+  box(6.6,.065,.08,-8,2.45,-12.35,lattice);
+  box(6.6,.065,.08,-8,1.45,-12.35,lattice);
   box(5,2.4,.2,-8,1.45,-12.5,white);
   box(1.2,.8,1.2,-8,.55,-10,timber);
   // Central winding pond with two bays; shore is approximate, no bridge crossing in this iteration.
@@ -72,6 +79,8 @@ export function buildGarden(scene: THREE.Scene): void {
   void pavilion;
   for(const x of [14.2,17.8])for(const z of [-12.8,-9.2])box(.22,2.8,.22,x,1.5,z,timber);
   box(5.1,.45,5.1,16,3.1,-11,roof);
+  box(5.6,.12,5.6,16,2.91,-11,roof);
+  box(5.0,.17,.22,16,3.43,-11,roof);
   // Bamboo stand-in, placed outside the main north/south corridor.
   const trunk=new THREE.MeshStandardMaterial({color:'#7c9475'});
   const bambooPositions: Array<{x:number;z:number;h:number}> = [];
