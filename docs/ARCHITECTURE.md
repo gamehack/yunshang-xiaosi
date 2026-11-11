@@ -224,3 +224,6 @@ M0 完成：园门至望湖台可达并折返；桥面/路径导航连续；不�
 - 音景仅用户点击创建 AudioContext，后台暂停且需用户再开启；过滤器/音源/增益节点随场景释放。
 - PC HUD 改为紧凑按钮网格；手机原有手势和折叠保留；`scripts/browser-test.mjs` 以真实 Chromium 记录交互、异常注入与截图，`browser-soak.mjs` 记录 10 分钟运行。
 - 装饰景石/植被不等于完整三角网格物理碰撞；细分结构的镜头边界、近景叶片透明度、真实 GPU 目标仍须如实记录视觉和性能限制。
+
+### 浏览器测试同步
+`scripts/browser-sync.mjs`集中场景就绪和异步音频状态等待，使用Playwright第三参数传递超时。`browser-sync.check.mjs`由Node测试runner运行、与Vitest分开；完整浏览器入口自动先执行这2项回归。应用运行代码不为测试引入额外观测接口。

@@ -8,8 +8,9 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:browser": "node scripts/browser-test.mjs",
-    "test:soak": "node scripts/browser-soak.mjs"
+    "test:browser": "npm run test:browser:sync && node scripts/browser-test.mjs",
+    "test:soak": "node scripts/browser-soak.mjs",
+    "test:browser:sync": "node --test scripts/browser-sync.check.mjs"
   },
   "dependencies": {
     "three": "^0.180.0"

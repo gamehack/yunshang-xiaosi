@@ -1,5 +1,6 @@
 import {chromium} from 'playwright-core';
 import {existsSync} from 'node:fs';
+import {waitForSceneReady,setAmbientPlaying} from './browser-sync.mjs';
 import {mkdir,writeFile} from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import {PerspectiveCamera,Vector3} from 'three';
@@ -9,10 +10,10 @@ const page=await browser.newPage({viewport:{width:1280,height:720},deviceScaleFa
 const errors=[],requests=[],checks=[];
 page.on('pageerror',e=>errors.push(e.message));page.on('requestfailed',r=>requests.push({url:r.url(),error:r.failure()?.errorText}));
 await page.addInitScript(()=>{const seed=sessionStorage.getItem('test-fixture');if(seed){localStorage.setItem('banrixian.guest.v1',seed);sessionStorage.removeItem('test-fixture');}});
-await page.addInitScript(()=>{const Native=window.AudioContext;window.AudioContext=class extends Native{constructor(...args){super(...args);window.__audio=this;}};});
+await page.addInitScript(()=>{const Native=window.AudioContext;for(const method of ['resume','suspend']){const original=Native.prototype[method];Native.prototype[method]=async function(){await new Promise(resolve=>setTimeout(resolve,150));return original.call(this);};}window.AudioContext=class extends Native{constructor(...args){super(...args);window.__audio=this;}};});
 const base=process.env.TEST_URL||'http://127.0.0.1:5173';
 const key='banrixian.guest.v1';
-async function ready(){await page.waitForFunction(()=>document.querySelector('canvas')&&document.querySelector('#metrics')?.textContent.includes('FPS'),{timeout:45000});}
+async function ready(){await waitForSceneReady(page);}
 async function saved(){await page.evaluate(()=>dispatchEvent(new PageTransitionEvent('pagehide',{persisted:true})));const result=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),key);await page.evaluate(()=>dispatchEvent(new PageTransitionEvent('pageshow',{persisted:true})));return result;}
 async function at(x,z,view={yaw:0,pitch:.43,distance:11}){
  await page.evaluate(({key,x,z,view})=>sessionStorage.setItem('test-fixture',JSON.stringify({version:1,x,z,seated:false,...view,savedAt:Date.now()})),{key,x,z,view});
@@ -23,10 +24,10 @@ async function shot(name){await page.screenshot({path:`${out}/${name}.png`});}
 try{
  await page.goto(base);await ready();assert.equal(await page.locator('canvas').count(),1);checks.push('initialization');
  assert.equal(await page.locator('#ambient').getAttribute('aria-pressed'),'false');
- await page.locator('#ambient').click();assert.equal(await page.locator('#ambient').getAttribute('aria-pressed'),'true');
+ await setAmbientPlaying(page,true);
  await page.locator('#ambient-volume').fill('35');await page.locator('#ambient-volume').dispatchEvent('input');
- await page.locator('#ambient').click();assert.equal(await page.locator('#ambient').getAttribute('aria-pressed'),'false');checks.push('gesture-only audio toggle and volume');
- await page.locator('#ambient').click();
+ await setAmbientPlaying(page,false);checks.push('gesture-only audio toggle and volume');
+ await setAmbientPlaying(page,true);
  await page.evaluate(()=>{Object.defineProperty(document,'hidden',{value:true,configurable:true});Object.defineProperty(document,'visibilityState',{value:'hidden',configurable:true});document.dispatchEvent(new Event('visibilitychange'));});
  await page.waitForFunction(()=>window.__audio.state==='suspended');assert.equal(await page.locator('#ambient').getAttribute('aria-pressed'),'false');
  await page.evaluate(()=>{delete document.hidden;delete document.visibilityState;document.dispatchEvent(new Event('visibilitychange'));});await ready();checks.push('visibility handler suspends real audio context');
@@ -42,8 +43,8 @@ try{
  const camera=new PerspectiveCamera(62,1280/720,.1,300);camera.position.set(0,1+Math.sin(.43)*11+1.1,8+Math.cos(.43)*11);camera.lookAt(0,1.8,8);camera.updateMatrixWorld();
  const point=new Vector3(0,0,4).project(camera);
  await page.mouse.click((point.x+1)*640,(1-point.y)*360);await page.waitForTimeout(500);assert.equal(await page.locator('#stop').isVisible(),true);
- await page.keyboard.press('Escape');await page.waitForTimeout(500);assert.equal(await page.locator('#stop').isVisible(),false);checks.push('ground click routing and Escape stop');
- await page.mouse.click((point.x+1)*640,(1-point.y)*360);await page.waitForTimeout(500);await page.locator('#stop').click();await page.waitForTimeout(300);assert.equal(await page.locator('#stop').isVisible(),false);checks.push('stop button cancels routing');
+ await page.keyboard.press('Escape');await page.waitForFunction(()=>document.querySelector('#stop').hidden,null,{timeout:10000});checks.push('ground click routing and Escape stop');
+ await page.mouse.click((point.x+1)*640,(1-point.y)*360);await page.waitForTimeout(500);await page.locator('#stop').click();await page.waitForFunction(()=>document.querySelector('#stop').hidden,null,{timeout:10000});checks.push('stop button cancels routing');
  await page.locator('#reset').click();assert.equal((await saved()).z,8);checks.push('reset');
  for(const [name,x,z,yaw,pitch,distance] of [
  ['02-overview',0,6,.7,.9,19],['03-teahouse-exterior',-3,-7,1,.43,11],['04-teahouse-interior',-6,-9,0,.25,5],['05-bamboo',0,-50,.4,.3,11],['06-bridge-pond',0,2,-1,.6,11],['07-lookout',0,-94,0,.3,11]]){
@@ -54,8 +55,8 @@ try{
  const teaCamera=new PerspectiveCamera(62,1280/720,.1,300);teaCamera.position.set(0,2.1+Math.sin(.43)*19,-7+Math.cos(.43)*19);teaCamera.lookAt(0,1.8,-7);teaCamera.updateMatrixWorld();
  const teaTarget=new Vector3(-8,0,-6.5).project(teaCamera);
  await page.mouse.click((teaTarget.x+1)*640,(1-teaTarget.y)*360);await page.waitForTimeout(500);
- await page.waitForFunction(()=>!document.querySelector('#stop').hidden,{timeout:10000});
- await page.waitForFunction(()=>document.querySelector('#stop').hidden,{timeout:120000});
+ await page.waitForFunction(()=>!document.querySelector('#stop').hidden,null,{timeout:10000});
+ await page.waitForFunction(()=>document.querySelector('#stop').hidden,null,{timeout:120000});
  assert.ok((await saved()).x<-7.5);checks.push('courtyard to tea approach via real ground click');
  for(const [name,x,z] of [['tea',-8,-6.5],['lake',0,-94]]){
   await at(x,z);await page.locator('#seat').click();await page.waitForTimeout(1500);assert.equal((await saved()).seated,true);await shot(`09-seated-${name}`);
@@ -66,7 +67,7 @@ try{
  // Fault injection uses real WebGL extension, not a synthetic DOM event.
  const beforeLoss=await saved();
  await page.evaluate(()=>window.__lose=document.querySelector('canvas').getContext('webgl2').getExtension('WEBGL_lose_context'));
- await page.evaluate(()=>window.__lose.loseContext());await page.waitForTimeout(1000);assert.match(await page.locator('#metrics').textContent(),/恢复/);
+ await page.evaluate(()=>window.__lose.loseContext());await page.waitForFunction(()=>document.querySelector('#metrics')?.textContent.includes('恢复'),null,{timeout:10000});
  await page.keyboard.down('w');await page.evaluate(()=>window.__lose.restoreContext());await ready();await page.keyboard.up('w');const afterLoss=await saved();assert.ok(Math.hypot(afterLoss.x-beforeLoss.x,afterLoss.z-beforeLoss.z)<.01);checks.push('WebGL loss and restoration clears held movement');
  // Storage rejection must not prevent rendering or controls.
  const denied=await browser.newPage({viewport:{width:800,height:600}});

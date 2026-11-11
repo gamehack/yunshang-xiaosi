@@ -75,3 +75,5 @@ TEST_URL=http://127.0.0.1:4173 npm run test:soak
 ```
 
 截图与 JSON 默认保存到 `artifacts/browser` / `artifacts/soak`（不入 Git）；CI 上传浏览器证据。固定视角截图使用显式本地存档夹具，不表示从入口连续走到该地点。`test:soak` 实际运行至少 10 分钟，前 5 分钟向北、后 5 分钟折返，检查到达湖台与返回庭院；软件 GPU 指标不代表真实 PC 性能。
+
+浏览器同步回归：`npm run test:browser:sync` 包含2项独立Chromium测试，验证自定义超时和延迟音频按钮；`npm run test:browser` 会先执行这两项，再运行完整游戏交互。完整游戏测试对真实AudioContext切换注入150ms延迟，以捕获过早读取状态的竞态。

@@ -84,3 +84,15 @@
 ### 最终CI偶发失败调查
 - 0fd1dbf / Actions 42998672940 的浏览器步骤失败；之前b1e713a / 42998364725成功。此为相同脚本和应用代码，仅文档归档不同，不能将失败忽略。
 - GitHub网页仅公开“exit code1”，步骤日志UI地址返回404（API仍403）。已在浏览器脚本加入失败时JSON、截图、最近通过检查清单和公开GitHub错误注释，下一次运行用于定位具体断言，不修改测试标准或应用逻辑。
+
+## 恢复执行：浏览器同步缺陷修复（2026-11-11）
+
+- 起始本地/远端HEAD均为 `a50e250bba48acf33bc1e483c4d4df8275a85b92`，工作区干净；不重复G0–G5既有开发。
+- [a50e250 / Actions 42999202714](https://github.com/gamehack/yunshang-xiaosi/actions/runs/42999202714) 已成功；0fd1dbf的旧失败仍保留，不把偶发成功当作同步问题不存在。
+- 确定性复现：页面默认超时50ms、场景200ms后初始化，旧`waitForFunction(fn,{timeout})`在50ms错误超时；音频按钮异步200ms后更新，旧即时读取得到false而期待true。两个新增Chromium回归均先失败，修复后2/2通过。
+- 修复：公共browser-sync等待器把options放第三参数；播放/静音等待目标aria状态且按钮重新可用；茶室路线10s/120s超时正确生效；停止按钮和WebGL丢失提示以条件同步替代固定睡眠。
+- 完整真实WebAudio回归额外延迟resume/suspend各150ms，检验异步完成；不修改应用音频代码或降低断言。
+- Node原生浏览器回归文件使用`.check.mjs`，独立于Vitest发现路径；最初`.test.mjs`被两种runner同时收集的失败已诊断并修正，未禁用测试。
+- 当前本地：Vitest 14文件88项通过；独立Chromium同步2项通过；构建/文档门禁通过；Chromium17类交互+独立WebGL回退通过，pageerror/requestfailed均0。
+- 应用运行代码及构建主包hash `main-Ddl0WhWj.js`保持不变，保留已有602.456秒持续运行记录，不为测试脚本改动重复同一长时验收。
+- 下一步：推送同步修复 → 核验对应CI → 逐张复核12张截图/补验收记录 → 保存最终RC检查点。
