@@ -43,6 +43,13 @@ export function buildGarden(scene: THREE.Scene): void {
   pond.rotation.x=-Math.PI/2;pond.scale.set(8.3,5.2,1);pond.position.set(9,.045,0);scene.add(pond);
   const bay=new THREE.Mesh(new THREE.CircleGeometry(1,48),water);
   bay.rotation.x=-Math.PI/2;bay.scale.set(3.5,3.1,1);bay.position.set(7,.046,-4);scene.add(bay);
+  // M0.6 low crossing over the pond at z=2, with a clear 1.8m walking deck.
+  const bridgeWood=new THREE.MeshStandardMaterial({color:'#9b8062',roughness:1});
+  for(let x=1.5;x<=17.5;x+=.65)box(.58,.12,1.9,x,.12,2,bridgeWood);
+  for(const z of [.82,3.18]){
+    for(const x of [2,5,8,11,14,17])box(.12,.6,.12,x,.42,z,timber);
+    box(15.2,.14,.12,9.5,.73,z,timber);
+  }
   // Rockery on west side, pavilion beside pond.
   const rockmat=new THREE.MeshStandardMaterial({color:'#919b91',roughness:1,flatShading:true});
   for(const [x,z,s] of [[-16,-5,1.7],[-14,-3,2.3],[-16,-1,1.5],[-15,2,1.1]]){
