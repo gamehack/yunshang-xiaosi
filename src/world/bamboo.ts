@@ -23,12 +23,21 @@ export function addBambooGrove(scene: THREE.Scene, positions: Array<{x:number;z:
     for(let j=0;j<5;j++){
       transform.position.set(x,h*(j+1)/6,z);transform.rotation.set(0,0,0);transform.scale.set(1,1,1);transform.updateMatrix();nodes.setMatrixAt(i*5+j,transform.matrix);
     }
+    // Eight staggered branch clusters, with nine drooping leaves per cluster.
+    // Vertical variation breaks the previous horizontal, tiered silhouette.
     for(let j=0;j<72;j++){
-      const tier=Math.floor(j/18),angle=(j%18)*Math.PI/9+(i%7)*.37+tier*.22;
-      const radius=.18+(j%4)*.13;
-      transform.position.set(x+Math.cos(angle)*radius,h*(.62+tier*.095),z+Math.sin(angle)*radius);
-      transform.rotation.set(-.18+(j%3)*.14,angle,(j%2===0?1:-1)*.16);
-      transform.scale.set(1.1+(i%3)*.12,1,1.05+(j%3)*.12);
+      const cluster=Math.floor(j/9),leaf=j%9;
+      const angle=cluster*2.39996+(i%7)*.41;
+      const branchHeight=h*(.42+cluster*.068);
+      const spread=.14+(leaf%3)*.21;
+      const direction=angle+(leaf-4)*.17;
+      transform.position.set(
+        x+Math.cos(direction)*spread,
+        branchHeight+(leaf%3)*.075,
+        z+Math.sin(direction)*spread
+      );
+      transform.rotation.set(-.40-(leaf%3)*.13,direction,(leaf%2===0?1:-1)*.24);
+      transform.scale.set(.75+(leaf%3)*.14,1,.72+(cluster%3)*.12);
       transform.updateMatrix();leaves.setMatrixAt(i*72+j,transform.matrix);
     }
   });

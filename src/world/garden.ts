@@ -23,17 +23,28 @@ export function buildGarden(scene: THREE.Scene): void {
   walk(-6,-14,13,2.6);walk(7,-14,15,2.6);
   walk(-6,11,13,2);walk(7,11,15,2);
   // Inset paving stones break up the uninterrupted walkway without altering collisions.
-  const tile=new THREE.BoxGeometry(.88,.018,.72);
-  const stones=new THREE.InstancedMesh(tile,paving,48);
-  const tileMatrix=new THREE.Matrix4();
-  for(let i=0;i<48;i++){
-    const col=i%2,row=Math.floor(i/2);
-    const offset=(row%3-1)*.14;
-    tileMatrix.makeRotationY(((row*7+col*3)%5-2)*.035);
-    tileMatrix.setPosition(-.54+col*1.08+offset,.055,15-row*1.18+(col%2)*.09);
-    stones.setMatrixAt(i,tileMatrix);
-  }
-  stones.instanceMatrix.needsUpdate=true;scene.add(stones);
+  // Uneven polygonal stepping stones, split into two instanced shapes.
+  const stoneShapes=[
+    [[-.48,-.28],[.42,-.34],[.49,.24],[-.35,.37]],
+    [[-.41,-.35],[.47,-.23],[.33,.34],[-.46,.29]]
+  ];
+  stoneShapes.forEach((points,shapeIndex)=>{
+    const shape=new THREE.Shape();
+    points.forEach(([x,z],j)=>j===0?shape.moveTo(x,z):shape.lineTo(x,z));
+    shape.closePath();
+    const geometry=new THREE.ShapeGeometry(shape);
+    geometry.rotateX(-Math.PI/2);
+    const tiles=new THREE.InstancedMesh(geometry,paving,24);
+    const stoneTransform=new THREE.Object3D();
+    for(let k=0;k<24;k++){
+      const row=k, col=shapeIndex;
+      stoneTransform.position.set(-.54+col*1.08+(row%3-1)*.14,.057,15-row*1.18+(col%2)*.09);
+      stoneTransform.rotation.set(0,((row*7+col*3)%7-3)*.075,0);
+      stoneTransform.scale.set(.85+(row%4)*.07,1,.87+(row%3)*.06);
+      stoneTransform.updateMatrix();tiles.setMatrixAt(k,stoneTransform.matrix);
+    }
+    tiles.instanceMatrix.needsUpdate=true;scene.add(tiles);
+  });
   // White walls with gaps; these are visual-only until mesh-derived collision is implemented.
   for(const z of [-16.5,16.5]){
     box(16,2.8,.35,-12,1.4,z,white);box(16,2.8,.35,12,1.4,z,white);
@@ -58,6 +69,16 @@ export function buildGarden(scene: THREE.Scene): void {
     scene.add(slope);
   }
   box(9.8,.10,.16,-8,3.94,-10,roof);
+  // Raised roof battens suggest tile courses without high-cost individual tiles.
+  const roofRibs=new THREE.InstancedMesh(new THREE.BoxGeometry(.055,.045,6.45),roof,18);
+  const ribTransform=new THREE.Object3D();
+  for(let i=0;i<18;i++){
+    const side=i<9?-1:1,step=i%9;
+    ribTransform.position.set(-8+side*(.45+step*.53),3.48+(2.4-(.45+step*.53))*.19,-10);
+    ribTransform.rotation.set(0,0,-side*.19);
+    ribTransform.updateMatrix();roofRibs.setMatrixAt(i,ribTransform.matrix);
+  }
+  roofRibs.instanceMatrix.needsUpdate=true;scene.add(roofRibs);
   for(const x of [-12.75,-3.25])box(.15,.12,6.7,x,3.03,-10,roof);
   // Front facade retains the original doorway and adds fine lattice bays.
   for(const x of [-11.4,-10.8,-5.2,-4.6])box(.065,1.35,.08,x,1.55,-12.43,timber);
@@ -138,6 +159,34 @@ export function buildGarden(scene: THREE.Scene): void {
     shrubTransform.updateMatrix();shrubs.setMatrixAt(i,shrubTransform.matrix);
   });
   shrubs.instanceMatrix.needsUpdate=true;scene.add(shrubs);
+  // Compact planted islands break up empty lawns without entering the walkable corridor.
+  const plantingSoil=new THREE.MeshStandardMaterial({color:'#9da98e',roughness:1});
+  const plantingGeometry=new THREE.CylinderGeometry(1,1,.055,10);
+  const plantingCenters: Array<[number,number,number,number]>=[
+    [-16,8,2.2,1.3],[-16,-8,1.7,1.2],[14,9,1.8,1.3],[17,-5,1.45,1.1]
+  ];
+  const planting=new THREE.InstancedMesh(plantingGeometry,plantingSoil,plantingCenters.length);
+  const plantingTransform=new THREE.Object3D();
+  plantingCenters.forEach(([x,z,sx,sz],i)=>{
+    plantingTransform.position.set(x,.04,z);
+    plantingTransform.rotation.set(0,i*.39,0);
+    plantingTransform.scale.set(sx,1,sz);
+    plantingTransform.updateMatrix();planting.setMatrixAt(i,plantingTransform.matrix);
+  });
+  planting.instanceMatrix.needsUpdate=true;scene.add(planting);
+  // A few upright ornamental rocks beside the plantings, not in the central walkway.
+  const scholarStone=new THREE.MeshStandardMaterial({color:'#88958b',roughness:1,flatShading:true});
+  const scholarGeometry=new THREE.DodecahedronGeometry(1,1);
+  const scholarLocations: Array<[number,number,number]>=[[-16.5,8.4,1.2],[-15.5,-8.5,1.05],[14.8,9.2,1.15],[17.4,-5.2,.9]];
+  const scholarRocks=new THREE.InstancedMesh(scholarGeometry,scholarStone,scholarLocations.length);
+  const scholarTransform=new THREE.Object3D();
+  scholarLocations.forEach(([x,z,s],i)=>{
+    scholarTransform.position.set(x,s*.55,z);
+    scholarTransform.rotation.set(.12*i,i*.78,.15);
+    scholarTransform.scale.set(s*.5,s,s*.43);
+    scholarTransform.updateMatrix();scholarRocks.setMatrixAt(i,scholarTransform.matrix);
+  });
+  scholarRocks.instanceMatrix.needsUpdate=true;scene.add(scholarRocks);
   // Bamboo stand-in, placed outside the main north/south corridor.
   const bambooPositions: Array<{x:number;z:number;h:number}> = [];
   for(let i=0;i<34;i++){
