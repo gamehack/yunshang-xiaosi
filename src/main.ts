@@ -65,6 +65,11 @@ sun.position.set(-12, 25, 8);
 scene.add(sun);
 buildGarden(scene);
 buildExterior(scene);
+const waterRipples: Array<{mesh:THREE.Mesh;baseScale:number;phase:number}> = [];
+scene.traverse(object=>{
+  const ripple=object.userData.waterRipple as {baseScale:number;phase:number}|undefined;
+  if(ripple && object instanceof THREE.Mesh)waterRipples.push({mesh:object,baseScale:ripple.baseScale,phase:ripple.phase});
+});
 const marker = new THREE.Mesh(new THREE.CapsuleGeometry(0.42, 1.05, 4, 8), new THREE.MeshStandardMaterial({ color: '#617e76' }));
 marker.position.set(0, 1, 8);
 scene.add(marker);
@@ -150,6 +155,17 @@ function tick(now: number) {
   const dt = Math.min(clock.getDelta(), 0.05);
   if (document.hidden || contextLost) return;
   walking.update(dt);
+  // Low-cost, deterministic water motion: no textures or per-frame geometry allocation.
+  const t=now*.00045;
+  for(const {mesh,baseScale,phase} of waterRipples){
+    const cycle=(t+phase)%1;
+    mesh.scale.setScalar(baseScale*(.85+.4*cycle));
+    const material=mesh.material;
+    if(material instanceof THREE.MeshBasicMaterial) {
+      // Each ripple uses the shared material, so keep opacity stable.
+      mesh.visible=true;
+    }
+  }
   const spot=nearbySeat();
   stopButton.hidden=!walking.isMoving;
   seatButton.hidden=!seated&&!spot;
