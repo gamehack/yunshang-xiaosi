@@ -7,7 +7,7 @@ describe('M0 prototype navigation', () => {
     expect(isWalkable(9, 0)).toBe(false);
     expect(isWalkable(-8, -10)).toBe(false);
   });
-  it('keeps the entrance walkable', () => {
+  it('blocks visible wall geometry and gate columns', () => {\n    expect(isWalkable(-20.5, -10)).toBe(false);\n    expect(isWalkable(-2.7, 15.6)).toBe(false);\n  });\n  it('keeps the entrance walkable', () => {
     expect(isWalkable(0, 8)).toBe(true);
   });
   it('rejects unreachable clicked destinations', () => {
