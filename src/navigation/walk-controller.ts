@@ -65,6 +65,14 @@ export function findPath(from: THREE.Vector3, to: THREE.Vector3): THREE.Vector3[
 
 export class WalkController {
   private keys = new Set<string>();
+  private seated = false;
+  setSeated(value: boolean) { this.seated = value; this.route = []; this.keys.clear(); }
+  getViewState() { return { yaw:this.yaw, pitch:this.pitch, distance:this.distance }; }
+  restoreViewState(v:{yaw:number;pitch:number;distance:number}) {
+    if(Number.isFinite(v.yaw)) this.yaw=v.yaw;
+    if(Number.isFinite(v.pitch)) this.pitch=THREE.MathUtils.clamp(v.pitch,.12,1.1);
+    if(Number.isFinite(v.distance)) this.distance=THREE.MathUtils.clamp(v.distance,5,19);
+  }
   private route: THREE.Vector3[] = [];
   private raycaster = new THREE.Raycaster();
   private pointer = new THREE.Vector2();
@@ -101,7 +109,7 @@ export class WalkController {
     if(!p || p.id!==e.pointerId)return;
     this.pointerStart=null;
     if(this.renderer.domElement.hasPointerCapture(e.pointerId))this.renderer.domElement.releasePointerCapture(e.pointerId);
-    if(p.dragged || e.type==='pointercancel')return;
+    if(p.dragged || e.type==='pointercancel' || this.seated)return;
     const rect=this.renderer.domElement.getBoundingClientRect();
     this.pointer.set(((e.clientX-rect.left)/rect.width)*2-1,-((e.clientY-rect.top)/rect.height)*2+1);
     this.raycaster.setFromCamera(this.pointer,this.camera);
@@ -130,7 +138,8 @@ export class WalkController {
     const dz=Number(this.keys.has('s')||this.keys.has('arrowdown'))-Number(this.keys.has('w')||this.keys.has('arrowup'));
     const speed=3.3;
     const manual=new THREE.Vector3(dx,0,dz);
-    if(manual.lengthSq()>0){
+    if(this.seated) { this.route=[]; }
+    else if(manual.lengthSq()>0){
       this.route=[];
       manual.normalize();
       const forward=new THREE.Vector3(-Math.sin(this.yaw),0,-Math.cos(this.yaw));
