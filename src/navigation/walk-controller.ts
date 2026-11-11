@@ -19,6 +19,8 @@ const blocked = (x: number, z: number): boolean =>
   (z <= -90 && Math.abs(x) > 5.5) ||
   (!onBridge(x,z) && (((x-9)/8.3)**2 + (z/5.2)**2 < 1)) || // main pond
   (!onBridge(x,z) && (((x-7)/3.5)**2 + ((z+4)/3.1)**2 < 1)) || // northern bay
+  // The tea table is a solid obstacle, while the eastern frontage stays open.
+  (Math.abs(x+8)<.6 && Math.abs(z+10)<.6) ||
   // Teahouse has open east frontage; block only its rear wall and support posts.
   (x > -12 && x < -4 && z > -12.6 && z < -12.25) ||
   ([-11.7,-4.3].some(cx=>[-12.2,-7.8].some(cz=>Math.abs(x-cx)<.13&&Math.abs(z-cz)<.13))) ||
@@ -124,9 +126,9 @@ export class WalkController {
     const p=this.pointerStart;
     this.activePointers.delete(e.pointerId);
     if(this.activePointers.size<2)this.pinchDistance=null;
+    if(this.renderer.domElement.hasPointerCapture(e.pointerId))this.renderer.domElement.releasePointerCapture(e.pointerId);
     if(!p || p.id!==e.pointerId)return;
     this.pointerStart=null;
-    if(this.renderer.domElement.hasPointerCapture(e.pointerId))this.renderer.domElement.releasePointerCapture(e.pointerId);
     if(p.dragged || e.type==='pointercancel' || this.seated)return;
     const rect=this.renderer.domElement.getBoundingClientRect();
     this.pointer.set(((e.clientX-rect.left)/rect.width)*2-1,-((e.clientY-rect.top)/rect.height)*2+1);
