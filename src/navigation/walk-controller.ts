@@ -223,9 +223,14 @@ export class WalkController {
       const proximity=Math.max(0,horizontal-radius);
       // Each 9m spatial batch owns its leaf material; only the nearby batch fades.
       const opacity=THREE.MathUtils.smoothstep(proximity,0,this.foliageFadeDistance);
-      material.transparent=opacity<.995;
+      const transparent=opacity<.995;
+      // Changing transparency changes shader variants; only flag recompilation on transitions.
+      if(material.transparent!==transparent){
+        material.transparent=transparent;
+        material.depthWrite=!transparent;
+        material.needsUpdate=true;
+      }
       material.opacity=Math.max(.18,opacity);
-      material.depthWrite=opacity>=.995;
     }
   }
   private move(delta: THREE.Vector3) {
