@@ -42,3 +42,10 @@ M0 完成：园门至望湖台可达并折返；桥面/路径导航连续；不�
 - `src/main.ts`：将移动控制器接入渲染循环，并在退出页面时释放事件监听。
 - **限制**：当前仅为平地占位场景；A* 禁行区域为硬编码矩形，尚未使用 NavMesh；未实现桥梁高差、相机遮挡/碰撞、真实模型碰撞、动作动画及移动设备控制。
 - **验证待办**：npm install/npm run build、Chrome 首帧、键盘移动、点击可行走地面、点击池塘拒绝寻路、自动行走中键盘中断、窗口 resize、帧率/内存。GitHub Actions 结果需独立检查。
+
+## M0 验证加固（本轮）
+
+- 新增 Vitest 与 `tests/navigation.test.ts`，覆盖临时网格 A* 的障碍物、非法目标、绕行和同点路径。
+- GitHub Actions 现在执行 `npm test` 后再 `npm run build`，并在 `tests/**` 变更时触发。
+- **状态说明**：测试和工作流已提交；本轮未取得 GitHub Actions job 运行结果，尚不能声明测试或构建成功。GitHub combined commit statuses 返回空列表，这不代表 CI 通过。
+- **后续工程门槛**：先取得 CI 成功日志和浏览器烟测，再引入真正 NavMesh、坡地和桥面高度；当前硬编码平面网格不应进入完整园林白模的正式导航实现。
