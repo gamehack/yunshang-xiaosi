@@ -39,7 +39,7 @@ try{
  await page.keyboard.press('Escape');await page.waitForTimeout(500);assert.equal(await page.locator('#stop').isVisible(),false);checks.push('ground click routing and Escape stop');
  await page.locator('#reset').click();assert.equal((await saved()).z,8);checks.push('reset');
  for(const [name,x,z,yaw,pitch,distance] of [
- ['02-overview',0,6,.7,.9,19],['03-teahouse-exterior',-3,-7,1,.43,11],['04-teahouse-interior',-6,-9],0,.25,5],['05-bamboo',0,-50,.4,.3,11],['06-bridge-pond',0,2,-1,.6,11],['07-lookout',0,-94,0,.3,11]]){
+ ['02-overview',0,6,.7,.9,19],['03-teahouse-exterior',-3,-7,1,.43,11],['04-teahouse-interior',-6,-9,0,.25,5],['05-bamboo',0,-50,.4,.3,11],['06-bridge-pond',0,2,-1,.6,11],['07-lookout',0,-94,0,.3,11]]){
   await at(x,z,{yaw,pitch,distance});await shot(name);
  }
  // Walk from the courtyard into the tea approach through real mouse routing.
