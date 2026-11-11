@@ -6,6 +6,7 @@ import { buildExterior } from './world/exterior';
 import { buildGarden } from './world/garden';
 import { WalkController } from './navigation/walk-controller';
 import { AmbientSound } from './audio/ambient';
+import { createVisitor, animateVisitor } from './avatar/visitor';
 import * as THREE from 'three';
 import './style.css';
 
@@ -83,7 +84,7 @@ scene.traverse(object=>{
   const ripple=object.userData.waterRipple as {baseScale:number;phase:number}|undefined;
   if(ripple && object instanceof THREE.Mesh)waterRipples.push({mesh:object,baseScale:ripple.baseScale,phase:ripple.phase});
 });
-const marker = new THREE.Mesh(new THREE.CapsuleGeometry(0.42, 1.05, 4, 8), new THREE.MeshStandardMaterial({ color: '#617e76' }));
+const marker = createVisitor();
 marker.position.set(0, 1, 8);
 scene.add(marker);
 
@@ -97,7 +98,7 @@ if(saved){
   walking.restoreViewState(saved);
   seated=saved.seated;
   walking.setSeated(seated);
-  marker.scale.y=seated?0.72:1;
+  animateVisitor(marker,0,false,seated);
 }
 function nearbySeat(){return seatSpots.find(s=>Math.hypot(marker.position.x-s.standX,marker.position.z-s.standZ)<2.4);}
 function persist(){const v=walking.getViewState();writeGuestSave({version:1,x:marker.position.x,z:marker.position.z,seated,yaw:v.yaw,pitch:v.pitch,distance:v.distance,savedAt:Date.now()});}
@@ -106,14 +107,14 @@ seatButton.addEventListener('click',()=>{
   if(!spot && !seated)return;
   seated=!seated;
   walking.setSeated(seated);
-  marker.scale.y=seated?.72:1;
+  animateVisitor(marker,0,false,seated);
   persist();
 });
 resetButton.addEventListener('click',()=>{
   walking.stop();
   seated=false;
   walking.setSeated(false);
-  marker.scale.y=1;
+  animateVisitor(marker,0,false);
   marker.position.set(0,1,8);
   walking.restoreViewState({yaw:0,pitch:0.43,distance:11});
   persist();
@@ -167,7 +168,12 @@ function tick(now: number) {
   previousFrame=now;
   const dt = Math.min(clock.getDelta(), 0.05);
   if (document.hidden || contextLost) return;
+  const previousPosition=marker.position.clone();
   walking.update(dt);
+  const displacement=marker.position.clone().sub(previousPosition);
+  const moving=displacement.lengthSq()>0.000001;
+  if(moving)marker.rotation.y=Math.atan2(-displacement.x,-displacement.z);
+  animateVisitor(marker,now*.001,moving,seated);
   // Low-cost, deterministic water motion: no textures or per-frame geometry allocation.
   const t=now*.00045;
   for(const {mesh,baseScale,phase} of waterRipples){
