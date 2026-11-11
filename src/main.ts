@@ -74,6 +74,7 @@ seatButton.addEventListener('click',()=>{
   persist();
 });
 resetButton.addEventListener('click',()=>{
+  walking.stop();
   seated=false;
   walking.setSeated(false);
   marker.scale.y=1;
