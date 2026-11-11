@@ -1,0 +1,26 @@
+{
+  "date": "2026-11-11T09:40:57.253Z",
+  "browser": "156.0.8078.79",
+  "viewport": "1280x720",
+  "dpr": 1,
+  "renderer": "Chromium SwiftShader software (not real PC performance)",
+  "checks": [
+    "initialization",
+    "gesture-only audio toggle and volume",
+    "W movement",
+    "refresh resume",
+    "mouse rotation",
+    "wheel zoom",
+    "ground click routing and Escape stop",
+    "reset",
+    "courtyard to tea approach via real ground click",
+    "tea sit, reload and stand",
+    "lake sit, reload and stand",
+    "quality cycle",
+    "WebGL loss and restoration",
+    "denied storage fallback"
+  ],
+  "errors": [],
+  "requests": [],
+  "metrics": "FPS ≈ 6 · P95 150.0ms · Draw calls 29 · 三角形 7028"
+}

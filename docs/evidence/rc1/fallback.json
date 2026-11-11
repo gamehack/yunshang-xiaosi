@@ -1,0 +1,5 @@
+{
+  "check": "WebGL-disabled initialization fallback",
+  "passed": true,
+  "errors": []
+}
