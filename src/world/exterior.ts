@@ -20,7 +20,10 @@ export function buildExterior(scene: THREE.Scene): void {
   water.rotation.x=-Math.PI/2;water.position.set(0,-.2,-189);scene.add(water);
   // Instanced low-poly vegetation keeps draw calls stable as the route expands.
   const stems=new THREE.InstancedMesh(new THREE.CylinderGeometry(.08,.11,4.8,5),bamboo,150);
-  const crowns=new THREE.InstancedMesh(new THREE.ConeGeometry(.65,2.3,5),leaves,150);
+  // Two staggered leaf tiers soften the silhouette without creating a mesh per tree.
+  const crowns=new THREE.InstancedMesh(new THREE.ConeGeometry(.76,2.0,7),leaves,150);
+  const upperLeaves=new THREE.MeshStandardMaterial({color:'#739477',roughness:1,flatShading:true});
+  const upperCrowns=new THREE.InstancedMesh(new THREE.ConeGeometry(.51,1.65,7),upperLeaves,150);
   const m=new THREE.Matrix4();
   let n=0;
   for(let i=0;i<150;i++){
@@ -30,10 +33,11 @@ export function buildExterior(scene: THREE.Scene): void {
     if(z<-89 && Math.abs(x)<7)continue;
     const height=4.1+(i%7)*.28;
     m.makeScale(1,height/4.8,1);m.setPosition(x,height/2,z);stems.setMatrixAt(n,m);
-    m.makeScale(1,1,1);m.setPosition(x,height+.45,z);crowns.setMatrixAt(n,m);
+    m.makeScale(1,1,1);m.setPosition(x,height+.25,z);crowns.setMatrixAt(n,m);
+    m.makeScale(1,1,1);m.setPosition(x,height+1.28,z);upperCrowns.setMatrixAt(n,m);
     n++;
   }
-  stems.count=n;crowns.count=n;
-  stems.instanceMatrix.needsUpdate=true;crowns.instanceMatrix.needsUpdate=true;
-  scene.add(stems,crowns);
+  stems.count=n;crowns.count=n;upperCrowns.count=n;
+  stems.instanceMatrix.needsUpdate=true;crowns.instanceMatrix.needsUpdate=true;upperCrowns.instanceMatrix.needsUpdate=true;
+  scene.add(stems,crowns,upperCrowns);
 }
