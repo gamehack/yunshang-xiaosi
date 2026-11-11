@@ -17,6 +17,13 @@ describe('M0.7 frame-time telemetry',()=>{
     [0,-1,NaN,Infinity,16].forEach(n=>stats.record(n));
     expect(stats.snapshot()).toEqual({count:1,averageMs:16,p95Ms:16});
   });
+  it('resets stale samples after suspension',()=>{
+    const stats=new FrameStats();
+    stats.record(500);
+    stats.clear();
+    stats.record(16);
+    expect(stats.snapshot()).toEqual({count:1,averageMs:16,p95Ms:16});
+  });
   it('rejects invalid capacity',()=>{
     expect(()=>new FrameStats(0)).toThrow();
     expect(()=>new FrameStats(1.5)).toThrow();
