@@ -11,12 +11,14 @@ const walls = [
   [-2.7,15.6,1.1,.7],[2.7,15.6,1.1,.7]
 ] as const;
 const KEY = (c: Cell) => c.x + ',' + c.z;
+// Bridge deck has collision priority over the pond surface, not over walls.
+const onBridge=(x:number,z:number)=>x>=1.1&&x<=17.9&&z>=1.1&&z<=2.9;
 const blocked = (x: number, z: number): boolean =>
   Math.abs(x) > HALF_X || z < MIN_Z || z > MAX_Z ||
   (z < -17 && Math.abs(x) > 2.1 && z > -90) ||
   (z <= -90 && Math.abs(x) > 5.5) ||
-  (((x-9)/8.3)**2 + (z/5.2)**2 < 1) || // main pond
-  (((x-7)/3.5)**2 + ((z+4)/3.1)**2 < 1) || // northern bay
+  (!onBridge(x,z) && (((x-9)/8.3)**2 + (z/5.2)**2 < 1)) || // main pond
+  (!onBridge(x,z) && (((x-7)/3.5)**2 + ((z+4)/3.1)**2 < 1)) || // northern bay
   // Teahouse has open east frontage; block only its rear wall and support posts.
   (x > -12 && x < -4 && z > -12.6 && z < -12.25) ||
   ([-11.7,-4.3].some(cx=>[-12.2,-7.8].some(cz=>Math.abs(x-cx)<.13&&Math.abs(z-cz)<.13))) ||
