@@ -9,11 +9,12 @@ import './style.css';
 
 const root = document.querySelector<HTMLDivElement>('#app');
 if (!root) throw new Error('Missing #app');
-root.innerHTML = '<div id="hud"><strong>半日闲 · M0.7 园林漫游</strong><span>电脑：WASD 移动 · 拖动旋转 · 滚轮缩放<br>手机：轻点行走 · 拖动旋转 · 双指缩放</span><span id="metrics">初始化中…</span><button id="seat" type="button" hidden>坐下</button><button id="reset" type="button">回到入口</button><button id="quality" type="button">画质：均衡</button></div><div id="scene"></div>';
+root.innerHTML = '<div id="hud"><strong>半日闲 · M0.8 园林漫游</strong><span>电脑：WASD 移动 · 拖动旋转 · 滚轮缩放<br>手机：轻点行走 · 拖动旋转 · 双指缩放</span><span id="metrics">初始化中…</span><button id="seat" type="button" hidden>坐下</button><button id="reset" type="button">回到入口</button><button id="stop" type="button" hidden>停止行走</button><button id="quality" type="button">画质：均衡</button></div><div id="scene"></div>';
 const mount = document.querySelector<HTMLDivElement>('#scene')!;
 const metrics = document.querySelector<HTMLSpanElement>('#metrics')!;
 const seatButton = document.querySelector<HTMLButtonElement>('#seat')!;
 const resetButton = document.querySelector<HTMLButtonElement>('#reset')!;
+const stopButton = document.querySelector<HTMLButtonElement>('#stop')!;
 const qualityButton = document.querySelector<HTMLButtonElement>('#quality')!;
 function safeStorage(): Storage | undefined {
   try { return window.localStorage; } catch { return undefined; }
@@ -51,6 +52,7 @@ marker.position.set(0, 1, 8);
 scene.add(marker);
 
 const walking = new WalkController(marker, camera, renderer);
+stopButton.addEventListener('click',()=>walking.stop());
 const saved=readGuestSave();
 let seated=false;
 const seatSpots=[{x:-8,z:-10,standX:-8,standZ:-6.5},{x:0,z:-97,standX:0,standZ:-94}];
@@ -114,6 +116,7 @@ function tick(now: number) {
   previousFrame=now;
   walking.update(Math.min(clock.getDelta(), 0.05));
   const spot=nearbySeat();
+  stopButton.hidden=!walking.isMoving;
   seatButton.hidden=!seated&&!spot;
   seatButton.textContent=seated?'起身':'坐下';
   renderer.render(scene, camera);
