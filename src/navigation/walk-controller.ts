@@ -91,11 +91,12 @@ export class WalkController {
   private distance = 11;
   private pointerStart: {id:number;x:number;y:number;lastX:number;lastY:number;dragged:boolean}|null = null;
   private readonly onDown = (e: KeyboardEvent) => {
+    if(e.altKey || e.ctrlKey || e.metaKey || e.target instanceof HTMLElement && (e.target.closest('button, input, textarea, select, [contenteditable="true"]') !== null)) return;
     if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
     this.keys.add(e.key.toLowerCase());
   };
   private readonly onUp = (e: KeyboardEvent) => { this.keys.delete(e.key.toLowerCase()); };
-  private readonly onBlur = () => { this.keys.clear(); this.route=[]; };
+  private readonly onBlur = () => { this.stop(); this.pointerStart=null; this.activePointers.clear(); this.pinchDistance=null; };
   private activePointers = new Map<number,{x:number;y:number}>();
   private pinchDistance: number | null = null;
   private readonly onPointerDown = (e: PointerEvent) => {
