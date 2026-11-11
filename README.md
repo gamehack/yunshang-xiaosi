@@ -57,3 +57,21 @@ npm run dev
 - [现行产品需求](docs/PRD.md)、[全量开发计划](docs/ROADMAP.md)、[验收矩阵](docs/ACCEPTANCE.md)。
 - [旧版合规文档](docs/COMPLIANCE.md) 属历史资料，尚未完成新版审核，不作为当前开发依据。
 - 中国大陆公开运营前仍需独立完成监管分类、备案、版权与隐私合规评估。
+
+## M2.0 RC 开发检查点（2026-11-11）
+
+`develop` 正在形成 `2.0.0-rc.1`，未合并 main、未发布生产。当前生产状态与上文历史版本分开记录。
+
+本轮修复连续桥头与导航安全、真实座面/地台高度、髋膝坐姿、平滑转向、精确坐姿续游、屋脊方向、PC HUD、资源释放及页面/WebGL 生命周期。当前模块与证据见 [G0 审计](docs/M2-AUDIT.md)、[导航报告](docs/G1-REPORT.md)、[人物报告](docs/G2-REPORT.md)、[执行状态](docs/EXECUTION-STATUS.md)。
+
+浏览器回归使用 Chromium（环境中已有的 `/usr/bin/chromium`，或 `npx playwright-core install --with-deps chromium` 安装；也可设 `CHROMIUM_PATH`）：
+
+```bash
+npm run build
+npm run preview -- --host 127.0.0.1 --port 4173
+# 在另一终端执行
+TEST_URL=http://127.0.0.1:4173 npm run test:browser
+TEST_URL=http://127.0.0.1:4173 npm run test:soak
+```
+
+截图与 JSON 默认保存到 `artifacts/browser` / `artifacts/soak`（不入 Git）；CI 上传浏览器证据。固定视角截图使用显式本地存档夹具，不表示从入口连续走到该地点。`test:soak` 实际运行至少 10 分钟，前 5 分钟向北、后 5 分钟折返，检查到达湖台与返回庭院；软件 GPU 指标不代表真实 PC 性能。

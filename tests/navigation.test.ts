@@ -62,3 +62,55 @@ describe('M0 prototype navigation', () => {
     expect(findPath(new Vector3(0, 1, 8), new Vector3(0, 0, 8))).toEqual([]);
   });
 });
+
+describe('G1 navigation safety', () => {
+  it.each([[NaN, 0], [0, NaN], [Infinity, 0], [0, -Infinity]])('rejects non-finite map coordinates (%s, %s)', (x, z) => {
+    expect(isWalkable(x, z)).toBe(false);
+  });
+  it('rejects an actual pond target even when its rounded grid cell is on the bridge', () => {
+    expect(isWalkable(9, 1.51)).toBe(false);
+    expect(findPath(new Vector3(0, 1, 8), new Vector3(9, 0, 1.51))).toEqual([]);
+  });
+  it('rejects an actual pond start even when its rounded grid cell is on the bridge', () => {
+    expect(findPath(new Vector3(9, 1, 1.51), new Vector3(0, 0, 8))).toEqual([]);
+  });
+  it('blocks the middle of a teahouse support post within the visitor footprint', () => {
+    expect(isWalkable(-11.7, -7.5)).toBe(false);
+  });
+  it('returns an exact safe target within the same grid cell', () => {
+    const route = findPath(new Vector3(0, 1, 8), new Vector3(.3, 0, 8.2));
+    expect(route.at(-1)?.toArray()).toEqual([.3, 0, 8.2]);
+  });
+  it('crosses the entire bridge without detouring through the garden', () => {
+    const route = findPath(new Vector3(0, 1, 2), new Vector3(18, 0, 2));
+    expect(route).toHaveLength(18);
+    expect(route.every(point => point.z === 2)).toBe(true);
+  });
+  it('connects entrance, courtyard, teahouse, bamboo and lookout in both directions with safe segments', () => {
+    const stops = [[0, 15], [0, 1], [-10, -10], [0, -50], [0, -94], [0, -50], [-10, -10], [0, 1], [0, 15]];
+    for (let index = 1; index < stops.length; index++) {
+      const [x, z] = stops[index - 1];
+      const [tx, tz] = stops[index];
+      let previous = new Vector3(x, 0, z);
+      const route = findPath(previous, new Vector3(tx, 0, tz));
+      expect(route.length).toBeGreaterThan(0);
+      for (const next of route) {
+        for (let fraction = 0; fraction <= 1; fraction += .1) {
+          const point = previous.clone().lerp(next, fraction);
+          expect(isWalkable(point.x, point.z)).toBe(true);
+        }
+        previous = next;
+      }
+      expect(previous.toArray()).toEqual([tx, 0, tz]);
+    }
+  });
+});
+
+describe('lookout and solid seating boundaries',()=>{
+ it('blocks corners beyond the circular lookout deck',()=>{
+  expect(isWalkable(5,-100)).toBe(false);expect(isWalkable(0,-100.5)).toBe(false);expect(isWalkable(0,-94)).toBe(true);
+ });
+ it('does not allow standing inside either solid bench',()=>{
+  expect(isWalkable(-8,-8.3)).toBe(false);expect(isWalkable(0,-97)).toBe(false);
+ });
+});

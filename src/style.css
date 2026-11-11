@@ -34,3 +34,14 @@
 .ambient-volume-label{font-size:12px;color:#34483f;align-self:center}
 #ambient-volume{width:96px;min-height:28px;accent-color:#496f60;touch-action:pan-x}
 #ambient-volume:focus-visible{outline:2px solid #244d3e;outline-offset:2px}
+
+/* Desktop controls form a compact toolbar; the scene retains most of the viewport. */
+#ambient-volume{pointer-events:auto}
+@media(min-width:900px){
+ #hud{max-width:500px;background:rgba(248,247,240,.92);box-shadow:0 4px 24px #253e321a}
+ #hud #hud-details{display:grid;grid-template-columns:repeat(3,max-content);gap:8px}
+ #hud-details>span{grid-column:1/-1}
+ #hud strong{font-size:15px;letter-spacing:.08em}
+ #hud-details button{align-self:stretch}
+}
+#hud button:focus-visible,#hud input:focus-visible{outline:3px solid #244d3e;outline-offset:3px}

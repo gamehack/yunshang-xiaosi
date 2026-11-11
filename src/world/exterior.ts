@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { addBambooGrove } from './bamboo';
+import { EXTERIOR, SEAT_GEOMETRY } from './layout';
 
 /** M0.4 first exterior whitebox: continuous north exit to bamboo path and lake lookout. */
 export function buildExterior(scene: THREE.Scene): void {
@@ -10,12 +11,13 @@ export function buildExterior(scene: THREE.Scene): void {
   const rock=new THREE.MeshStandardMaterial({color:'#9da29a',roughness:1});
   const ground=new THREE.Mesh(new THREE.PlaneGeometry(45,85),soil);
   ground.rotation.x=-Math.PI/2;ground.position.z=-60;scene.add(ground);
-  const path=new THREE.Mesh(new THREE.PlaneGeometry(3.2,78),trail);
-  path.rotation.x=-Math.PI/2;path.position.set(0,.025,-56);scene.add(path);
-  const lookout=new THREE.Mesh(new THREE.CylinderGeometry(6,6,.3,16),rock);
-  lookout.position.set(0,.15,-94);scene.add(lookout);
-  const bench=new THREE.Mesh(new THREE.BoxGeometry(2.8,.45,.85),rock);
-  bench.position.set(0,.65,-97);scene.add(bench);
+  const path=new THREE.Mesh(new THREE.PlaneGeometry(EXTERIOR.trail.width,EXTERIOR.trail.depth),trail);
+  path.rotation.x=-Math.PI/2;path.position.set(0,.025,EXTERIOR.trail.z);scene.add(path);
+  const lookout=new THREE.Mesh(new THREE.CylinderGeometry(EXTERIOR.lookout.radius,EXTERIOR.lookout.radius,EXTERIOR.lookout.height,16),rock);
+  lookout.position.set(EXTERIOR.lookout.x,EXTERIOR.lookout.height/2,EXTERIOR.lookout.z);scene.add(lookout);
+  const lakeSeat=SEAT_GEOMETRY.lake;
+  const bench=new THREE.Mesh(new THREE.BoxGeometry(lakeSeat.width,lakeSeat.height,lakeSeat.depth),rock);
+  bench.position.set(0,lakeSeat.centerY,-97);scene.add(bench);
   const water=new THREE.Mesh(new THREE.PlaneGeometry(280,180),lake);
   water.rotation.x=-Math.PI/2;water.position.set(0,-.2,-189);scene.add(water);
   // Low-poly shoreline transition near the lookout, outside the walkable platform.

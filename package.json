@@ -1,21 +1,24 @@
 {
   "name": "banrixian",
   "private": true,
-  "version": "1.4.0",
+  "version": "2.0.0-rc.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:browser": "node scripts/browser-test.mjs",
+    "test:soak": "node scripts/browser-soak.mjs"
   },
   "dependencies": {
     "three": "^0.180.0"
   },
   "devDependencies": {
+    "@types/three": "^0.180.0",
+    "playwright-core": "^1.65.0",
     "typescript": "^5.9.3",
     "vite": "^7.1.12",
-    "@types/three": "^0.180.0",
     "vitest": "^3.2.4"
   }
 }

@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { addBambooGrove } from './bamboo';
+import { BRIDGE, GARDEN, GATE_COLUMNS, PONDS, TEAHOUSE, WALLS } from './layout';
 
 /** M0.3 conceptual whitebox: garden footprint 42 x 36m, not the final 70 x 55m plan. */
 export function buildGarden(scene: THREE.Scene): void {
@@ -11,7 +12,7 @@ export function buildGarden(scene: THREE.Scene): void {
   const waterHighlight=new THREE.MeshBasicMaterial({color:'#b7d5c7',transparent:true,opacity:.38,depthWrite:false});
   const earth = new THREE.MeshStandardMaterial({color:'#b3bea7',roughness:1});
   const paving=new THREE.MeshStandardMaterial({color:'#d5cbb8',roughness:1});
-  const floor = new THREE.Mesh(new THREE.PlaneGeometry(42,36),earth);
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(GARDEN.width,GARDEN.depth),earth);
   floor.rotation.x=-Math.PI/2;scene.add(floor);
   const box=(w:number,h:number,d:number,x:number,y:number,z:number,m:THREE.Material)=>{
     const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);if(m===white||m===roof)o.userData.cameraOccluder=true;scene.add(o);return o;
@@ -45,21 +46,16 @@ export function buildGarden(scene: THREE.Scene): void {
     }
     tiles.instanceMatrix.needsUpdate=true;scene.add(tiles);
   });
-  // White walls with gaps; these are visual-only until mesh-derived collision is implemented.
-  for(const z of [-16.5,16.5]){
-    box(16,2.8,.35,-12,1.4,z,white);box(16,2.8,.35,12,1.4,z,white);
-    box(16,.22,.75,-12,2.9,z,roof);box(16,.22,.75,12,2.9,z,roof);
+  // Shared footprints keep the visible walls and visitor collision aligned.
+  for(const wall of WALLS){
+    box(wall.width,2.8,wall.depth,wall.x,1.4,wall.z,white);
+    box(wall.width===.35?.75:wall.width,.22,wall.depth===.35?.75:wall.depth,wall.x,2.9,wall.z,roof);
   }
-  for(const x of [-20.5,20.5]){
-    box(.35,2.8,12,x,1.4,-10,white);box(.35,2.8,12,x,1.4,10,white);
-    box(.75,.22,12,x,2.9,-10,roof);box(.75,.22,12,x,2.9,10,roof);
-  }
-  // Garden gate and the named entrance lintel.
-  box(1.1,3.1,.7,-2.7,1.55,15.6,white);box(1.1,3.1,.7,2.7,1.55,15.6,white);
+  for(const column of GATE_COLUMNS)box(column.width,3.1,column.depth,column.x,1.55,column.z,white);
   box(6.6,.55,1.4,0,3.3,15.6,roof);box(4.2,.6,.15,0,2.75,15.15,timber);
   // Teahouse in north-west, with open doorway facing central garden.
-  box(8,.25,5,-8,.12,-10,stone);
-  for(const x of [-11.7,-4.3])for(const z of [-12.2,-7.8])box(.26,3,.26,x,1.6,z,timber);
+  box(TEAHOUSE.width,TEAHOUSE.floorDepth,TEAHOUSE.depth,TEAHOUSE.x,TEAHOUSE.floorY,TEAHOUSE.z,stone);
+  for(const x of TEAHOUSE.postXs)for(const z of TEAHOUSE.postZs)box(TEAHOUSE.postWidth,3,TEAHOUSE.postWidth,x,1.6,z,timber);
   // Clean double-pitched roof: no overlapping horizontal slab beneath the slopes.
   const roofPlane=new THREE.BoxGeometry(4.9,.16,6.6);
   for(const side of [-1,1]){
@@ -69,7 +65,7 @@ export function buildGarden(scene: THREE.Scene): void {
     slope.userData.cameraOccluder=true;
     scene.add(slope);
   }
-  box(9.8,.10,.16,-8,3.94,-10,roof);
+  box(.16,.10,6.6,-8,3.94,-10,roof);
   // Raised roof battens suggest tile courses without high-cost individual tiles.
   const roofRibs=new THREE.InstancedMesh(new THREE.BoxGeometry(.055,.045,6.45),roof,18);
   const ribTransform=new THREE.Object3D();
@@ -83,10 +79,10 @@ export function buildGarden(scene: THREE.Scene): void {
   for(const x of [-12.75,-3.25])box(.15,.12,6.7,x,3.03,-10,roof);
   // M1.5: restrained ridge caps and end finials add roof silhouette without extra assets.
   const ridgeCap=new THREE.MeshStandardMaterial({color:'#394441',roughness:1});
-  for(const x of [-12.8,-3.2]){
+  for(const z of [-13.3,-6.7]){
     const cap=new THREE.Mesh(new THREE.CylinderGeometry(.16,.16,.3,8),ridgeCap);
-    cap.rotation.z=Math.PI/2;
-    cap.position.set(x,3.95,-10);
+    cap.rotation.x=Math.PI/2;
+    cap.position.set(-8,3.95,z);
     scene.add(cap);
   }
   // Fine horizontal timber ties beneath the eaves, deliberately clear of the entrance.
@@ -100,13 +96,16 @@ export function buildGarden(scene: THREE.Scene): void {
   for(const x of [-11.2,-10.3,-9.4,-8.5,-7.6,-6.7,-5.8])box(.055,1.65,.07,x,1.65,-12.35,lattice);
   box(6.6,.065,.08,-8,2.45,-12.35,lattice);
   box(6.6,.065,.08,-8,1.45,-12.35,lattice);
-  box(5,2.4,.2,-8,1.45,-12.5,white);
-  box(1.2,.8,1.2,-8,.55,-10,timber);
-  // Central winding pond with two bays; shore is approximate, no bridge crossing in this iteration.
-  const pond=new THREE.Mesh(new THREE.CircleGeometry(1,64),water);
-  pond.rotation.x=-Math.PI/2;pond.scale.set(8.3,5.2,1);pond.position.set(9,.045,0);scene.add(pond);
-  const bay=new THREE.Mesh(new THREE.CircleGeometry(1,48),water);
-  bay.rotation.x=-Math.PI/2;bay.scale.set(3.5,3.1,1);bay.position.set(7,.046,-4);scene.add(bay);
+  const rear=TEAHOUSE.rearWall,table=TEAHOUSE.table;
+  box(rear.width,2.4,rear.depth,rear.x,1.45,rear.z,white);
+  box(table.width,.8,table.depth,table.x,.55,table.z,timber);
+  // Water footprints are also used by navigation; only the bridge deck permits crossing.
+  for(const pond of PONDS){
+    const surface=new THREE.Mesh(new THREE.CircleGeometry(1,64),water);
+    surface.rotation.x=-Math.PI/2;
+    surface.scale.set(pond.radiusX,pond.radiusZ,1);
+    surface.position.set(pond.x,pond.y,pond.z);scene.add(surface);
+  }
   // Irregular shoreline stones stay decorative and outside the existing path/collision logic.
   const bankStone=new THREE.MeshStandardMaterial({color:'#a6a99b',roughness:1,flatShading:true});
   const bankGeometry=new THREE.DodecahedronGeometry(1,0);
@@ -131,15 +130,15 @@ export function buildGarden(scene: THREE.Scene): void {
   // M0.6 low crossing over the pond at z=2, with a clear 1.8m walking deck.
   const bridgeWood=new THREE.MeshStandardMaterial({color:'#9b8062',roughness:1});
   const plankPositions: number[] = [];
-  for(let x=1.5;x<=17.5;x+=.65)plankPositions.push(x);
-  const plankGeometry=new THREE.BoxGeometry(.58,.12,1.9);
+  for(let x=BRIDGE.minX+.29;x<=BRIDGE.maxX-.29;x+=.58)plankPositions.push(x);
+  const plankGeometry=new THREE.BoxGeometry(.58,BRIDGE.plankDepth,BRIDGE.plankWidth);
   const planks=new THREE.InstancedMesh(plankGeometry,bridgeWood,plankPositions.length);
   const transform=new THREE.Object3D();
-  plankPositions.forEach((x,i)=>{transform.position.set(x,.12,2);transform.updateMatrix();planks.setMatrixAt(i,transform.matrix);});
+  plankPositions.forEach((x,i)=>{transform.position.set(x,BRIDGE.plankY,BRIDGE.z);transform.updateMatrix();planks.setMatrixAt(i,transform.matrix);});
   planks.instanceMatrix.needsUpdate=true;
   scene.add(planks);
   const postPositions: Array<[number,number]> = [];
-  for(const z of [.82,3.18]){
+  for(const z of [BRIDGE.z-1.18,BRIDGE.z+1.18]){
     for(const x of [2,5,8,11,14,17])postPositions.push([x,z]);
     box(15.2,.14,.12,9.5,.73,z,timber);
   }

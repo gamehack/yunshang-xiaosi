@@ -3,6 +3,7 @@ export class AmbientSound {
   private context: AudioContext | null = null;
   private source: AudioBufferSourceNode | null = null;
   private gain: GainNode | null = null;
+  private filter: BiquadFilterNode | null = null;
   private volume = 0.18;
   get playing(): boolean { return this.context?.state === 'running'; }
   async toggle(): Promise<boolean> {
@@ -25,13 +26,13 @@ export class AmbientSound {
       gain.gain.value=this.volume;
       source.connect(filter).connect(gain).connect(context.destination);
       source.start();
-      this.context=context;this.source=source;this.gain=gain;
+      this.context=context;this.source=source;this.gain=gain;this.filter=filter;
     }
     await this.context.resume();
     return true;
   }
   setVolume(volume:number):void {
-    this.volume=Math.min(1,Math.max(0,volume));
+    this.volume=Number.isFinite(volume)?Math.min(1,Math.max(0,volume)):this.volume;
     if(this.gain)this.gain.gain.value=this.volume;
   }
   async pause():Promise<void> {
@@ -40,7 +41,8 @@ export class AmbientSound {
   async dispose():Promise<void> {
     this.source?.stop();
     this.source?.disconnect();
+    this.filter?.disconnect();this.gain?.disconnect();
     await this.context?.close();
-    this.source=null;this.gain=null;this.context=null;
+    this.source=null;this.gain=null;this.filter=null;this.context=null;
   }
 }
