@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {shouldHandleMovementKey,shouldStopWalking} from './keyboard';
 
 type Cell = { x: number; z: number };
 const STEP = 1;
@@ -72,7 +73,7 @@ export function findPath(from: THREE.Vector3, to: THREE.Vector3): THREE.Vector3[
 export class WalkController {
   private keys = new Set<string>();
   private seated = false;
-  setSeated(value: boolean) { this.seated = value; this.route = []; this.keys.clear(); }
+  setSeated(value: boolean) { this.seated = value; this.stop(); }
   getViewState() { return { yaw:this.yaw, pitch:this.pitch, distance:this.distance }; }
   restoreViewState(v:{yaw:number;pitch:number;distance:number}) {
     if(Number.isFinite(v.yaw)) this.yaw=v.yaw;
@@ -80,6 +81,8 @@ export class WalkController {
     if(Number.isFinite(v.distance)) this.distance=THREE.MathUtils.clamp(v.distance,5,19);
   }
   private route: THREE.Vector3[] = [];
+  get isMoving(): boolean { return this.route.length > 0; }
+  stop(): void { this.route = []; this.keys.clear(); }
   private raycaster = new THREE.Raycaster();
   private pointer = new THREE.Vector2();
   private ground = new THREE.Plane(new THREE.Vector3(0,1,0),0);
@@ -88,12 +91,19 @@ export class WalkController {
   private pitch = 0.43;
   private distance = 11;
   private pointerStart: {id:number;x:number;y:number;lastX:number;lastY:number;dragged:boolean}|null = null;
+  private keyboardOptions(e: KeyboardEvent) {
+    return {altKey:e.altKey,ctrlKey:e.ctrlKey,metaKey:e.metaKey,
+      inControl:e.target instanceof HTMLElement && e.target.closest('button, input, textarea, select, [contenteditable="true"]') !== null};
+  }
   private readonly onDown = (e: KeyboardEvent) => {
-    if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
+    const options=this.keyboardOptions(e);
+    if(shouldStopWalking(e.key,options)){this.stop();return;}
+    if(!shouldHandleMovementKey(e.key,options))return;
+    if(e.key.startsWith('Arrow'))e.preventDefault();
     this.keys.add(e.key.toLowerCase());
   };
   private readonly onUp = (e: KeyboardEvent) => { this.keys.delete(e.key.toLowerCase()); };
-  private readonly onBlur = () => { this.keys.clear(); this.route=[]; };
+  private readonly onBlur = () => { this.stop(); this.pointerStart=null; this.activePointers.clear(); this.pinchDistance=null; };
   private activePointers = new Map<number,{x:number;y:number}>();
   private pinchDistance: number | null = null;
   private readonly onPointerDown = (e: PointerEvent) => {
