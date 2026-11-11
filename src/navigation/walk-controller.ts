@@ -140,11 +140,10 @@ export class WalkController {
     const p=this.pointerStart;
     this.activePointers.delete(e.pointerId);
     if(this.activePointers.size<2)this.pinchDistance=null;
-    // A multi-touch gesture must never turn into a ground click on release.
     if(this.renderer.domElement.hasPointerCapture(e.pointerId))this.renderer.domElement.releasePointerCapture(e.pointerId);
     if(!p || p.id!==e.pointerId)return;
     this.pointerStart=null;
-    if(p.dragged || e.type==='pointercancel' || this.seated)return;
+    if(p.dragged || e.type==='pointercancel' || this.seated || this.activePointers.size>0)return;
     const rect=this.renderer.domElement.getBoundingClientRect();
     this.pointer.set(((e.clientX-rect.left)/rect.width)*2-1,-((e.clientY-rect.top)/rect.height)*2+1);
     this.raycaster.setFromCamera(this.pointer,this.camera);
