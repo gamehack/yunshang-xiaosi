@@ -1,10 +1,11 @@
+import { buildGarden } from './world/garden';
 import { WalkController } from './navigation/walk-controller';
 import * as THREE from 'three';
 import './style.css';
 
 const root = document.querySelector<HTMLDivElement>('#app');
 if (!root) throw new Error('Missing #app');
-root.innerHTML = '<div id="hud"><strong>半日闲 · M0.1</strong><span>WASD / 方向键移动 · 点击地面寻路（网格原型）</span><span id="metrics">初始化中…</span></div><div id="scene"></div>';
+root.innerHTML = '<div id="hud"><strong>半日闲 · M0.3 白模</strong><span>WASD / 方向键移动 · 点击地面寻路（网格原型）</span><span id="metrics">初始化中…</span></div><div id="scene"></div>';
 const mount = document.querySelector<HTMLDivElement>('#scene')!;
 const metrics = document.querySelector<HTMLSpanElement>('#metrics')!;
 const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
@@ -22,28 +23,7 @@ scene.add(new THREE.HemisphereLight('#ffffff', '#829185', 2));
 const sun = new THREE.DirectionalLight('#fff1d8', 2.5);
 sun.position.set(-12, 25, 8);
 scene.add(sun);
-const ground = new THREE.Mesh(new THREE.PlaneGeometry(42, 36), new THREE.MeshStandardMaterial({ color: '#aeb9a0', roughness: 1 }));
-ground.rotation.x = -Math.PI / 2;
-scene.add(ground);
-const path = new THREE.Mesh(new THREE.PlaneGeometry(4, 31), new THREE.MeshStandardMaterial({ color: '#cfc1a5', roughness: 1 }));
-path.rotation.x = -Math.PI / 2;
-path.position.y = 0.015;
-scene.add(path);
-const pond = new THREE.Mesh(new THREE.CircleGeometry(7, 48), new THREE.MeshStandardMaterial({ color: '#719f9d', roughness: 0.55, metalness: 0.05 }));
-pond.rotation.x = -Math.PI / 2;
-pond.scale.set(1.35, 0.72, 1);
-pond.position.set(9, 0.025, 0);
-scene.add(pond);
-const stoneMaterial = new THREE.MeshStandardMaterial({ color: '#e6e3d9', roughness: 1 });
-const roofMaterial = new THREE.MeshStandardMaterial({ color: '#555d5a', roughness: 1 });
-function box(w: number, h: number, d: number, x: number, y: number, z: number, material: THREE.Material) {
-  const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), material);
-  mesh.position.set(x, y, z);
-  scene.add(mesh);
-}
-box(8, 3.5, 5, -8, 1.75, -10, stoneMaterial);
-box(9, 0.5, 6, -8, 3.8, -10, roofMaterial);
-box(2.4, 3, 1, 0, 1.5, 14, stoneMaterial);
+buildGarden(scene);
 const marker = new THREE.Mesh(new THREE.CapsuleGeometry(0.42, 1.05, 4, 8), new THREE.MeshStandardMaterial({ color: '#617e76' }));
 marker.position.set(0, 1, 8);
 scene.add(marker);
