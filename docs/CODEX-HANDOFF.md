@@ -40,8 +40,11 @@
 - 实际手机截图、FPS、兼容性和合规检查若无法执行，必须列为未验证，不得声称完成。
 - 每次开发结束更新 docs/EXECUTION-STATUS.md，包含 commit SHA、测试/CI 结果、完成项、阻塞、下一步。
 
-## 与 Codex Bridge 的关系
-Bridge 的项目级自动调度尚未实现；见 gamehack/codex-bridge/docs/PROJECT-RUNNER-PLAN.md。若当前仅能执行单个 Codex turn，优先在该 turn 内完成多个有界批次并保存检查点；不能宣称进程退出后自动继续。Project Runner 上线后再接入持久化项目任务队列。
+## 执行平台：云端 Codex（最终决策）
+- 用户明确决定直接使用云端 Codex 开发半日闲；**不开发、不升级、不部署 codex-bridge 或 Project Runner**。
+- 云端 Codex 直接通过 GitHub 工作区读取本仓库计划，在 develop 上开发、测试、提交并检查 CI；无需硅谷服务器或 Codex Bridge。
+- 若云端 Codex 单次任务存在运行时长限制，按可执行批次推进，提交检查点和下一批任务，不能假设任务会在平台限制之外自动运行。
+- 不得将 gamehack/codex-bridge 的开发计划视为半日闲依赖或待办。
 
 ## 最终交付
 develop 上 M2.0 RC、全部可自动运行测试通过、文档与实现一致、PR #27 可审查、未验证项和风险清单完整。**不自行合并/生产发布。**
