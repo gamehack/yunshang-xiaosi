@@ -221,7 +221,8 @@ export class WalkController {
       if(!center || radius===undefined)continue;
       const horizontal=Math.hypot(this.camera.position.x-center.x,this.camera.position.z-center.z);
       const proximity=Math.max(0,horizontal-radius);
-      const opacity=THREE.MathUtils.smoothstep(proximity,0,this.foliageFadeDistance);
+      // Large groves share one material, so fading them would erase the whole forest.
+      const opacity=radius>8?1:THREE.MathUtils.smoothstep(proximity,0,this.foliageFadeDistance);
       material.transparent=opacity<.995;
       material.opacity=Math.max(.18,opacity);
       material.depthWrite=opacity>=.995;
