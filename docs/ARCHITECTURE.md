@@ -108,3 +108,9 @@ M0 完成：园门至望湖台可达并折返；桥面/路径导航连续；不�
 - After squash release, main was merged back into develop via PR #10 to keep the development branch synchronized.
 - M0.7 starts with three runtime rendering quality choices: 省电 (DPR cap 1), 均衡 (1.5), 精细 (2). This changes canvas render resolution only, not the A* navigation geometry. Real-device frame rate and battery impact must be measured before selecting mobile defaults.
 - Public repository uses standard GitHub-hosted Actions for pre-merge CI; do not commit secrets or proprietary assets. Cloudflare preview deployments remain disabled; merge to main only in validated batches.
+
+## M0.7 性能回归基线（开发中）
+- 三档渲染分辨率支持本地保存，单独的 quality 工具函数可测试；省电/均衡/精细的 DPR 上限分别为 1/1.5/2。
+- 木桥铺板、栏杆立柱、园林竹竿和竹冠使用 InstancedMesh，降低重复物体的绘制调用；实际性能仍以真实设备为准。
+- 新增最近 180 帧的帧时间统计，HUD 展示 P95 帧时间、FPS、Draw Calls 与三角形数量。P95 为最近帧时间的 nearest-rank 统计，不代表长时间运行的 P95。
+- 当前未完成 PC/iPhone Safari 真机验收，也未实现自动动态画质或 WebGL context lost 恢复。M0.7 不应仅凭 CI 通过宣称已完成性能验收。
