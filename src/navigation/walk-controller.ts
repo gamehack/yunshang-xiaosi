@@ -3,7 +3,8 @@ import * as THREE from 'three';
 type Cell = { x: number; z: number };
 const STEP = 1;
 const HALF_X = 20;
-const HALF_Z = 17;
+const MIN_Z = -101;
+const MAX_Z = 17;
 const walls = [
   [-20.5,-10,.35,12],[-20.5,10,.35,12],[20.5,-10,.35,12],[20.5,10,.35,12],
   [-12,-16.5,16,.35],[12,-16.5,16,.35],[-12,16.5,16,.35],[12,16.5,16,.35],
@@ -11,7 +12,9 @@ const walls = [
 ] as const;
 const KEY = (c: Cell) => c.x + ',' + c.z;
 const blocked = (x: number, z: number): boolean =>
-  Math.abs(x) > HALF_X || Math.abs(z) > HALF_Z ||
+  Math.abs(x) > HALF_X || z < MIN_Z || z > MAX_Z ||
+  (z < -17 && Math.abs(x) > 2.1 && z > -90) ||
+  (z <= -90 && Math.abs(x) > 5.5) ||
   (((x-9)/8.3)**2 + (z/5.2)**2 < 1) || // main pond
   (((x-7)/3.5)**2 + ((z+4)/3.1)**2 < 1) || // northern bay
   (x > -12 && x < -4 && z > -12.5 && z < -7.5) || // teahouse interior, pending doorway/NavMesh
