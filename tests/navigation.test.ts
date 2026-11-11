@@ -19,7 +19,7 @@ describe('M0 prototype navigation', () => {
     expect(route.every(p => isWalkable(p.x,p.z))).toBe(true);
     expect(route.at(-1)?.x).toBe(18);
   });
-  it('returns empty path when already at destination', () => {
+  it('connects the garden to the lake lookout through the bamboo corridor', () => {\n    const route=findPath(new Vector3(0,1,8),new Vector3(0,0,-94));\n    expect(route.length).toBeGreaterThan(90);\n    expect(route.every(p=>isWalkable(p.x,p.z))).toBe(true);\n  });\n  it('blocks leaving the exterior trail into bamboo', () => {\n    expect(isWalkable(9,-50)).toBe(false);\n    expect(isWalkable(0,-50)).toBe(true);\n  });\n  it('returns empty path when already at destination', () => {
     expect(findPath(new Vector3(0, 1, 8), new Vector3(0, 0, 8))).toEqual([]);
   });
 });
