@@ -4,6 +4,7 @@ export class FrameStats {
   constructor(private readonly capacity = 180) {
     if (!Number.isInteger(capacity) || capacity < 1) throw new Error('Invalid frame sample capacity');
   }
+  clear(): void { this.samples = []; }
   record(frameMs: number): void {
     if (!Number.isFinite(frameMs) || frameMs <= 0) return;
     this.samples.push(frameMs);
