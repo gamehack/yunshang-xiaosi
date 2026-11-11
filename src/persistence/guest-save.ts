@@ -20,7 +20,9 @@ export function readGuestSave(): GuestSave | null {
     const v=s as Partial<GuestSave>;
     if(v.version!==1 || ![v.x,v.z,v.yaw,v.pitch,v.distance].every(n=>typeof n==='number'&&Number.isFinite(n)))return null;
     if(!isWalkable(v.x!,v.z!))return null;
-    return {version:1,x:v.x!,z:v.z!,seated:v.seated===true,yaw:v.yaw!,pitch:v.pitch!,distance:v.distance!,savedAt:typeof v.savedAt==='number'?v.savedAt:0};
+    // Seated state is only valid beside a known seat; never restore mid-animation.
+    const seatNearby = Math.hypot(v.x!+8,v.z!+6.5)<2.4 || Math.hypot(v.x!,v.z!+94)<2.4;
+    return {version:1,x:v.x!,z:v.z!,seated:v.seated===true && seatNearby,yaw:v.yaw!,pitch:v.pitch!,distance:v.distance!,savedAt:typeof v.savedAt==='number'?v.savedAt:0};
   }catch{return null;}
 }
 export function writeGuestSave(save: GuestSave): void {
