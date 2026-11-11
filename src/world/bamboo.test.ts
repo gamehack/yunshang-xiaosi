@@ -12,7 +12,7 @@ describe('addBambooGrove', () => {
     expect(scene.children).toHaveLength(3);
     const meshes = scene.children as THREE.InstancedMesh[];
     expect(meshes.every((mesh) => mesh.isInstancedMesh)).toBe(true);
-    expect(meshes.map((mesh) => mesh.count)).toEqual([2, 10, 36]);
+    expect(meshes.map((mesh) => mesh.count)).toEqual([2, 10, 144]);
     const stem = new THREE.Matrix4();
     meshes[0].getMatrixAt(0, stem);
     const p = new THREE.Vector3().setFromMatrixPosition(stem);
