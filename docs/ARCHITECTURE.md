@@ -114,3 +114,36 @@ M0 完成：园门至望湖台可达并折返；桥面/路径导航连续；不�
 - 木桥铺板、栏杆立柱、园林竹竿和竹冠使用 InstancedMesh，降低重复物体的绘制调用；实际性能仍以真实设备为准。
 - 新增最近 180 帧的帧时间统计，HUD 展示 P95 帧时间、FPS、Draw Calls 与三角形数量。P95 为最近帧时间的 nearest-rank 统计，不代表长时间运行的 P95。
 - 当前未完成 PC/iPhone Safari 真机验收，也未实现自动动态画质或 WebGL context lost 恢复。M0.7 不应仅凭 CI 通过宣称已完成性能验收。
+
+
+---
+
+## 当前状态快照（2026-11-11，覆盖本文早期阶段性状态）
+
+**文档阅读原则：** 本文前面的 M0.1–M0.7 “未实现”“未发布”“待 CI”属于当时的历史记录，不能作为当前状态。当前状态以 README、CHANGELOG 及本节为准。代码与文档必须在同一开发批次同步更新，详见 DOCUMENTATION-POLICY.md。
+
+### 当前架构
+
+- 渲染：Three.js WebGLRenderer、单场景、PerspectiveCamera、requestAnimationFrame；画质三档控制 DPR 上限。
+- 场景：`src/world/garden.ts` 约 42×36m 缩尺园林；`src/world/exterior.ts` 北侧竹林长路与望湖台。程序化几何和 InstancedMesh；未实现真实场景分区流式加载。
+- 导航：`src/navigation/walk-controller.ts` 使用硬编码可通行范围与二维 A*；支持键盘移动、触屏点击行走、镜头拖动和缩放、Esc/按钮取消路线；**不是 NavMesh**，没有坡地与拱桥高差。
+- 交互：茶室和望湖台附近的坐下/起身为角色缩放占位；没有真实坐姿动画和座椅锚定。
+- 存档：`src/persistence/guest-save.ts` 保存位置、镜头、坐姿；定时、页面隐藏和离开时写入 localStorage。
+- 性能：`src/performance/quality.ts` 三档画质持久化；`frame-stats.ts` 最近 180 帧 P95；HUD 显示 FPS、Draw Calls、三角形数量。
+- UI：`src/main.ts` 生成 HUD；M0.9 手机端默认折叠，支持展开收起；暂无独立 UI 框架。
+- CI/CD：GitHub Actions PR 验证（npm test + npm run build），Cloudflare Pages main 生产部署；develop 预览部署关闭以节约免费构建额度。
+
+### 版本状态与验收
+
+- M0.6：PR #9，18 项测试通过，生产部署成功。
+- M0.7：PR #11，29 项测试通过，生产部署成功。
+- M0.8：PR #13，32 项测试通过，生产部署成功；用户反馈 iPhone Chrome 运行正常并提供性能截图。该反馈不等于所有交互和浏览器已全面验收。
+- M0.9：PR #15（develop，未发布）；手机折叠 HUD、植物层次、建筑格栅/檐口、石板铺装、水纹与岸线已提交；最新 CI 需再次核验。
+
+### 技术债与后续方向
+
+1. 当前碰撞边界与场景几何分别维护，需统一空间数据以避免视觉与可通行范围偏离。
+2. 坡地、桥梁高差、正式人物模型及动作动画未实现。
+3. WebGL 上下文丢失恢复、真实设备性能基线和自动化浏览器烟测未完成。
+4. 场景视觉仍为低多边形过渡版本，苏式建筑与植物尚需系统化资产设计。
+5. 生产部署成功、CI 通过与真实浏览器验收必须分别记录，详见 CHANGELOG.md。

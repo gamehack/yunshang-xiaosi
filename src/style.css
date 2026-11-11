@@ -9,3 +9,11 @@
 
 #stop{pointer-events:auto;align-self:flex-start;border:1px solid #80968a;border-radius:7px;background:rgba(250,251,246,.92);color:#31493e;padding:7px 12px;font-size:12px;cursor:pointer}
 #stop[hidden]{display:none}#stop:focus-visible{outline:2px solid #244d3e;outline-offset:2px}
+
+/* M0.9: compact mobile controls, keeping the 3D scene unobstructed. */
+#hud .hud-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+#hud #hud-details{display:flex;flex-direction:column;gap:5px}
+#hud #hud-details[hidden]{display:none}
+#hud-toggle{pointer-events:auto;border:1px solid #80968a;border-radius:7px;background:rgba(250,251,246,.92);color:#31493e;padding:5px 10px;font-size:12px;cursor:pointer}
+#hud-toggle:focus-visible{outline:2px solid #244d3e;outline-offset:2px}
+@media(max-width:600px){#hud{max-width:min(290px,calc(100vw - 24px));padding:8px 10px}#hud .hud-heading strong{font-size:12px}}

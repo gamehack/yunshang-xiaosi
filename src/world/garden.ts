@@ -7,8 +7,10 @@ export function buildGarden(scene: THREE.Scene): void {
   const stone = new THREE.MeshStandardMaterial({color:'#c7bda9',roughness:1});
   const timber = new THREE.MeshStandardMaterial({color:'#765d48',roughness:1});
   const leaf = new THREE.MeshStandardMaterial({color:'#668477',roughness:1});
-  const water = new THREE.MeshStandardMaterial({color:'#729f9b',roughness:0.45});
+  const water = new THREE.MeshStandardMaterial({color:'#729f9b',roughness:0.45,metalness:.04});
+  const waterHighlight=new THREE.MeshBasicMaterial({color:'#b7d5c7',transparent:true,opacity:.38,depthWrite:false});
   const earth = new THREE.MeshStandardMaterial({color:'#b3bea7',roughness:1});
+  const paving=new THREE.MeshStandardMaterial({color:'#d5cbb8',roughness:1});
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(42,36),earth);
   floor.rotation.x=-Math.PI/2;scene.add(floor);
   const box=(w:number,h:number,d:number,x:number,y:number,z:number,m:THREE.Material)=>{
@@ -20,6 +22,16 @@ export function buildGarden(scene: THREE.Scene): void {
   walk(-12,0,2.5,27);walk(18,0,2.5,27);
   walk(-6,-14,13,2.6);walk(7,-14,15,2.6);
   walk(-6,11,13,2);walk(7,11,15,2);
+  // Inset paving stones break up the uninterrupted walkway without altering collisions.
+  const tile=new THREE.BoxGeometry(.95,.018,.66);
+  const stones=new THREE.InstancedMesh(tile,paving,48);
+  const tileMatrix=new THREE.Matrix4();
+  for(let i=0;i<48;i++){
+    const col=i%2,row=Math.floor(i/2);
+    tileMatrix.makeTranslation(-.53+col*1.06,.055,15-row*1.18);
+    stones.setMatrixAt(i,tileMatrix);
+  }
+  stones.instanceMatrix.needsUpdate=true;scene.add(stones);
   // White walls with gaps; these are visual-only until mesh-derived collision is implemented.
   for(const z of [-16.5,16.5]){
     box(16,2.8,.35,-12,1.4,z,white);box(16,2.8,.35,12,1.4,z,white);
@@ -36,6 +48,13 @@ export function buildGarden(scene: THREE.Scene): void {
   box(8,.25,5,-8,.12,-10,stone);
   for(const x of [-11.7,-4.3])for(const z of [-12.2,-7.8])box(.26,3,.26,x,1.6,z,timber);
   box(9,.48,6,-8,3.35,-10,roof);
+  // Layered eaves and ridge hint at a Suzhou-style roof while retaining low geometry cost.
+  box(9.6,.16,6.6,-8,3.1,-10,roof);
+  box(9.1,.18,.26,-8,3.68,-10,roof);
+  const lattice=new THREE.MeshStandardMaterial({color:'#92765b',roughness:1});
+  for(const x of [-11.2,-10.3,-9.4,-8.5,-7.6,-6.7,-5.8])box(.055,1.65,.07,x,1.65,-12.35,lattice);
+  box(6.6,.065,.08,-8,2.45,-12.35,lattice);
+  box(6.6,.065,.08,-8,1.45,-12.35,lattice);
   box(5,2.4,.2,-8,1.45,-12.5,white);
   box(1.2,.8,1.2,-8,.55,-10,timber);
   // Central winding pond with two bays; shore is approximate, no bridge crossing in this iteration.
@@ -43,6 +62,12 @@ export function buildGarden(scene: THREE.Scene): void {
   pond.rotation.x=-Math.PI/2;pond.scale.set(8.3,5.2,1);pond.position.set(9,.045,0);scene.add(pond);
   const bay=new THREE.Mesh(new THREE.CircleGeometry(1,48),water);
   bay.rotation.x=-Math.PI/2;bay.scale.set(3.5,3.1,1);bay.position.set(7,.046,-4);scene.add(bay);
+  // Thin static ripples are decorative and do not alter pond collision boundaries.
+  const rippleGeometry=new THREE.RingGeometry(.52,.55,32);
+  for(const [x,z,s] of [[5,-1,1],[11,-2,1.35],[13,3,.85],[6,-4,.6]]){
+    const ripple=new THREE.Mesh(rippleGeometry,waterHighlight);
+    ripple.rotation.x=-Math.PI/2;ripple.position.set(x,.065,z);ripple.scale.setScalar(s);scene.add(ripple);
+  }
   // M0.6 low crossing over the pond at z=2, with a clear 1.8m walking deck.
   const bridgeWood=new THREE.MeshStandardMaterial({color:'#9b8062',roughness:1});
   const plankPositions: number[] = [];
@@ -72,6 +97,8 @@ export function buildGarden(scene: THREE.Scene): void {
   void pavilion;
   for(const x of [14.2,17.8])for(const z of [-12.8,-9.2])box(.22,2.8,.22,x,1.5,z,timber);
   box(5.1,.45,5.1,16,3.1,-11,roof);
+  box(5.6,.12,5.6,16,2.91,-11,roof);
+  box(5.0,.17,.22,16,3.43,-11,roof);
   // Bamboo stand-in, placed outside the main north/south corridor.
   const trunk=new THREE.MeshStandardMaterial({color:'#7c9475'});
   const bambooPositions: Array<{x:number;z:number;h:number}> = [];
@@ -81,12 +108,16 @@ export function buildGarden(scene: THREE.Scene): void {
     bambooPositions.push({x,z,h:3.5+(i%5)*.45});
   }
   const stems=new THREE.InstancedMesh(new THREE.CylinderGeometry(.08,.11,1,6),trunk,bambooPositions.length);
-  const crowns=new THREE.InstancedMesh(new THREE.ConeGeometry(.8,2.4,5),leaf,bambooPositions.length);
+  const crowns=new THREE.InstancedMesh(new THREE.ConeGeometry(.8,2.0,7),leaf,bambooPositions.length);
+  const leafTips=new THREE.MeshStandardMaterial({color:'#789486',roughness:1,flatShading:true});
+  const upperCrowns=new THREE.InstancedMesh(new THREE.ConeGeometry(.5,1.5,7),leafTips,bambooPositions.length);
   bambooPositions.forEach(({x,z,h},i)=>{
     transform.position.set(x,h/2,z);transform.scale.set(1,h,1);transform.updateMatrix();stems.setMatrixAt(i,transform.matrix);
-    transform.position.set(x,h+.6,z);transform.scale.set(1,1,1);transform.updateMatrix();crowns.setMatrixAt(i,transform.matrix);
+    transform.position.set(x,h+.45,z);transform.scale.set(1,1,1);transform.updateMatrix();crowns.setMatrixAt(i,transform.matrix);
+    transform.position.set(x,h+1.4,z);transform.updateMatrix();upperCrowns.setMatrixAt(i,transform.matrix);
   });
   stems.instanceMatrix.needsUpdate=true;
   crowns.instanceMatrix.needsUpdate=true;
-  scene.add(stems,crowns);
+  upperCrowns.instanceMatrix.needsUpdate=true;
+  scene.add(stems,crowns,upperCrowns);
 }
