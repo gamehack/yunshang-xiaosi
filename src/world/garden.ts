@@ -157,6 +157,12 @@ export function buildGarden(scene: THREE.Scene): void {
   box(5.1,.45,5.1,16,3.1,-11,roof);
   box(5.6,.12,5.6,16,2.91,-11,roof);
   box(5.0,.17,.22,16,3.43,-11,roof);
+  // Pavilion roof trim and beam lattice, kept above the walkable deck.
+  for(const z of [-13.45,-8.55])box(5.35,.12,.12,16,2.82,z,timber);
+  for(const x of [13.55,18.45])box(.12,.12,5.35,x,2.82,-11,timber);
+  for(const x of [14.2,17.8])for(const z of [-12.8,-9.2]){
+    box(.42,.12,.42,x,2.96,z,roof);
+  }
   // Small low shrubs soften the otherwise empty courtyard; purely visual and off the central path.
   const shrubMaterial=new THREE.MeshStandardMaterial({color:'#759575',roughness:1,flatShading:true});
   const shrubGeometry=new THREE.IcosahedronGeometry(.55,0);
