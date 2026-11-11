@@ -49,18 +49,16 @@ export function buildGarden(scene: THREE.Scene): void {
   // Teahouse in north-west, with open doorway facing central garden.
   box(8,.25,5,-8,.12,-10,stone);
   for(const x of [-11.7,-4.3])for(const z of [-12.2,-7.8])box(.26,3,.26,x,1.6,z,timber);
-  box(9,.48,6,-8,3.35,-10,roof);
-  // Layered eaves and ridge hint at a Suzhou-style roof while retaining low geometry cost.
-  box(9.6,.16,6.6,-8,3.1,-10,roof);
-  box(9.1,.18,.26,-8,3.68,-10,roof);
-  // Two shallow sloping roof planes with a visible ridge; purely decorative.
-  const roofPlane=new THREE.BoxGeometry(4.8,.13,6.7);
+  // Clean double-pitched roof: no overlapping horizontal slab beneath the slopes.
+  const roofPlane=new THREE.BoxGeometry(4.9,.16,6.6);
   for(const side of [-1,1]){
     const slope=new THREE.Mesh(roofPlane,roof);
-    slope.rotation.z=side*.19;
-    slope.position.set(-8+side*2.35,3.68,-10);
+    slope.rotation.z=-side*.19;
+    slope.position.set(-8+side*2.4,3.48,-10);
     scene.add(slope);
   }
+  box(9.8,.10,.16,-8,3.94,-10,roof);
+  for(const x of [-12.75,-3.25])box(.15,.12,6.7,x,3.03,-10,roof);
   // Front facade retains the original doorway and adds fine lattice bays.
   for(const x of [-11.4,-10.8,-5.2,-4.6])box(.065,1.35,.08,x,1.55,-12.43,timber);
   const lattice=new THREE.MeshStandardMaterial({color:'#92765b',roughness:1});
@@ -124,6 +122,22 @@ export function buildGarden(scene: THREE.Scene): void {
   box(5.1,.45,5.1,16,3.1,-11,roof);
   box(5.6,.12,5.6,16,2.91,-11,roof);
   box(5.0,.17,.22,16,3.43,-11,roof);
+  // Small low shrubs soften the otherwise empty courtyard; purely visual and off the central path.
+  const shrubMaterial=new THREE.MeshStandardMaterial({color:'#759575',roughness:1,flatShading:true});
+  const shrubGeometry=new THREE.IcosahedronGeometry(.55,0);
+  const shrubLocations: Array<[number,number,number]>=[
+    [-17,7,.8],[-15,9,.7],[-14,6,.65],[-17,-10,.75],
+    [12,9,.8],[14,8,.65],[16,6,.7],[19,-5,.6]
+  ];
+  const shrubs=new THREE.InstancedMesh(shrubGeometry,shrubMaterial,shrubLocations.length);
+  const shrubTransform=new THREE.Object3D();
+  shrubLocations.forEach(([x,z,s],i)=>{
+    shrubTransform.position.set(x,s*.5,z);
+    shrubTransform.scale.set(s, s*.8, s);
+    shrubTransform.rotation.set(0,i*.71,0);
+    shrubTransform.updateMatrix();shrubs.setMatrixAt(i,shrubTransform.matrix);
+  });
+  shrubs.instanceMatrix.needsUpdate=true;scene.add(shrubs);
   // Bamboo stand-in, placed outside the main north/south corridor.
   const bambooPositions: Array<{x:number;z:number;h:number}> = [];
   for(let i=0;i<34;i++){
