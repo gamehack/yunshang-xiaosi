@@ -1,6 +1,6 @@
 # 半日闲 M2.0 RC.1 验收报告
 
-分支：develop；版本：2.0.0-rc.1；PR #27 保留，未合并main，未发布生产。
+分支：develop；版本：2.0.0-rc.1；应用验收提交：[f843894](https://github.com/gamehack/yunshang-xiaosi/commit/f8438947291c8b8d72518ce25b99c145466dfea2)。PR #27 保留，未合并main，未发布生产。
 
 ## 当前结论
 
@@ -23,7 +23,7 @@
 | 完整Chromium | 17类交互、独立无WebGL回退通过；页面异常/失败请求均0 |
 | 座椅侧视几何 | 两处实际Scene测量，骨盆与实际座面差均<2mm；图像已人工视觉检查 |
 | 文档门禁 | GITHUB_BASE_REF=main有效执行，通过；diff检查通过 |
-| 同步修复CI | [06e6521 / 43001773127](https://github.com/gamehack/yunshang-xiaosi/actions/runs/43001773127)：Success；后续最终提交结果见EXECUTION-STATUS/最终交付链接 |
+| GitHub Actions | [同步修复06e6521 / 43001773127](https://github.com/gamehack/yunshang-xiaosi/actions/runs/43001773127) 和 [最终应用f843894 / 43003243599](https://github.com/gamehack/yunshang-xiaosi/actions/runs/43003243599) 均为Success；后续归档提交只更新文档 |
 | 持续运行 | 已有602.456秒路线与边界停留测试，20采样，无页面异常；材质调整前记录，未冒充本次重跑 |
 | 视觉证据 | 原12图逐张复核，另补2侧视，14图尺寸/哈希清单与JSON归档 |
 

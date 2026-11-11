@@ -20,7 +20,7 @@
 | A14 | 渲染与长时间运行 | 10 分钟持续漫游无明显泄漏/卡死；三档画质和统计正确 | 云端 PC 回归+真实 PC 性能记录 | 三档画质浏览器通过；602.456秒持续运行通过（移动+边界停留），20次采样见PERFORMANCE |
 | A15 | 性能目标 | PC 目标 60 FPS、P95 优先 ≤16.7ms（记录硬件/DPR/场景） | 真实 PC、画质与场景记录 | 真实PC性能待验收；云端仅软件渲染回归 |
 | A16 | WebGL 异常 | context lost/restored、初始化/资源加载失败提示和恢复可靠 | 故障注入+浏览器 | 真实WEBGL_lose_context恢复通过；禁用WebGL初始化回退通过 |
-| A17 | 自动化质量 | npm test、npm run build、docs 门禁、PR CI 全部通过 | 命令输出+GitHub Actions | 88项Vitest+2项Chromium同步回归、构建/文档门禁通过；06e6521同步修复CI成功；最终CI见执行状态 |
+| A17 | 自动化质量 | npm test、npm run build、docs 门禁、PR CI 全部通过 | 命令输出+GitHub Actions | 88项Vitest+2项Chromium同步回归、构建/文档门禁通过；06e6521同步修复CI与f843894最终应用CI全部成功（43003243599） |
 | A18 | 文档一致性 | README/PRD/ROADMAP/ARCHITECTURE/VISUAL/CHANGELOG/交接单一致 | 差异审查 | 本轮相关文档已同步；独立review、14图清单及逐图复核完成 |
 | A19 | 素材与合规 | 素材许可清单、隐私及大陆公开运营审查明确 | 人工审查 | ASSETS-PRIVACY清单完成；法规/托管隐私条款待人工审查 |
 | A20 | 生产发布 | 用户批准后合并 main，Cloudflare Pages 部署成功 | PR/部署记录 | 未授权；禁止执行 |
@@ -37,3 +37,5 @@
 ## 本轮证据索引
 
 G0见M2-AUDIT；路径与控制器见G1-REPORT；人物与高度见G2-REPORT；浏览器见BROWSER-REPORT及最终检查点。未覆盖项保留上述限制，不能把代码存在当成验收完成。
+
+当前RC完整交付报告：[M2-RC-REPORT](M2-RC-REPORT.md)。最终应用f843894的Actions 43003243599已核验Success；报告归档提交不改动应用与测试。

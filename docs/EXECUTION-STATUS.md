@@ -3,12 +3,12 @@
 更新：2026-11-11。此文件由云端 Codex 按每个开发批次持续更新。**本轮已执行开发与自动回归，证据以文末检查点为准；不代表用户最终验收或生产发布。**
 
 ## 当前检查点
-- 任务：G6 — M2.0 RC 最终验证与交付
+- 任务：G6 — M2.0 RC 验证完成，报告归档
 - 工作分支：develop
 - 权威任务：docs/ROADMAP.md
 - 验收矩阵：docs/ACCEPTANCE.md
 - 发布：禁止自动合并 main 或触发 Cloudflare Pages 生产部署
-- 最近已核验 CI：`06e6521` / [43001773127](https://github.com/gamehack/yunshang-xiaosi/actions/runs/43001773127) 成功；随后材质补证提交继续核验。
+- 最近已核验应用CI：`f843894` / [43003243599](https://github.com/gamehack/yunshang-xiaosi/actions/runs/43003243599) 全部成功。
 - 已完成云端Chromium交互与11张截图；真实PC硬件FPS/P95、Edge/iPhone、听感/最终审美与合规仍待验收
 - 阻塞：无已知P0代码阻断；10分钟最终构建持续运行已完成；仅真实设备及人工发布闸门保留
 
@@ -109,3 +109,13 @@
 - 新侧视实测茶座骨盆底0.590172m/座面0.590000m，湖座0.875189m/座面0.875000m，均小于2mm断言；侧视已实际打开确认石凳支撑面可辨。
 - 独立review再次核查测试未改姿态或几何、未绕过断言；新增材质纳入现有资源释放路径，无重要发现。
 - 14张截图（原12+2侧视）、逐图复核、SHA-256清单及真实场景JSON已归档。
+
+## 恢复任务最终检查点
+
+- 应用验收HEAD：`f8438947291c8b8d72518ce25b99c145466dfea2`，已推送develop；[Actions 43003243599](https://github.com/gamehack/yunshang-xiaosi/actions/runs/43003243599) 明确Success。此前同步修复06e6521的独立CI也成功。
+- 当前应用对应本地及CI：88项Vitest、2项Chromium同步回归、TypeScript/Vite、完整17类交互、独立无WebGL回退、2处真实座面几何/侧视检查均通过；无浏览器页面异常/失败请求。
+- [完整RC报告](M2-RC-REPORT.md)、[验收矩阵](ACCEPTANCE.md)、[逐图复核](VISUAL-REVIEW.md)、14图及场景几何JSON均已归档；manifest的14张PNG与运行源码SHA-256校验一致。
+- 原602.456秒持续运行保留为材质调整前已执行的记录；没有冒充本轮重跑。真实PC硬件、Edge/手机、最终听感/审美和合规保留独立验收。
+- 后续报告归档提交不改变应用、测试或验收断言；其CI按当前develop的Actions核验。
+- main远端仍为 `b668659afbaa907c214fa69e6351686450697c3d`；未合并PR #27、未触发生产发布。没有需要逐项用户决策的代码阻塞。
+- 恢复后不要重复G0–G6；先核验远端HEAD/当前报告归档CI，再仅处理明确失败或集中体验反馈。

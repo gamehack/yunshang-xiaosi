@@ -60,3 +60,5 @@
 - 湖台石凳同色问题修复后再次运行88项单测、构建、完整浏览器入口通过；此处只改材质，不改导航、锚点和动作。
 - 原12张图已逐张复核、11张随最新浏览器运行更新、原soak结束图保留其历史归属；另补2张侧视。共14张图片带尺寸和SHA-256的[清单](evidence/rc1/manifest.json)。
 - 侧视等待实测骨盆贴座面后截图并断言，茶座高度差约0.172mm、湖座约0.189mm；[数据](evidence/rc1/seat-details/report.json)与[逐图复核](VISUAL-REVIEW.md)可核查。
+
+最终应用验收提交f843894的[Actions 43003243599](https://github.com/gamehack/yunshang-xiaosi/actions/runs/43003243599)已全部通过，包括新增同步与侧视几何检查。
