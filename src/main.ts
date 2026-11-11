@@ -1,9 +1,10 @@
+import { WalkController } from './navigation/walk-controller';
 import * as THREE from 'three';
 import './style.css';
 
 const root = document.querySelector<HTMLDivElement>('#app');
 if (!root) throw new Error('Missing #app');
-root.innerHTML = '<div id="hud"><strong>半日闲 · M0.1</strong><span>工程骨架 / 渲染基线</span><span id="metrics">初始化中…</span></div><div id="scene"></div>';
+root.innerHTML = '<div id="hud"><strong>半日闲 · M0.1</strong><span>WASD / 方向键移动 · 点击地面寻路（网格原型）</span><span id="metrics">初始化中…</span></div><div id="scene"></div>';
 const mount = document.querySelector<HTMLDivElement>('#scene')!;
 const metrics = document.querySelector<HTMLSpanElement>('#metrics')!;
 const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
@@ -47,6 +48,8 @@ const marker = new THREE.Mesh(new THREE.CapsuleGeometry(0.42, 1.05, 4, 8), new T
 marker.position.set(0, 1, 8);
 scene.add(marker);
 
+const walking = new WalkController(marker, camera, renderer);
+const clock = new THREE.Clock();
 let frame = 0;
 let last = performance.now();
 let raf = 0;
@@ -61,6 +64,7 @@ window.addEventListener('resize', resize);
 resize();
 function tick(now: number) {
   raf = requestAnimationFrame(tick);
+  walking.update(Math.min(clock.getDelta(), 0.05));
   renderer.render(scene, camera);
   frame++;
   if (now - last >= 1000) {
@@ -70,4 +74,4 @@ function tick(now: number) {
   }
 }
 raf = requestAnimationFrame(tick);
-window.addEventListener('pagehide', () => { cancelAnimationFrame(raf); renderer.dispose(); }, { once: true });
+window.addEventListener('pagehide', () => { cancelAnimationFrame(raf); walking.dispose(); renderer.dispose(); }, { once: true });
