@@ -175,7 +175,7 @@ function tick(now: number) {
   const dx=marker.position.x-oldX,dz=marker.position.z-oldZ;
   const moving=dx*dx+dz*dz>0.000001;
   if(moving)marker.rotation.y=Math.atan2(-dx,-dz);
-  animateVisitor(marker,now*.001,moving,seated);
+  animateVisitor(marker,now*.001,moving,seated,dt);
   // Low-cost, deterministic water motion: no textures or per-frame geometry allocation.
   const t=now*.00045;
   for(const {mesh,baseScale,phase} of waterRipples){
