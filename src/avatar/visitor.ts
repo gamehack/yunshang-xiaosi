@@ -24,13 +24,15 @@ export function createVisitor(): THREE.Group {
   visitor.userData.limbs={leftLeg,rightLeg,leftArm,rightArm,body};
   return visitor;
 }
-export function animateVisitor(visitor:THREE.Group, time:number, moving:boolean, seated:boolean):void {
+export function animateVisitor(visitor:THREE.Group, time:number, moving:boolean, seated:boolean, dt=1/60):void {
   const limbs=visitor.userData.limbs as {leftLeg:THREE.Mesh;rightLeg:THREE.Mesh;leftArm:THREE.Mesh;rightArm:THREE.Mesh;body:THREE.Mesh};
   const swing=moving&&!seated?Math.sin(time*9)*.4:0;
   // Sitting bends the legs forward and rests the arms, rather than flattening the whole model.
   // Blend between gait and seat pose, avoiding instantaneous joint snapping.
   const blend=THREE.MathUtils.clamp((visitor.userData.seatBlend as number|undefined) ?? (seated?1:0),0,1);
-  const next=THREE.MathUtils.lerp(blend,seated?1:0,.16);
+  // Time-based damping preserves animation speed across 30/60/120 Hz displays.
+  const alpha=1-Math.exp(-Math.max(0,Math.min(dt,.1))*10.46);
+  const next=THREE.MathUtils.lerp(blend,seated?1:0,alpha);
   visitor.userData.seatBlend=Math.abs(next-(seated?1:0))<.001?(seated?1:0):next;
   const seatedBlend=visitor.userData.seatBlend as number;
   limbs.leftLeg.rotation.x=THREE.MathUtils.lerp(swing,-Math.PI*.43,seatedBlend);
