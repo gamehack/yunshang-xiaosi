@@ -28,11 +28,16 @@ export function animateVisitor(visitor:THREE.Group, time:number, moving:boolean,
   const limbs=visitor.userData.limbs as {leftLeg:THREE.Mesh;rightLeg:THREE.Mesh;leftArm:THREE.Mesh;rightArm:THREE.Mesh;body:THREE.Mesh};
   const swing=moving&&!seated?Math.sin(time*9)*.4:0;
   // Sitting bends the legs forward and rests the arms, rather than flattening the whole model.
-  limbs.leftLeg.rotation.x=seated?-Math.PI*.43:swing;
-  limbs.rightLeg.rotation.x=seated?-Math.PI*.43:-swing;
-  limbs.leftArm.rotation.x=seated?-.3:-swing*.65;
-  limbs.rightArm.rotation.x=seated?-.3:swing*.65;
-  limbs.body.position.y=.1+(seated?0:moving?Math.abs(Math.sin(time*9))*.025:Math.sin(time*1.5)*.009);
-  visitor.position.y=seated?.69:1;
+  // Blend between gait and seat pose, avoiding instantaneous joint snapping.
+  const blend=THREE.MathUtils.clamp((visitor.userData.seatBlend as number|undefined) ?? (seated?1:0),0,1);
+  const next=THREE.MathUtils.lerp(blend,seated?1:0,.16);
+  visitor.userData.seatBlend=Math.abs(next-(seated?1:0))<.001?(seated?1:0):next;
+  const seatedBlend=visitor.userData.seatBlend as number;
+  limbs.leftLeg.rotation.x=THREE.MathUtils.lerp(swing,-Math.PI*.43,seatedBlend);
+  limbs.rightLeg.rotation.x=THREE.MathUtils.lerp(-swing,-Math.PI*.43,seatedBlend);
+  limbs.leftArm.rotation.x=THREE.MathUtils.lerp(-swing*.65,-.3,seatedBlend);
+  limbs.rightArm.rotation.x=THREE.MathUtils.lerp(swing*.65,-.3,seatedBlend);
+  limbs.body.position.y=.1+(1-seatedBlend)*(moving?Math.abs(Math.sin(time*9))*.025:Math.sin(time*1.5)*.009);
+  visitor.position.y=THREE.MathUtils.lerp(1,.69,seatedBlend);
   visitor.scale.y=1;
 }
