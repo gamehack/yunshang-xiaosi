@@ -81,12 +81,16 @@ export function buildGarden(scene: THREE.Scene): void {
     bambooPositions.push({x,z,h:3.5+(i%5)*.45});
   }
   const stems=new THREE.InstancedMesh(new THREE.CylinderGeometry(.08,.11,1,6),trunk,bambooPositions.length);
-  const crowns=new THREE.InstancedMesh(new THREE.ConeGeometry(.8,2.4,5),leaf,bambooPositions.length);
+  const crowns=new THREE.InstancedMesh(new THREE.ConeGeometry(.8,2.0,7),leaf,bambooPositions.length);
+  const leafTips=new THREE.MeshStandardMaterial({color:'#789486',roughness:1,flatShading:true});
+  const upperCrowns=new THREE.InstancedMesh(new THREE.ConeGeometry(.5,1.5,7),leafTips,bambooPositions.length);
   bambooPositions.forEach(({x,z,h},i)=>{
     transform.position.set(x,h/2,z);transform.scale.set(1,h,1);transform.updateMatrix();stems.setMatrixAt(i,transform.matrix);
-    transform.position.set(x,h+.6,z);transform.scale.set(1,1,1);transform.updateMatrix();crowns.setMatrixAt(i,transform.matrix);
+    transform.position.set(x,h+.45,z);transform.scale.set(1,1,1);transform.updateMatrix();crowns.setMatrixAt(i,transform.matrix);
+    transform.position.set(x,h+1.4,z);transform.updateMatrix();upperCrowns.setMatrixAt(i,transform.matrix);
   });
   stems.instanceMatrix.needsUpdate=true;
   crowns.instanceMatrix.needsUpdate=true;
-  scene.add(stems,crowns);
+  upperCrowns.instanceMatrix.needsUpdate=true;
+  scene.add(stems,crowns,upperCrowns);
 }
