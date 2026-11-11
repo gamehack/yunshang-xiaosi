@@ -32,7 +32,7 @@ describe('M0 prototype navigation', () => {
     expect(isWalkable(9,-50)).toBe(false);
     expect(isWalkable(0,-50)).toBe(true);
   });
-  it('returns empty path when already at destination', () => {
+  it('allows the teahouse entrance standing spot and lookout seat approach', () => {\n    expect(isWalkable(-8,-6.5)).toBe(true);\n    expect(isWalkable(0,-94)).toBe(true);\n  });\n  it('returns empty path when already at destination', () => {
     expect(findPath(new Vector3(0, 1, 8), new Vector3(0, 0, 8))).toEqual([]);
   });
 });
