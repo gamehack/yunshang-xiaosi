@@ -7,10 +7,11 @@ import './style.css';
 
 const root = document.querySelector<HTMLDivElement>('#app');
 if (!root) throw new Error('Missing #app');
-root.innerHTML = '<div id="hud"><strong>半日闲 · M0.5 漫步与续游原型</strong><span>电脑：WASD 移动 · 拖动旋转 · 滚轮缩放<br>手机：轻点行走 · 拖动旋转视角</span><span id="metrics">初始化中…</span><button id="seat" type="button" hidden>坐下</button></div><div id="scene"></div>';
+root.innerHTML = '<div id="hud"><strong>半日闲 · M0.6 竹径与茶室漫游</strong><span>电脑：WASD 移动 · 拖动旋转 · 滚轮缩放<br>手机：轻点行走 · 拖动旋转 · 双指缩放</span><span id="metrics">初始化中…</span><button id="seat" type="button" hidden>坐下</button><button id="reset" type="button">回到入口</button></div><div id="scene"></div>';
 const mount = document.querySelector<HTMLDivElement>('#scene')!;
 const metrics = document.querySelector<HTMLSpanElement>('#metrics')!;
 const seatButton = document.querySelector<HTMLButtonElement>('#seat')!;
+const resetButton = document.querySelector<HTMLButtonElement>('#reset')!;
 const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'default' });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -51,6 +52,14 @@ seatButton.addEventListener('click',()=>{
   seated=!seated;
   walking.setSeated(seated);
   marker.scale.y=seated?.72:1;
+  persist();
+});
+resetButton.addEventListener('click',()=>{
+  seated=false;
+  walking.setSeated(false);
+  marker.scale.y=1;
+  marker.position.set(0,1,8);
+  walking.restoreViewState({yaw:0,pitch:0.43,distance:11});
   persist();
 });
 const saveInterval=window.setInterval(persist,5000);
