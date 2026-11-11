@@ -124,7 +124,9 @@ export function buildGarden(scene: THREE.Scene): void {
   const rippleGeometry=new THREE.RingGeometry(.52,.55,32);
   for(const [x,z,s] of [[5,-1,1],[11,-2,1.35],[13,3,.85],[6,-4,.6]]){
     const ripple=new THREE.Mesh(rippleGeometry,waterHighlight);
-    ripple.rotation.x=-Math.PI/2;ripple.position.set(x,.065,z);ripple.scale.setScalar(s);scene.add(ripple);
+    ripple.rotation.x=-Math.PI/2;ripple.position.set(x,.065,z);ripple.scale.setScalar(s);
+    ripple.userData.waterRipple={baseScale:s,phase:scene.children.length*.71};
+    scene.add(ripple);
   }
   // M0.6 low crossing over the pond at z=2, with a clear 1.8m walking deck.
   const bridgeWood=new THREE.MeshStandardMaterial({color:'#9b8062',roughness:1});
