@@ -7,11 +7,25 @@ import './style.css';
 
 const root = document.querySelector<HTMLDivElement>('#app');
 if (!root) throw new Error('Missing #app');
-root.innerHTML = '<div id="hud"><strong>半日闲 · M0.6 竹径与茶室漫游</strong><span>电脑：WASD 移动 · 拖动旋转 · 滚轮缩放<br>手机：轻点行走 · 拖动旋转 · 双指缩放</span><span id="metrics">初始化中…</span><button id="seat" type="button" hidden>坐下</button><button id="reset" type="button">回到入口</button></div><div id="scene"></div>';
+root.innerHTML = '<div id="hud"><strong>半日闲 · M0.7 园林漫游</strong><span>电脑：WASD 移动 · 拖动旋转 · 滚轮缩放<br>手机：轻点行走 · 拖动旋转 · 双指缩放</span><span id="metrics">初始化中…</span><button id="seat" type="button" hidden>坐下</button><button id="reset" type="button">回到入口</button><button id="quality" type="button">画质：均衡</button></div><div id="scene"></div>';
 const mount = document.querySelector<HTMLDivElement>('#scene')!;
 const metrics = document.querySelector<HTMLSpanElement>('#metrics')!;
 const seatButton = document.querySelector<HTMLButtonElement>('#seat')!;
 const resetButton = document.querySelector<HTMLButtonElement>('#reset')!;
+const qualityButton = document.querySelector<HTMLButtonElement>('#quality')!;
+type Quality = '省电' | '均衡' | '精细';
+const qualities: Quality[] = ['省电','均衡','精细'];
+let quality: Quality = '均衡';
+function applyQuality(){
+  const scale=quality==='省电'?1:quality==='均衡'?1.5:2;
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio,scale));
+  qualityButton.textContent=`画质：${quality}`;
+  resize();
+}
+qualityButton.addEventListener('click',()=>{
+  quality=qualities[(qualities.indexOf(quality)+1)%qualities.length];
+  applyQuality();
+});
 const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'default' });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
