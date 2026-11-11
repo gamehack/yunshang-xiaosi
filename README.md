@@ -29,3 +29,11 @@ npm run build
 ## 合规
 
 正式公开运营前评估中国大陆网络游戏等适用监管要求及隐私告知；M0 阶段仅做内部原型。
+
+## 部署：Cloudflare Pages
+
+- 项目：`banrixian`，GitHub 源：`gamehack/yunshang-xiaosi` / `main`
+- 默认域名：`https://banrixian.pages.dev`
+- 构建命令：`npm test && npm run build`；输出目录：`dist`
+- GitHub Actions 的旧构建工作流已移除，使用 Cloudflare Pages 原生 Git 自动构建与部署。
+- 这是内部白模原型；部署成功后仍须验证浏览器控制、性能及中国大陆公开运营合规。
