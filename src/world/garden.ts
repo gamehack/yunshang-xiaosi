@@ -74,7 +74,7 @@ export function buildGarden(scene: THREE.Scene): void {
   const ribTransform=new THREE.Object3D();
   for(let i=0;i<18;i++){
     const side=i<9?-1:1,step=i%9;
-    ribTransform.position.set(-8+side*(.45+step*.53),3.48+(.45+step*.53)*.19,-10);
+    ribTransform.position.set(-8+side*(.45+step*.53),3.48+(2.4-(.45+step*.53))*.19,-10);
     ribTransform.rotation.set(0,0,-side*.19);
     ribTransform.updateMatrix();roofRibs.setMatrixAt(i,ribTransform.matrix);
   }
