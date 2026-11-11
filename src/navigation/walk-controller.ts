@@ -11,13 +11,19 @@ const walls = [
   [-2.7,15.6,1.1,.7],[2.7,15.6,1.1,.7]
 ] as const;
 const KEY = (c: Cell) => c.x + ',' + c.z;
+// Bridge deck has collision priority over the pond surface, not over walls.
+const onBridge=(x:number,z:number)=>x>=1.1&&x<=17.9&&z>=1.1&&z<=2.9;
 const blocked = (x: number, z: number): boolean =>
   Math.abs(x) > HALF_X || z < MIN_Z || z > MAX_Z ||
   (z < -17 && Math.abs(x) > 2.1 && z > -90) ||
   (z <= -90 && Math.abs(x) > 5.5) ||
-  (((x-9)/8.3)**2 + (z/5.2)**2 < 1) || // main pond
-  (((x-7)/3.5)**2 + ((z+4)/3.1)**2 < 1) || // northern bay
-  (x > -12 && x < -4 && z > -12.5 && z < -7.5) || // teahouse interior, pending doorway/NavMesh
+  (!onBridge(x,z) && (((x-9)/8.3)**2 + (z/5.2)**2 < 1)) || // main pond
+  (!onBridge(x,z) && (((x-7)/3.5)**2 + ((z+4)/3.1)**2 < 1)) || // northern bay
+  // The tea table is a solid obstacle, while the eastern frontage stays open.
+  (Math.abs(x+8)<.6 && Math.abs(z+10)<.6) ||
+  // Teahouse has open east frontage; block only its rear wall and support posts.
+  (x > -12 && x < -4 && z > -12.6 && z < -12.25) ||
+  ([-11.7,-4.3].some(cx=>[-12.2,-7.8].some(cz=>Math.abs(x-cx)<.13&&Math.abs(z-cz)<.13))) ||
   walls.some(([cx,cz,w,d])=>Math.abs(x-cx)<w/2 && Math.abs(z-cz)<d/2);
 
 export function isWalkable(x: number, z: number): boolean {
@@ -29,7 +35,7 @@ function toCell(v: THREE.Vector3): Cell { return { x: Math.round(v.x / STEP), z:
 function center(c: Cell): THREE.Vector3 { return new THREE.Vector3(c.x*STEP,0,c.z*STEP); }
 export function findPath(from: THREE.Vector3, to: THREE.Vector3): THREE.Vector3[] {
   const start = toCell(from), goal = toCell(to);
-  if (!isWalkable(goal.x,goal.z)) return [];
+  if (!isWalkable(start.x,start.z) || !isWalkable(goal.x,goal.z)) return [];
   const open: Cell[] = [start];
   const visited = new Set<string>();
   const cost = new Map<string,number>([[KEY(start),0]]);
@@ -88,12 +94,24 @@ export class WalkController {
   };
   private readonly onUp = (e: KeyboardEvent) => { this.keys.delete(e.key.toLowerCase()); };
   private readonly onBlur = () => { this.keys.clear(); this.route=[]; };
+  private activePointers = new Map<number,{x:number;y:number}>();
+  private pinchDistance: number | null = null;
   private readonly onPointerDown = (e: PointerEvent) => {
     if(e.target!==this.renderer.domElement || (e.pointerType==='mouse' && e.button!==0)) return;
-    this.pointerStart={id:e.pointerId,x:e.clientX,y:e.clientY,lastX:e.clientX,lastY:e.clientY,dragged:false};
+    this.activePointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(this.activePointers.size===1)this.pointerStart={id:e.pointerId,x:e.clientX,y:e.clientY,lastX:e.clientX,lastY:e.clientY,dragged:false};
+    else {this.pointerStart=null;this.pinchDistance=null;}
     this.renderer.domElement.setPointerCapture(e.pointerId);
   };
   private readonly onPointerMove = (e: PointerEvent) => {
+    if(this.activePointers.has(e.pointerId))this.activePointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(this.activePointers.size===2){
+      const [a,b]=[...this.activePointers.values()];
+      const d=Math.hypot(a.x-b.x,a.y-b.y);
+      if(this.pinchDistance!==null)this.distance=THREE.MathUtils.clamp(this.distance*this.pinchDistance/Math.max(1,d),5,19);
+      this.pinchDistance=d;
+      return;
+    }
     const p=this.pointerStart;
     if(!p || p.id!==e.pointerId)return;
     const dx=e.clientX-p.lastX,dy=e.clientY-p.lastY;
@@ -106,9 +124,11 @@ export class WalkController {
   };
   private readonly onPointerUp = (e: PointerEvent) => {
     const p=this.pointerStart;
+    this.activePointers.delete(e.pointerId);
+    if(this.activePointers.size<2)this.pinchDistance=null;
+    if(this.renderer.domElement.hasPointerCapture(e.pointerId))this.renderer.domElement.releasePointerCapture(e.pointerId);
     if(!p || p.id!==e.pointerId)return;
     this.pointerStart=null;
-    if(this.renderer.domElement.hasPointerCapture(e.pointerId))this.renderer.domElement.releasePointerCapture(e.pointerId);
     if(p.dragged || e.type==='pointercancel' || this.seated)return;
     const rect=this.renderer.domElement.getBoundingClientRect();
     this.pointer.set(((e.clientX-rect.left)/rect.width)*2-1,-((e.clientY-rect.top)/rect.height)*2+1);
@@ -168,6 +188,7 @@ export class WalkController {
     window.removeEventListener('keydown',this.onDown);
     window.removeEventListener('keyup',this.onUp);
     window.removeEventListener('blur',this.onBlur);
+    this.activePointers.clear();
     const canvas=this.renderer.domElement;
     canvas.removeEventListener('pointerdown',this.onPointerDown);
     canvas.removeEventListener('pointermove',this.onPointerMove);
