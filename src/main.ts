@@ -1,4 +1,6 @@
 import { readGuestSave, writeGuestSave } from './persistence/guest-save';
+import { nextQuality, qualityPixelRatio, readQuality, writeQuality } from './performance/quality';
+import { FrameStats } from './performance/frame-stats';
 import { buildExterior } from './world/exterior';
 import { buildGarden } from './world/garden';
 import { WalkController } from './navigation/walk-controller';
@@ -7,13 +9,28 @@ import './style.css';
 
 const root = document.querySelector<HTMLDivElement>('#app');
 if (!root) throw new Error('Missing #app');
-root.innerHTML = '<div id="hud"><strong>半日闲 · M0.6 竹径与茶室漫游</strong><span>电脑：WASD 移动 · 拖动旋转 · 滚轮缩放<br>手机：轻点行走 · 拖动旋转 · 双指缩放</span><span id="metrics">初始化中…</span><button id="seat" type="button" hidden>坐下</button><button id="reset" type="button">回到入口</button></div><div id="scene"></div>';
+root.innerHTML = '<div id="hud"><strong>半日闲 · M0.7 园林漫游</strong><span>电脑：WASD 移动 · 拖动旋转 · 滚轮缩放<br>手机：轻点行走 · 拖动旋转 · 双指缩放</span><span id="metrics">初始化中…</span><button id="seat" type="button" hidden>坐下</button><button id="reset" type="button">回到入口</button><button id="quality" type="button">画质：均衡</button></div><div id="scene"></div>';
 const mount = document.querySelector<HTMLDivElement>('#scene')!;
 const metrics = document.querySelector<HTMLSpanElement>('#metrics')!;
 const seatButton = document.querySelector<HTMLButtonElement>('#seat')!;
 const resetButton = document.querySelector<HTMLButtonElement>('#reset')!;
+const qualityButton = document.querySelector<HTMLButtonElement>('#quality')!;
+function safeStorage(): Storage | undefined {
+  try { return window.localStorage; } catch { return undefined; }
+}
+let quality = readQuality(safeStorage());
+function applyQuality(){
+  renderer.setPixelRatio(qualityPixelRatio(quality, window.devicePixelRatio));
+  qualityButton.textContent=`画质：${quality}`;
+  resize();
+}
+qualityButton.addEventListener('click',()=>{
+  quality=nextQuality(quality);
+  writeQuality(quality, safeStorage());
+  applyQuality();
+});
 const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'default' });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+renderer.setPixelRatio(qualityPixelRatio(quality, window.devicePixelRatio));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.shadowMap.enabled = false;
 mount.appendChild(renderer.domElement);
@@ -63,11 +80,19 @@ resetButton.addEventListener('click',()=>{
   persist();
 });
 const saveInterval=window.setInterval(persist,5000);
-const onVisibilityChange=()=>{if(document.visibilityState==='hidden')persist();};
+const onVisibilityChange=()=>{
+  if(document.visibilityState==='hidden')persist();
+  previousFrame=0;
+  frameStats.clear();
+  frame=0;
+  last=performance.now();
+};
 document.addEventListener('visibilitychange',onVisibilityChange);
 const clock = new THREE.Clock();
 let frame = 0;
 let last = performance.now();
+const frameStats = new FrameStats(180);
+let previousFrame = 0;
 let raf = 0;
 function resize() {
   const width = Math.max(1, mount.clientWidth);
@@ -78,8 +103,15 @@ function resize() {
 }
 window.addEventListener('resize', resize);
 resize();
+applyQuality();
 function tick(now: number) {
   raf = requestAnimationFrame(tick);
+  if(previousFrame>0){
+    const delta=now-previousFrame;
+    if(delta>1000){frameStats.clear();frame=0;last=now;}
+    else frameStats.record(delta);
+  }
+  previousFrame=now;
   walking.update(Math.min(clock.getDelta(), 0.05));
   const spot=nearbySeat();
   seatButton.hidden=!seated&&!spot;
@@ -87,7 +119,8 @@ function tick(now: number) {
   renderer.render(scene, camera);
   frame++;
   if (now - last >= 1000) {
-    metrics.textContent = `FPS ≈ ${Math.round(frame * 1000 / (now - last))} · Draw calls ${renderer.info.render.calls}`;
+    const stats=frameStats.snapshot();
+    metrics.textContent = `FPS ≈ ${Math.round(frame * 1000 / (now - last))} · P95 ${stats.p95Ms.toFixed(1)}ms · Draw calls ${renderer.info.render.calls} · 三角形 ${renderer.info.render.triangles}`;
     last = now;
     frame = 0;
   }

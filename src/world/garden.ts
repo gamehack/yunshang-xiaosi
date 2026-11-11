@@ -45,11 +45,23 @@ export function buildGarden(scene: THREE.Scene): void {
   bay.rotation.x=-Math.PI/2;bay.scale.set(3.5,3.1,1);bay.position.set(7,.046,-4);scene.add(bay);
   // M0.6 low crossing over the pond at z=2, with a clear 1.8m walking deck.
   const bridgeWood=new THREE.MeshStandardMaterial({color:'#9b8062',roughness:1});
-  for(let x=1.5;x<=17.5;x+=.65)box(.58,.12,1.9,x,.12,2,bridgeWood);
+  const plankPositions: number[] = [];
+  for(let x=1.5;x<=17.5;x+=.65)plankPositions.push(x);
+  const plankGeometry=new THREE.BoxGeometry(.58,.12,1.9);
+  const planks=new THREE.InstancedMesh(plankGeometry,bridgeWood,plankPositions.length);
+  const transform=new THREE.Object3D();
+  plankPositions.forEach((x,i)=>{transform.position.set(x,.12,2);transform.updateMatrix();planks.setMatrixAt(i,transform.matrix);});
+  planks.instanceMatrix.needsUpdate=true;
+  scene.add(planks);
+  const postPositions: Array<[number,number]> = [];
   for(const z of [.82,3.18]){
-    for(const x of [2,5,8,11,14,17])box(.12,.6,.12,x,.42,z,timber);
+    for(const x of [2,5,8,11,14,17])postPositions.push([x,z]);
     box(15.2,.14,.12,9.5,.73,z,timber);
   }
+  const railPosts=new THREE.InstancedMesh(new THREE.BoxGeometry(.12,.6,.12),timber,postPositions.length);
+  postPositions.forEach(([x,z],i)=>{transform.position.set(x,.42,z);transform.updateMatrix();railPosts.setMatrixAt(i,transform.matrix);});
+  railPosts.instanceMatrix.needsUpdate=true;
+  scene.add(railPosts);
   // Rockery on west side, pavilion beside pond.
   const rockmat=new THREE.MeshStandardMaterial({color:'#919b91',roughness:1,flatShading:true});
   for(const [x,z,s] of [[-16,-5,1.7],[-14,-3,2.3],[-16,-1,1.5],[-15,2,1.1]]){
@@ -62,13 +74,19 @@ export function buildGarden(scene: THREE.Scene): void {
   box(5.1,.45,5.1,16,3.1,-11,roof);
   // Bamboo stand-in, placed outside the main north/south corridor.
   const trunk=new THREE.MeshStandardMaterial({color:'#7c9475'});
+  const bambooPositions: Array<{x:number;z:number;h:number}> = [];
   for(let i=0;i<34;i++){
     const x=-18+(i*7%13),z=-13+(i*11%25);
     if(x>-12 && x<-4 && z<-7)continue;
-    const h=3.5+(i%5)*.45;
-    const stem=new THREE.Mesh(new THREE.CylinderGeometry(.08,.11,h,6),trunk);
-    stem.position.set(x,h/2,z);scene.add(stem);
-    const crown=new THREE.Mesh(new THREE.ConeGeometry(.8,2.4,5),leaf);
-    crown.position.set(x,h+.6,z);scene.add(crown);
+    bambooPositions.push({x,z,h:3.5+(i%5)*.45});
   }
+  const stems=new THREE.InstancedMesh(new THREE.CylinderGeometry(.08,.11,1,6),trunk,bambooPositions.length);
+  const crowns=new THREE.InstancedMesh(new THREE.ConeGeometry(.8,2.4,5),leaf,bambooPositions.length);
+  bambooPositions.forEach(({x,z,h},i)=>{
+    transform.position.set(x,h/2,z);transform.scale.set(1,h,1);transform.updateMatrix();stems.setMatrixAt(i,transform.matrix);
+    transform.position.set(x,h+.6,z);transform.scale.set(1,1,1);transform.updateMatrix();crowns.setMatrixAt(i,transform.matrix);
+  });
+  stems.instanceMatrix.needsUpdate=true;
+  crowns.instanceMatrix.needsUpdate=true;
+  scene.add(stems,crowns);
 }
