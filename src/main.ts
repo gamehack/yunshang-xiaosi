@@ -168,11 +168,11 @@ function tick(now: number) {
   previousFrame=now;
   const dt = Math.min(clock.getDelta(), 0.05);
   if (document.hidden || contextLost) return;
-  const previousPosition=marker.position.clone();
+  const oldX=marker.position.x,oldZ=marker.position.z;
   walking.update(dt);
-  const displacement=marker.position.clone().sub(previousPosition);
-  const moving=displacement.lengthSq()>0.000001;
-  if(moving)marker.rotation.y=Math.atan2(-displacement.x,-displacement.z);
+  const dx=marker.position.x-oldX,dz=marker.position.z-oldZ;
+  const moving=dx*dx+dz*dz>0.000001;
+  if(moving)marker.rotation.y=Math.atan2(-dx,-dz);
   animateVisitor(marker,now*.001,moving,seated);
   // Low-cost, deterministic water motion: no textures or per-frame geometry allocation.
   const t=now*.00045;
