@@ -160,11 +160,6 @@ function tick(now: number) {
   for(const {mesh,baseScale,phase} of waterRipples){
     const cycle=(t+phase)%1;
     mesh.scale.setScalar(baseScale*(.85+.4*cycle));
-    const material=mesh.material;
-    if(material instanceof THREE.MeshBasicMaterial) {
-      // Each ripple uses the shared material, so keep opacity stable.
-      mesh.visible=true;
-    }
   }
   const spot=nearbySeat();
   stopButton.hidden=!walking.isMoving;
