@@ -187,3 +187,9 @@ M0 完成：园门至望湖台可达并折返；桥面/路径导航连续；不�
 - WebGL 初始化异常时在场景容器显示可读错误提示；`webglcontextlost` 阻止默认行为并暂停更新，`webglcontextrestored` 清理帧统计并重新应用画质。
 - 页面进入后台时暂停场景 update/render（requestAnimationFrame 回调仍注册），恢复后原有 visibilitychange 逻辑重置帧统计；避免后台恢复时巨大 dt。
 - 移动端 HUD 增加触控目标最小尺寸、安全区和最大高度约束。上述实现需要 CI 和真机复测。
+
+## M1.6 自然音景首批（develop）
+
+- `src/audio/ambient.ts` 通过 Web Audio API 生成可循环的低通噪声，模拟轻风；无需下载音频素材或联网服务。
+- 用户点击 HUD「风声」按钮后才创建/恢复 AudioContext；进入后台时暂停，离开页面时释放资源。浏览器不支持或拒绝音频时展示不可用状态。
+- 尚未加入音量滑块、雨声、鸟鸣等音景；移动端浏览器需实测。
