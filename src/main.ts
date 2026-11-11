@@ -7,7 +7,7 @@ import './style.css';
 
 const root = document.querySelector<HTMLDivElement>('#app');
 if (!root) throw new Error('Missing #app');
-root.innerHTML = '<div id="hud"><strong>半日闲 · M0.4 漫步路线白模</strong><span>电脑：WASD 移动 · 拖动旋转 · 滚轮缩放<br>手机：轻点行走 · 拖动旋转视角</span><span id="metrics">初始化中…</span><button id="seat" type="button" hidden>坐下</button></div><div id="scene"></div>';
+root.innerHTML = '<div id="hud"><strong>半日闲 · M0.5 漫步与续游原型</strong><span>电脑：WASD 移动 · 拖动旋转 · 滚轮缩放<br>手机：轻点行走 · 拖动旋转视角</span><span id="metrics">初始化中…</span><button id="seat" type="button" hidden>坐下</button></div><div id="scene"></div>';
 const mount = document.querySelector<HTMLDivElement>('#scene')!;
 const metrics = document.querySelector<HTMLSpanElement>('#metrics')!;
 const seatButton = document.querySelector<HTMLButtonElement>('#seat')!;
@@ -36,7 +36,13 @@ const walking = new WalkController(marker, camera, renderer);
 const saved=readGuestSave();
 let seated=false;
 const seatSpots=[{x:-8,z:-10,standX:-8,standZ:-6.5},{x:0,z:-97,standX:0,standZ:-94}];
-if(saved){marker.position.set(saved.x,1,saved.z);walking.restoreViewState(saved);}
+if(saved){
+  marker.position.set(saved.x,1,saved.z);
+  walking.restoreViewState(saved);
+  seated=saved.seated;
+  walking.setSeated(seated);
+  marker.scale.y=seated?0.72:1;
+}
 function nearbySeat(){return seatSpots.find(s=>Math.hypot(marker.position.x-s.standX,marker.position.z-s.standZ)<2.4);}
 function persist(){const v=walking.getViewState();writeGuestSave({version:1,x:marker.position.x,z:marker.position.z,seated,yaw:v.yaw,pitch:v.pitch,distance:v.distance,savedAt:Date.now()});}
 seatButton.addEventListener('click',()=>{
@@ -48,6 +54,8 @@ seatButton.addEventListener('click',()=>{
   persist();
 });
 const saveInterval=window.setInterval(persist,5000);
+const onVisibilityChange=()=>{if(document.visibilityState==='hidden')persist();};
+document.addEventListener('visibilitychange',onVisibilityChange);
 const clock = new THREE.Clock();
 let frame = 0;
 let last = performance.now();
@@ -76,4 +84,4 @@ function tick(now: number) {
   }
 }
 raf = requestAnimationFrame(tick);
-window.addEventListener('pagehide', () => { cancelAnimationFrame(raf); window.clearInterval(saveInterval); persist(); walking.dispose(); renderer.dispose(); }, { once: true });
+window.addEventListener('pagehide', () => { cancelAnimationFrame(raf); window.clearInterval(saveInterval); document.removeEventListener('visibilitychange',onVisibilityChange); persist(); walking.dispose(); renderer.dispose(); }, { once: true });
