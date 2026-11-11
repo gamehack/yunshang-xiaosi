@@ -4,12 +4,18 @@ type Cell = { x: number; z: number };
 const STEP = 1;
 const HALF_X = 20;
 const HALF_Z = 17;
+const walls = [
+  [-20.5,-10,.35,12],[-20.5,10,.35,12],[20.5,-10,.35,12],[20.5,10,.35,12],
+  [-12,-16.5,16,.35],[12,-16.5,16,.35],[-12,16.5,16,.35],[12,16.5,16,.35],
+  [-2.7,15.6,1.1,.7],[2.7,15.6,1.1,.7]
+] as const;
 const KEY = (c: Cell) => c.x + ',' + c.z;
 const blocked = (x: number, z: number): boolean =>
   Math.abs(x) > HALF_X || Math.abs(z) > HALF_Z ||
   (((x-9)/8.3)**2 + (z/5.2)**2 < 1) || // main pond
   (((x-7)/3.5)**2 + ((z+4)/3.1)**2 < 1) || // northern bay
-  (x > -12 && x < -4 && z > -12.5 && z < -7.5); // teahouse interior, pending doorway/NavMesh
+  (x > -12 && x < -4 && z > -12.5 && z < -7.5) || // teahouse interior, pending doorway/NavMesh
+  walls.some(([cx,cz,w,d])=>Math.abs(x-cx)<w/2 && Math.abs(z-cz)<d/2);
 
 export function isWalkable(x: number, z: number): boolean {
   const radius = 0.48;
@@ -61,49 +67,100 @@ export class WalkController {
   private pointer = new THREE.Vector2();
   private ground = new THREE.Plane(new THREE.Vector3(0,1,0),0);
   private target = new THREE.Vector3();
-  private readonly onDown = (e: KeyboardEvent) => { this.keys.add(e.key.toLowerCase()); };
+  private yaw = 0;
+  private pitch = 0.43;
+  private distance = 11;
+  private pointerStart: {id:number;x:number;y:number;lastX:number;lastY:number;dragged:boolean}|null = null;
+  private readonly onDown = (e: KeyboardEvent) => {
+    if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
+    this.keys.add(e.key.toLowerCase());
+  };
   private readonly onUp = (e: KeyboardEvent) => { this.keys.delete(e.key.toLowerCase()); };
-  private readonly onClick = (e: PointerEvent) => {
-    if(e.button!==0 || e.target!==this.renderer.domElement) return;
+  private readonly onBlur = () => { this.keys.clear(); this.route=[]; };
+  private readonly onPointerDown = (e: PointerEvent) => {
+    if(e.target!==this.renderer.domElement || (e.pointerType==='mouse' && e.button!==0)) return;
+    this.pointerStart={id:e.pointerId,x:e.clientX,y:e.clientY,lastX:e.clientX,lastY:e.clientY,dragged:false};
+    this.renderer.domElement.setPointerCapture(e.pointerId);
+  };
+  private readonly onPointerMove = (e: PointerEvent) => {
+    const p=this.pointerStart;
+    if(!p || p.id!==e.pointerId)return;
+    const dx=e.clientX-p.lastX,dy=e.clientY-p.lastY;
+    if(Math.hypot(e.clientX-p.x,e.clientY-p.y)>8)p.dragged=true;
+    if(p.dragged){
+      this.yaw-=dx*.006;
+      this.pitch=THREE.MathUtils.clamp(this.pitch+dy*.004,0.12,1.1);
+    }
+    p.lastX=e.clientX;p.lastY=e.clientY;
+  };
+  private readonly onPointerUp = (e: PointerEvent) => {
+    const p=this.pointerStart;
+    if(!p || p.id!==e.pointerId)return;
+    this.pointerStart=null;
+    if(this.renderer.domElement.hasPointerCapture(e.pointerId))this.renderer.domElement.releasePointerCapture(e.pointerId);
+    if(p.dragged || e.type==='pointercancel')return;
     const rect=this.renderer.domElement.getBoundingClientRect();
     this.pointer.set(((e.clientX-rect.left)/rect.width)*2-1,-((e.clientY-rect.top)/rect.height)*2+1);
     this.raycaster.setFromCamera(this.pointer,this.camera);
-    if(this.raycaster.ray.intersectPlane(this.ground,this.target)) {
+    if(this.raycaster.ray.intersectPlane(this.ground,this.target)){
       this.route=findPath(this.avatar.position,this.target);
     }
+  };
+  private readonly onWheel = (e: WheelEvent) => {
+    e.preventDefault();
+    this.distance=THREE.MathUtils.clamp(this.distance+Math.sign(e.deltaY)*.8,5,19);
   };
   constructor(private avatar: THREE.Object3D, private camera: THREE.PerspectiveCamera, private renderer: THREE.WebGLRenderer) {
     window.addEventListener('keydown',this.onDown);
     window.addEventListener('keyup',this.onUp);
-    renderer.domElement.addEventListener('pointerup',this.onClick);
+    window.addEventListener('blur',this.onBlur);
+    const canvas=renderer.domElement;
+    canvas.style.touchAction='none';
+    canvas.addEventListener('pointerdown',this.onPointerDown);
+    canvas.addEventListener('pointermove',this.onPointerMove);
+    canvas.addEventListener('pointerup',this.onPointerUp);
+    canvas.addEventListener('pointercancel',this.onPointerUp);
+    canvas.addEventListener('wheel',this.onWheel,{passive:false});
   }
   update(dt: number) {
     const dx=Number(this.keys.has('d')||this.keys.has('arrowright'))-Number(this.keys.has('a')||this.keys.has('arrowleft'));
     const dz=Number(this.keys.has('s')||this.keys.has('arrowdown'))-Number(this.keys.has('w')||this.keys.has('arrowup'));
-    const manual=new THREE.Vector3(dx,0,dz);
     const speed=3.3;
-    if(manual.lengthSq()>0) {
+    const manual=new THREE.Vector3(dx,0,dz);
+    if(manual.lengthSq()>0){
       this.route=[];
-      manual.normalize().multiplyScalar(speed*dt);
-      this.move(manual);
-    } else if(this.route.length) {
-      const target=this.route[0];
-      const delta=target.clone().sub(this.avatar.position);delta.y=0;
-      if(delta.length()<0.12) this.route.shift();
+      manual.normalize();
+      const forward=new THREE.Vector3(-Math.sin(this.yaw),0,-Math.cos(this.yaw));
+      const right=new THREE.Vector3(Math.cos(this.yaw),0,-Math.sin(this.yaw));
+      this.move(right.multiplyScalar(manual.x*speed*dt).addScaledVector(forward,-manual.z*speed*dt));
+    } else if(this.route.length){
+      const target=this.route[0],delta=target.clone().sub(this.avatar.position);delta.y=0;
+      if(delta.length()<0.14)this.route.shift();
       else this.move(delta.normalize().multiplyScalar(Math.min(speed*dt,delta.length())));
     }
-    const desired=this.avatar.position.clone().add(new THREE.Vector3(0,8,13));
-    this.camera.position.lerp(desired,Math.min(1,dt*5));
-    this.camera.lookAt(this.avatar.position.x,this.avatar.position.y+0.9,this.avatar.position.z);
+    const offset=new THREE.Vector3(
+      Math.sin(this.yaw)*Math.cos(this.pitch)*this.distance,
+      Math.sin(this.pitch)*this.distance+1.1,
+      Math.cos(this.yaw)*Math.cos(this.pitch)*this.distance
+    );
+    const desired=this.avatar.position.clone().add(offset);
+    this.camera.position.lerp(desired,Math.min(1,dt*7));
+    this.camera.lookAt(this.avatar.position.x,this.avatar.position.y+.8,this.avatar.position.z);
   }
   private move(delta: THREE.Vector3) {
     const p=this.avatar.position;
-    if(isWalkable(p.x+delta.x,p.z)) p.x+=delta.x;
-    if(isWalkable(p.x,p.z+delta.z)) p.z+=delta.z;
+    if(isWalkable(p.x+delta.x,p.z))p.x+=delta.x;
+    if(isWalkable(p.x,p.z+delta.z))p.z+=delta.z;
   }
-  dispose() {
+  dispose(){
     window.removeEventListener('keydown',this.onDown);
     window.removeEventListener('keyup',this.onUp);
-    this.renderer.domElement.removeEventListener('pointerup',this.onClick);
+    window.removeEventListener('blur',this.onBlur);
+    const canvas=this.renderer.domElement;
+    canvas.removeEventListener('pointerdown',this.onPointerDown);
+    canvas.removeEventListener('pointermove',this.onPointerMove);
+    canvas.removeEventListener('pointerup',this.onPointerUp);
+    canvas.removeEventListener('pointercancel',this.onPointerUp);
+    canvas.removeEventListener('wheel',this.onWheel);
   }
 }
