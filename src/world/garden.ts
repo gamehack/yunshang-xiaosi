@@ -81,6 +81,19 @@ export function buildGarden(scene: THREE.Scene): void {
   }
   roofRibs.instanceMatrix.needsUpdate=true;scene.add(roofRibs);
   for(const x of [-12.75,-3.25])box(.15,.12,6.7,x,3.03,-10,roof);
+  // M1.5: restrained ridge caps and end finials add roof silhouette without extra assets.
+  const ridgeCap=new THREE.MeshStandardMaterial({color:'#394441',roughness:1});
+  for(const x of [-12.8,-3.2]){
+    const cap=new THREE.Mesh(new THREE.CylinderGeometry(.16,.16,.3,8),ridgeCap);
+    cap.rotation.z=Math.PI/2;
+    cap.position.set(x,3.95,-10);
+    scene.add(cap);
+  }
+  // Fine horizontal timber ties beneath the eaves, deliberately clear of the entrance.
+  for(const z of [-12.3,-7.7]){
+    box(7.6,.11,.12,-8,2.92,z,timber);
+  }
+  // Layered pavilion fascia improves the silhouette without a costly tile mesh.
   // Front facade retains the original doorway and adds fine lattice bays.
   for(const x of [-11.4,-10.8,-5.2,-4.6])box(.065,1.35,.08,x,1.55,-12.43,timber);
   const lattice=new THREE.MeshStandardMaterial({color:'#92765b',roughness:1});
