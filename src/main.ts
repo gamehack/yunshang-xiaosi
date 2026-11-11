@@ -1,5 +1,6 @@
 import { readGuestSave, writeGuestSave } from './persistence/guest-save';
 import { nextQuality, qualityPixelRatio, readQuality, writeQuality } from './performance/quality';
+import { FrameStats } from './performance/frame-stats';
 import { buildExterior } from './world/exterior';
 import { buildGarden } from './world/garden';
 import { WalkController } from './navigation/walk-controller';
@@ -84,6 +85,8 @@ document.addEventListener('visibilitychange',onVisibilityChange);
 const clock = new THREE.Clock();
 let frame = 0;
 let last = performance.now();
+const frameStats = new FrameStats(180);
+let previousFrame = 0;
 let raf = 0;
 function resize() {
   const width = Math.max(1, mount.clientWidth);
@@ -97,6 +100,8 @@ resize();
 applyQuality();
 function tick(now: number) {
   raf = requestAnimationFrame(tick);
+  if(previousFrame>0)frameStats.record(now-previousFrame);
+  previousFrame=now;
   walking.update(Math.min(clock.getDelta(), 0.05));
   const spot=nearbySeat();
   seatButton.hidden=!seated&&!spot;
@@ -104,7 +109,8 @@ function tick(now: number) {
   renderer.render(scene, camera);
   frame++;
   if (now - last >= 1000) {
-    metrics.textContent = `FPS ≈ ${Math.round(frame * 1000 / (now - last))} · Draw calls ${renderer.info.render.calls}`;
+    const stats=frameStats.snapshot();
+    metrics.textContent = `FPS ≈ ${Math.round(frame * 1000 / (now - last))} · P95 ${stats.p95Ms.toFixed(1)}ms · Draw calls ${renderer.info.render.calls} · 三角形 ${renderer.info.render.triangles}`;
     last = now;
     frame = 0;
   }
