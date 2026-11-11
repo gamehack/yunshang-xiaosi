@@ -17,6 +17,13 @@ export function addBambooGrove(scene: THREE.Scene, positions: Array<{x:number;z:
   const stems=new THREE.InstancedMesh(stemGeometry,stemMaterial,positions.length);
   const nodes=new THREE.InstancedMesh(nodeGeometry,nodeMaterial,positions.length*5);
   const leaves=new THREE.InstancedMesh(leafGeometry,leafMaterial,positions.length*72);
+  const minX=Math.min(...positions.map(p=>p.x)),maxX=Math.max(...positions.map(p=>p.x));
+  const minZ=Math.min(...positions.map(p=>p.z)),maxZ=Math.max(...positions.map(p=>p.z));
+  const center=new THREE.Vector3((minX+maxX)/2,0,(minZ+maxZ)/2);
+  const radius=Math.hypot(maxX-minX,maxZ-minZ)/2;
+  leaves.userData.cameraFoliage=true;
+  leaves.userData.groveCenter=center;
+  leaves.userData.groveRadius=radius;
   const transform=new THREE.Object3D();
   positions.forEach(({x,z,h},i)=>{
     transform.position.set(x,h/2,z);transform.rotation.set(0,0,0);transform.scale.set(1,h,1);transform.updateMatrix();stems.setMatrixAt(i,transform.matrix);
