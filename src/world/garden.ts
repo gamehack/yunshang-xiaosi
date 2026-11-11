@@ -159,6 +159,34 @@ export function buildGarden(scene: THREE.Scene): void {
     shrubTransform.updateMatrix();shrubs.setMatrixAt(i,shrubTransform.matrix);
   });
   shrubs.instanceMatrix.needsUpdate=true;scene.add(shrubs);
+  // Compact planted islands break up empty lawns without entering the walkable corridor.
+  const plantingSoil=new THREE.MeshStandardMaterial({color:'#9da98e',roughness:1});
+  const plantingGeometry=new THREE.CylinderGeometry(1,1,.055,10);
+  const plantingCenters: Array<[number,number,number,number]>=[
+    [-16,8,2.2,1.3],[-16,-8,1.7,1.2],[14,9,1.8,1.3],[17,-5,1.45,1.1]
+  ];
+  const planting=new THREE.InstancedMesh(plantingGeometry,plantingSoil,plantingCenters.length);
+  const plantingTransform=new THREE.Object3D();
+  plantingCenters.forEach(([x,z,sx,sz],i)=>{
+    plantingTransform.position.set(x,.04,z);
+    plantingTransform.rotation.set(0,i*.39,0);
+    plantingTransform.scale.set(sx,1,sz);
+    plantingTransform.updateMatrix();planting.setMatrixAt(i,plantingTransform.matrix);
+  });
+  planting.instanceMatrix.needsUpdate=true;scene.add(planting);
+  // A few upright ornamental rocks beside the plantings, not in the central walkway.
+  const scholarStone=new THREE.MeshStandardMaterial({color:'#88958b',roughness:1,flatShading:true});
+  const scholarGeometry=new THREE.DodecahedronGeometry(1,1);
+  const scholarLocations: Array<[number,number,number]>=[[-16.5,8.4,1.2],[-15.5,-8.5,1.05],[14.8,9.2,1.15],[17.4,-5.2,.9]];
+  const scholarRocks=new THREE.InstancedMesh(scholarGeometry,scholarStone,scholarLocations.length);
+  const scholarTransform=new THREE.Object3D();
+  scholarLocations.forEach(([x,z,s],i)=>{
+    scholarTransform.position.set(x,s*.55,z);
+    scholarTransform.rotation.set(.12*i,i*.78,.15);
+    scholarTransform.scale.set(s*.5,s,s*.43);
+    scholarTransform.updateMatrix();scholarRocks.setMatrixAt(i,scholarTransform.matrix);
+  });
+  scholarRocks.instanceMatrix.needsUpdate=true;scene.add(scholarRocks);
   // Bamboo stand-in, placed outside the main north/south corridor.
   const bambooPositions: Array<{x:number;z:number;h:number}> = [];
   for(let i=0;i<34;i++){
