@@ -114,7 +114,7 @@ resetButton.addEventListener('click',()=>{
   walking.stop();
   seated=false;
   walking.setSeated(false);
-  animateVisitor(marker,0,false);
+  animateVisitor(marker,0,false,false);
   marker.position.set(0,1,8);
   walking.restoreViewState({yaw:0,pitch:0.43,distance:11});
   persist();
