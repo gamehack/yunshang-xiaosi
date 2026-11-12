@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { addBambooGrove } from './bamboo';
-import { BRIDGE, GARDEN, GATE_COLUMNS, PONDS, TEAHOUSE, WALLS } from './layout';
+import { BRIDGE, GARDEN, GATE_COLUMNS, PAVILION, PONDS, TEAHOUSE, WALLS } from './layout';
 
 /** M0.3 conceptual whitebox: garden footprint 42 x 36m, not the final 70 x 55m plan. */
 export function buildGarden(scene: THREE.Scene) {
@@ -161,18 +161,20 @@ export function buildGarden(scene: THREE.Scene) {
     rock.position.set(x,s*.55,z);rock.rotation.y=x*.3;scene.add(rock);
   }
   const rockeryVisuals = scene.children.slice(rockeryStart);
-  const pavilion=box(4,.2,4,16,.15,-11,stone);
-  void pavilion;
-  for(const x of [14.2,17.8])for(const z of [-12.8,-9.2])box(.22,2.8,.22,x,1.5,z,timber);
-  box(5.1,.45,5.1,16,3.1,-11,roof);
-  box(5.6,.12,5.6,16,2.91,-11,roof);
-  box(5.0,.17,.22,16,3.43,-11,roof);
+  const pavilionStart = scene.children.length;
+  const { x: pavilionX, z: pavilionZ } = PAVILION;
+  box(4,.2,4,pavilionX,.15,pavilionZ,stone);
+  for(const x of [-1.8,1.8])for(const z of [-1.8,1.8])box(.22,2.8,.22,pavilionX+x,1.5,pavilionZ+z,timber);
+  box(5.1,.45,5.1,pavilionX,3.1,pavilionZ,roof);
+  box(5.6,.12,5.6,pavilionX,2.91,pavilionZ,roof);
+  box(5.0,.17,.22,pavilionX,3.43,pavilionZ,roof);
   // Pavilion roof trim and beam lattice, kept above the walkable deck.
-  for(const z of [-13.45,-8.55])box(5.35,.12,.12,16,2.82,z,timber);
-  for(const x of [13.55,18.45])box(.12,.12,5.35,x,2.82,-11,timber);
-  for(const x of [14.2,17.8])for(const z of [-12.8,-9.2]){
-    box(.42,.12,.42,x,2.96,z,roof);
+  for(const z of [-2.45,2.45])box(5.35,.12,.12,pavilionX,2.82,pavilionZ+z,timber);
+  for(const x of [-2.45,2.45])box(.12,.12,5.35,pavilionX+x,2.82,pavilionZ,timber);
+  for(const x of [-1.8,1.8])for(const z of [-1.8,1.8]){
+    box(.42,.12,.42,pavilionX+x,2.96,pavilionZ+z,roof);
   }
+  const pavilionVisuals = scene.children.slice(pavilionStart);
   // Small low shrubs soften the otherwise empty courtyard; purely visual and off the central path.
   const shrubMaterial=new THREE.MeshStandardMaterial({color:'#759575',roughness:1,flatShading:true});
   const shrubGeometry=new THREE.IcosahedronGeometry(.55,0);
@@ -226,6 +228,6 @@ export function buildGarden(scene: THREE.Scene) {
   }
   const bambooStart = scene.children.length;
   addBambooGrove(scene,bambooPositions);
-  return { teahouseVisuals, rockeryVisuals, water, ground: floor, centerWalk, bank, wallVisuals,
+  return { teahouseVisuals, rockeryVisuals, pavilionVisuals, water, ground: floor, centerWalk, bank, wallVisuals,
     bambooPositions, bambooVisuals: scene.children.slice(bambooStart) };
 }

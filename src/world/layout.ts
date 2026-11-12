@@ -15,6 +15,7 @@ export const TEAHOUSE = {
   rearWall:{x:-8,z:-12.5,width:5,depth:.2},
   table:{x:-8,z:-10,width:1.2,depth:1.2}
 } as const;
+export const PAVILION = { x: 16, z: -11 } as const;
 export const PONDS = [
   {x:9,z:0,radiusX:8.3,radiusZ:5.2,y:.045},
   {x:7,z:-4,radiusX:3.5,radiusZ:3.1,y:.046}

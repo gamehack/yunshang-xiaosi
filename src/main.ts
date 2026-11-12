@@ -92,7 +92,7 @@ addLandscape(scene);
 if (import.meta.env.DEV && new URLSearchParams(location.search).get('art') === 'teahouse') {
   try {
     const { previewTeahouse } = await import('./dev/teahouse-preview');
-    await previewTeahouse(scene, garden, renderer);
+    root.dataset.pavilion = await previewTeahouse(scene, garden, renderer);
     root.dataset.art = 'teahouse';
   } catch (error) {
     root.dataset.art = 'fallback';

@@ -1,28 +1,19 @@
 """Build the original M2.2 teahouse study in metres, centred on its floor."""
 
-from collections import defaultdict
 from math import cos, pi, sin, sqrt
 from pathlib import Path
 from random import Random
 import sys
 
 import bpy
-from mathutils import Vector
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from architecture_geometry import MeshParts, palette, save_source, start_source
 
 
 random = Random(813)
-geometry = defaultdict(lambda: ([], [], []))
-
-
-def palette(prefix, colors, roughness):
-    result = []
-    for index, rgb in enumerate(colors):
-        material = bpy.data.materials.new(f"{prefix}_{index + 1}")
-        shader = material.node_tree.nodes.get("Principled BSDF")
-        shader.inputs["Base Color"].default_value = (*(c ** 2.2 for c in rgb), 1)
-        shader.inputs["Roughness"].default_value = roughness
-        result.append(material)
-    return result
+parts = MeshParts()
+add, box, tube = parts.add, parts.box, parts.tube
 
 
 def make_soffit_material():
@@ -46,42 +37,6 @@ def make_soffit_material():
     grain_texture.image = image
     tree.links.new(grain_texture.outputs["Color"], tree.nodes["Principled BSDF"].inputs["Base Color"])
     return material
-
-
-def add(part, vertices, faces, material):
-    points, polygons, surfaces = geometry[part]
-    polygons.extend(tuple(len(points) + index for index in face) for face in faces)
-    points.extend(vertices)
-    surfaces.extend([material] * len(faces))
-
-
-def box(part, center, size, material):
-    x, y, z = center
-    w, d, h = (value / 2 for value in size)
-    points = [(x+a*w, y+b*d, z+c*h) for a,b,c in (
-        (-1,-1,-1), (1,-1,-1), (1,1,-1), (-1,1,-1),
-        (-1,-1,1), (1,-1,1), (1,1,1), (-1,1,1),
-    )]
-    add(part, points, [(3,2,1,0),(4,5,6,7),(0,1,5,4),(1,2,6,5),(2,3,7,6),(3,0,4,7)], material)
-
-
-def tube(part, centers, radius, material, sides=8):
-    centers = [Vector(center) for center in centers]
-    vertices = []
-    for index, center in enumerate(centers):
-        tangent = (centers[min(index + 1, len(centers) - 1)] - centers[max(index - 1, 0)]).normalized()
-        reference = Vector((0, 0, 1)) if abs(tangent.z) < .92 else Vector((1, 0, 0))
-        first = tangent.cross(reference).normalized()
-        second = tangent.cross(first)
-        vertices.extend(center + radius * (first*cos(a*2*pi/sides) + second*sin(a*2*pi/sides))
-                        for a in range(sides))
-    faces = [tuple(reversed(range(sides)))]
-    for ring in range(len(centers) - 1):
-        for a in range(sides):
-            i, j = ring*sides + a, ring*sides + (a+1) % sides
-            faces.append((i, j, j+sides, i+sides))
-    faces.append(tuple(range(len(vertices)-sides, len(vertices))))
-    add(part, vertices, faces, material)
 
 
 def elevation(distance, x):
@@ -209,7 +164,7 @@ def make_rockery(rock, foliage):
                 faces.append((a,b,b+sides,a+sides))
         faces.append(tuple(range(len(points)-sides,len(points))))
         add("Rockery", points, faces, rock[0])
-        materials = geometry["Rockery"][2]
+        materials = parts.geometry["Rockery"][2]
         for face_index in range(len(materials)-len(faces), len(materials)):
             if random.random() < .22:
                 materials[face_index] = random.choice(rock[1:])
@@ -245,19 +200,9 @@ def make_pond_leaves(foliage):
 
 
 def finish_scene(output):
-    for part, (vertices, faces, surfaces) in geometry.items():
-        mesh = bpy.data.meshes.new(part)
-        mesh.from_pydata(vertices, [], faces)
-        if mesh.validate():
-            raise RuntimeError(f"Invalid source mesh: {part}")
-        mesh.update()
-        obj = bpy.data.objects.new(part, mesh)
-        bpy.context.collection.objects.link(obj)
-        slots = {material: index for index, material in enumerate(dict.fromkeys(surfaces))}
-        for material in slots:
-            mesh.materials.append(material)
-        for polygon, material in zip(mesh.polygons, surfaces):
-            polygon.material_index = slots[material]
+    for obj in parts.build():
+        part, mesh = obj.name, obj.data
+        for polygon in mesh.polygons:
             polygon.use_smooth = part in {"Eaves", "TeaWare", "Rockery"}
         if part in {"RoofDeck", "Rafters"}:
             uv = mesh.uv_layers.new(name="Grain")
@@ -268,21 +213,9 @@ def finish_scene(output):
             bevel = obj.modifiers.new("Worn edges", "BEVEL")
             bevel.width = .016
             bevel.segments = 1
-    output.parent.mkdir(parents=True, exist_ok=True)
-    if bpy.ops.wm.save_as_mainfile(filepath=str(output), compress=True) != {"FINISHED"}:
-        raise RuntimeError(f"Could not save {output}")
+    save_source(output)
 
-
-output, = sys.argv[sys.argv.index("--") + 1:]
-output = Path(output).resolve()
-if output.suffix.lower() != ".blend" or output.exists():
-    raise ValueError("Choose a new .blend path for the generated teahouse.")
-
-bpy.ops.wm.read_factory_settings(use_empty=True)
-scene = bpy.context.scene
-scene.name = "M2.2_Teahouse"
-scene.unit_settings.system = "METRIC"
-scene.unit_settings.scale_length = 1
+output = start_source("M2.2_Teahouse")
 tile = palette("GreyClay", [(.27,.29,.29),(.32,.34,.33),(.30,.31,.31),(.35,.36,.35)], .87)
 ridge = palette("RidgeClay", [(.24,.265,.265)], .85)
 timber = palette("AgedTimber", [(.30,.19,.13),(.39,.255,.175),(.19,.145,.115)], .73)

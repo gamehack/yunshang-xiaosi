@@ -69,8 +69,37 @@ function recordRenderer(renderer) {
 }
 
 const overview = { x: -2.5, z: -5.4, yaw: 1.16, pitch: .29, distance: 12.5 };
+const pavilionView = { x: 14.3, z: -8.1, yaw: -.5, pitch: .22, distance: 6.2 };
 const preview = new URL('/?art=teahouse', base).href;
 const glbPath = '/dev/art-preview/generated/teahouse.glb';
+const pavilionPath = '/dev/art-preview/generated/pavilion.glb';
+
+function observeAssets(page) {
+  const errors = [];
+  const glb = [];
+  const pavilionGlb = [];
+  page.on('pageerror', error => errors.push(error.message));
+  page.on('console', message => {
+    if (message.type() === 'error') errors.push(message.text());
+  });
+  page.on('requestfailed', request => errors.push(`${request.url()} ${request.failure()?.errorText}`));
+  page.on('response', response => {
+    if (response.url().endsWith(glbPath)) glb.push(response.status());
+    if (response.url().endsWith(pavilionPath)) pavilionGlb.push(response.status());
+    if (response.status() >= 400) errors.push(`${response.status()} ${response.url()}`);
+  });
+  return { errors, glb, pavilionGlb };
+}
+
+async function captureView(page, name) {
+  const { renderer, ...frames } = await measureFrames(page, 2000);
+  recordRenderer(renderer);
+  const { x, z, yaw, pitch, distance } = await guestState(page);
+  const screenshot = name + '.jpg';
+  await page.screenshot({ path: join(output, screenshot), quality: 88 });
+  return { screenshot, x, z, yaw, pitch, distance, frames,
+    metrics: await page.locator('#metrics').textContent() };
+}
 
 async function captureRoute(page) {
   const start = { x: 0, z: -4.6, yaw: 1.16, pitch: .29, distance: 12.5 };
@@ -79,15 +108,7 @@ async function captureRoute(page) {
   assert.equal(await page.locator('#app').getAttribute('data-art'), 'teahouse');
   await page.locator('#hud-toggle').click();
   const { width, height } = page.viewportSize();
-  const capture = async name => {
-    const { renderer, ...frames } = await measureFrames(page, 2000);
-    recordRenderer(renderer);
-    const { x, z, yaw, pitch, distance } = await guestState(page);
-    await page.screenshot({ path: join(output, name + '.jpg'), quality: 88 });
-    report.route.push({ screenshot: name + '.jpg', x, z, yaw, pitch, distance, frames,
-      metrics: await page.locator('#metrics').textContent() });
-  };
-  await capture('pondside-approach');
+  report.route.push(await captureView(page, 'pondside-approach'));
   const camera = new PerspectiveCamera(62, width / height, .1, 300);
   const horizontal = Math.cos(start.pitch) * start.distance;
   camera.position.set(start.x + Math.sin(start.yaw) * horizontal,
@@ -110,38 +131,31 @@ async function captureRoute(page) {
   const rotated = await guestState(page);
   assert.ok(Math.abs(rotated.yaw - start.yaw) > 3);
   assert.equal(rotated.distance, 5);
-  await capture('under-eaves-facing-pond');
+  report.route.push(await captureView(page, 'under-eaves-facing-pond'));
   report.interaction.push('pondside ground click reaches teahouse deck, camera turns back toward the pond');
 }
 
 try {
   await mkdir(output, { recursive: true });
   report.assetBytes = (await stat(new URL(`../../${glbPath.slice(1)}`, import.meta.url))).size;
+  report.pavilionBytes = (await stat(new URL(`../../${pavilionPath.slice(1)}`, import.meta.url))).size;
   for (const [width, height] of (process.env.REVIEW_SKIP_COMPARISONS === '1' ? [] : [[1366, 768], [1920, 1080]])) {
     for (const variant of ['before', 'after']) {
       const page = await browser.newPage({ viewport: { width, height }, deviceScaleFactor: 1 });
-      const errors = [];
-      const glb = [];
-      page.on('pageerror', error => errors.push(error.message));
-      page.on('console', message => {
-        if (message.type() === 'error') errors.push(message.text());
-      });
-      page.on('requestfailed', request => errors.push(`${request.url()} ${request.failure()?.errorText}`));
-      page.on('response', response => {
-        if (response.url().endsWith(glbPath)) glb.push(response.status());
-        if (response.status() >= 400) errors.push(`${response.status()} ${response.url()}`);
-      });
+      const { errors, glb, pavilionGlb } = observeAssets(page);
       try {
         await open(page, variant === 'after' ? preview : base, overview);
         assert.equal(await page.locator('#app').getAttribute('data-art'), variant === 'after' ? 'teahouse' : null);
+        assert.equal(await page.locator('#app').getAttribute('data-pavilion'), variant === 'after' ? 'loaded' : null);
         assert.deepEqual(glb, variant === 'after' ? [200] : []);
+        assert.deepEqual(pavilionGlb, variant === 'after' ? [200] : []);
         await page.locator('#hud-toggle').click();
         const { renderer, ...frames } = await measureFrames(page);
         recordRenderer(renderer);
         const screenshot = `${variant}-${width}x${height}.jpg`;
         await page.screenshot({ path: join(output, screenshot), quality: 88 });
         assert.deepEqual(errors, []);
-        report.comparisons.push({ width, height, variant, screenshot, glb, errors, frames,
+        report.comparisons.push({ width, height, variant, screenshot, glb, pavilionGlb, errors, frames,
           metrics: await page.locator('#metrics').textContent() });
       } finally {
         await page.close();
@@ -150,16 +164,21 @@ try {
   }
 
   const route = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
-  const routeErrors = [];
-  route.on('pageerror', error => routeErrors.push(error.message));
-  route.on('console', message => {
-    if (message.type() === 'error') routeErrors.push(message.text());
-  });
-  route.on('requestfailed', request => routeErrors.push(`${request.url()} ${request.failure()?.errorText}`));
+  const { errors: routeErrors } = observeAssets(route);
   await captureRoute(route);
   await route.close();
   report.routeErrors = routeErrors;
   assert.deepEqual(routeErrors, []);
+
+  const near = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
+  const nearAssets = observeAssets(near);
+  await open(near, preview, pavilionView);
+  assert.equal(await near.locator('#app').getAttribute('data-pavilion'), 'loaded');
+  await near.locator('#hud-toggle').click();
+  report.pavilionView = { ...await captureView(near, 'pavilion-near-bank'), ...nearAssets };
+  assert.deepEqual(nearAssets.pavilionGlb, [200]);
+  assert.deepEqual(nearAssets.errors, []);
+  await near.close();
 
   const page = await browser.newPage({ viewport: { width: 1366, height: 768 } });
   const errors = [];
@@ -200,6 +219,16 @@ try {
   assert.equal(await missing.locator('canvas').count(), 1);
   report.interaction.push('asset request failure leaves original garden playable');
   await missing.close();
+
+  const missingPavilion = await browser.newPage();
+  await missingPavilion.route(`**${pavilionPath}`, route => route.abort());
+  await open(missingPavilion, preview, pavilionView);
+  assert.equal(await missingPavilion.locator('#app').getAttribute('data-art'), 'teahouse');
+  assert.equal(await missingPavilion.locator('#app').getAttribute('data-pavilion'), 'fallback');
+  await missingPavilion.locator('#reset').click();
+  assert.equal((await guestState(missingPavilion)).z, 8);
+  report.interaction.push('pavilion request failure preserves teahouse preview and reset');
+  await missingPavilion.close();
   console.log(JSON.stringify(report, null, 2));
 } finally {
   await browser.close();

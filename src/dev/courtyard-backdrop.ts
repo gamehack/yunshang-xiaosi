@@ -87,7 +87,7 @@ export function dressCourtyardWalls(scene: THREE.Scene, walls: readonly WallVisu
 }
 
 function crownGeometry() {
-  const geometry = new THREE.IcosahedronGeometry(1, 2);
+  const geometry = new THREE.IcosahedronGeometry(1, 1);
   const { position, normal } = geometry.attributes;
   const colors = [];
   for (let i = 0; i < position.count; i++) {
@@ -104,26 +104,50 @@ function crownGeometry() {
   return geometry;
 }
 
-function canopyMap() {
-  const size = 64;
-  const pixels = new Uint8Array(size * size * 4);
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      const u = x * Math.PI * 2 / size;
-      const v = y * Math.PI * 2 / size;
-      const speckle = (Math.imul(x + 23, y + 31) ^ Math.imul(x + y, 2093)) & 15;
-      const dapple = Math.sin(u * 13 + v * 9) * Math.cos(v * 19 - u * 7);
-      const shade = 230 + 9 * dapple + speckle;
-      pixels.set([shade, shade, shade, 255], (y * size + x) * 4);
+function leafSprayMap() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 192;
+  const brush = canvas.getContext('2d');
+  if (!brush) throw new Error('无法生成树冠叶片贴图');
+  let seed = 2872;
+  const random = () => {
+    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+    return seed / 4294967296;
+  };
+  for (let sprig = 0; sprig < 17; sprig++) {
+    const angle = sprig * 2.39996;
+    const reach = .65 + .35 * random();
+    const dx = Math.cos(angle) * 104 * reach;
+    const dy = Math.sin(angle) * 76 * reach;
+    const rootX = 128 + 15 * Math.sin(sprig);
+    const rootY = 96 + 8 * Math.cos(sprig * 2);
+    brush.strokeStyle = '#8b8b8b';
+    brush.lineWidth = 1.4;
+    brush.beginPath();
+    brush.moveTo(rootX, rootY);
+    brush.lineTo(rootX + dx, rootY + dy);
+    brush.stroke();
+    for (let leaf = 0; leaf < 11; leaf++) {
+      const along = .20 + leaf * .077;
+      const sign = leaf % 2 ? 1 : -1;
+      const length = (9 + random() * 18) * (1.18 - along * .43);
+      const width = length * (.20 + random() * .14);
+      const shade = Math.round(178 + 67 * random());
+      brush.save();
+      brush.translate(rootX + along * dx, rootY + along * dy);
+      brush.rotate(angle + sign * (.35 + random() * .86));
+      brush.fillStyle = `rgb(${shade},${shade},${shade})`;
+      brush.beginPath();
+      brush.moveTo(0, 0);
+      brush.quadraticCurveTo(length * .5, -width * 1.34, length, -.7);
+      brush.quadraticCurveTo(length * .58, width * 1.1, 0, 0);
+      brush.fill();
+      brush.restore();
     }
   }
-  const texture = new THREE.DataTexture(pixels, size, size);
+  const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
-  texture.wrapS = THREE.RepeatWrapping;
-  texture.minFilter = THREE.LinearMipmapLinearFilter;
-  texture.magFilter = THREE.LinearFilter;
-  texture.generateMipmaps = true;
-  texture.needsUpdate = true;
   return texture;
 }
 
@@ -141,9 +165,12 @@ export function addCourtyardCanopies(scene: THREE.Scene) {
     { x: 22, z: 4.8, h: 5.5, spread: 3, color: '#68794d' },
   ];
   const tipsPerTree = 5;
+  const cardsPerCrown = 4;
   const crowns = new THREE.InstancedMesh(crownGeometry(),
-    new THREE.MeshStandardMaterial({ map: canopyMap(), roughness: .97, vertexColors: true }),
-    trees.length * (tipsPerTree * 2 + 1));
+    new THREE.MeshLambertMaterial({ vertexColors: true }), trees.length * (tipsPerTree + 1));
+  const leaves = new THREE.InstancedMesh(new THREE.PlaneGeometry(2, 1.5), new THREE.MeshLambertMaterial({
+    map: leafSprayMap(), alphaTest: .42, side: THREE.DoubleSide,
+  }), trees.length * (tipsPerTree + 1) * cardsPerCrown);
   const branches = new THREE.InstancedMesh(new THREE.CylinderGeometry(.52, 1, 1, 6),
     new THREE.MeshStandardMaterial({ color: '#625244', roughness: .98 }), trees.length * (tipsPerTree + 1));
   const transform = new THREE.Object3D();
@@ -152,6 +179,7 @@ export function addCourtyardCanopies(scene: THREE.Scene) {
   const direction = new THREE.Vector3();
   const up = new THREE.Vector3(0, 1, 0);
   const color = new THREE.Color();
+  const litLeaves = new THREE.Color('#9ea976');
   let branch = 0;
   let crown = 0;
   const addBranch = (radius: number) => {
@@ -168,11 +196,22 @@ export function addCourtyardCanopies(scene: THREE.Scene) {
     addBranch(.22);
     const addCrown = (cx: number, cy: number, cz: number, size: number, angle: number, tone: number) => {
       transform.position.set(cx, cy, cz);
-      transform.scale.set(size, size * .54, size * .88);
+      transform.scale.set(size * .65, size * .34, size * .56);
       transform.rotation.set(.1, angle, -.13);
       transform.updateMatrix();
       crowns.setMatrixAt(crown, transform.matrix);
-      crowns.setColorAt(crown++, color.set(base).multiplyScalar(tone));
+      crowns.setColorAt(crown, color.set(base).multiplyScalar(tone));
+      for (let card = 0; card < cardsPerCrown; card++) {
+        const yaw = angle + card * Math.PI / 2;
+        transform.position.set(cx + Math.sin(yaw) * size * .38, cy + (card - 1.2) * size * .16,
+          cz + Math.cos(yaw) * size * .38);
+        transform.scale.set(size * (1.02 + .10 * (card % 2)), size * .95, 1);
+        transform.rotation.set((card - 1.5) * .35, yaw, -.19 + card * .15);
+        transform.updateMatrix();
+        leaves.setMatrixAt(crown * cardsPerCrown + card, transform.matrix);
+        leaves.setColorAt(crown * cardsPerCrown + card, color.set(base).lerp(litLeaves, .19 + card * .07).multiplyScalar(tone));
+      }
+      crown++;
     };
     addCrown(to.x, h * .94, to.z, spread * .58, index, 1.13);
     for (let tip = 0; tip < tipsPerTree; tip++) {
@@ -181,10 +220,8 @@ export function addCourtyardCanopies(scene: THREE.Scene) {
       from.set(x, h * (.42 + .04 * tip), z + .14);
       to.set(x + Math.cos(angle) * reach, h * (.68 + .05 * (tip % 4)), z + Math.sin(angle) * reach);
       addBranch(.097 - .008 * tip);
-      addCrown(to.x, to.y, to.z, spread * (.43 + .035 * (tip % 3)), angle, .83 + .066 * tip);
-      addCrown(to.x + .57 * Math.cos(angle), to.y + .37, to.z + .57 * Math.sin(angle),
-        spread * .30, angle + .7, 1.04 + .045 * (tip % 3));
+      addCrown(to.x, to.y, to.z, spread * (.51 + .035 * (tip % 3)), angle, .84 + .063 * tip);
     }
   });
-  scene.add(branches, crowns);
+  scene.add(branches, crowns, leaves);
 }

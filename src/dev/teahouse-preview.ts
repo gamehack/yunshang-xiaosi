@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import type { buildGarden } from '../world/garden';
-import { TEAHOUSE } from '../world/layout';
+import { PAVILION, TEAHOUSE } from '../world/layout';
 import { addBambooGrove } from '../world/bamboo';
 import { addCourtyardCanopies, dressCourtyardWalls } from './courtyard-backdrop';
 import { addCourtyardPaving, addPondEdge } from './courtyard-details';
@@ -74,9 +74,53 @@ function makeGroundMap() {
   return texture;
 }
 
+async function loadPavilion(loader: GLTFLoader) {
+  try {
+    const { scene } = await loader.loadAsync('/dev/art-preview/generated/pavilion.glb');
+    const bounds = new THREE.Box3().setFromObject(scene);
+    const size = bounds.getSize(new THREE.Vector3());
+    if (!scene.getObjectByName('PavilionRoof') || !scene.getObjectByName('PavilionTimber')
+      || Math.abs(bounds.min.y) > .02 || size.x < 5 || size.x > 5.6
+      || size.z < 5 || size.z > 5.4 || size.y < 4 || size.y > 4.5) {
+      throw new Error('池亭 GLB 的构件或尺寸不符合预览约定');
+    }
+    scene.position.set(PAVILION.x, 0, PAVILION.z);
+    return scene;
+  } catch (error) {
+    console.warn('池亭 GLB 未加载，保留原亭子', error);
+    return null;
+  }
+}
+
+function pavilionGroundShade() {
+  const size = 48;
+  const pixels = new Uint8Array(size * size * 4);
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const edge = Math.max(Math.abs(2 * x / (size - 1) - 1), Math.abs(2 * y / (size - 1) - 1));
+      const alpha = 255 * (1 - THREE.MathUtils.smoothstep(edge, .62, 1));
+      pixels.set([255, 255, 255, alpha], (y * size + x) * 4);
+    }
+  }
+  const map = new THREE.DataTexture(pixels, size, size);
+  map.magFilter = THREE.LinearFilter;
+  map.minFilter = THREE.LinearFilter;
+  map.needsUpdate = true;
+  const shade = new THREE.Mesh(new THREE.PlaneGeometry(5.9, 5.4), new THREE.MeshBasicMaterial({
+    color: '#333a30', map, opacity: .24, transparent: true, depthWrite: false,
+  }));
+  shade.rotation.x = -Math.PI / 2;
+  shade.position.set(PAVILION.x + .85, .012, PAVILION.z - .60);
+  return shade;
+}
+
 export async function previewTeahouse(scene: THREE.Scene, garden: ReturnType<typeof buildGarden>,
   renderer: THREE.WebGLRenderer) {
-  const { scene: asset } = await new GLTFLoader().loadAsync('/dev/art-preview/generated/teahouse.glb');
+  const loader = new GLTFLoader();
+  const [{ scene: asset }, pavilion] = await Promise.all([
+    loader.loadAsync('/dev/art-preview/generated/teahouse.glb'),
+    loadPavilion(loader),
+  ]);
   const bounds = new THREE.Box3().setFromObject(asset);
   if (bounds.isEmpty() || !asset.getObjectByName('TiledRoof') || !asset.getObjectByName('TimberFrame')) {
     throw new Error('茶室 GLB 缺少屋面或木构');
@@ -98,6 +142,10 @@ export async function previewTeahouse(scene: THREE.Scene, garden: ReturnType<typ
   for (const visual of [...garden.teahouseVisuals, ...garden.rockeryVisuals, ...garden.centerWalk,
     ...garden.bambooVisuals, garden.bank]) visual.visible = false;
   scene.add(asset);
+  if (pavilion) {
+    for (const visual of garden.pavilionVisuals) visual.visible = false;
+    scene.add(pavilion, pavilionGroundShade());
+  }
   addBambooGrove(scene, garden.bambooPositions, true);
   addCourtyardPaving(scene);
   addPondEdge(scene);
@@ -137,4 +185,5 @@ export async function previewTeahouse(scene: THREE.Scene, garden: ReturnType<typ
     scene.add(sun.target);
     garden.ground.receiveShadow = true;
   }
+  return pavilion ? 'loaded' : 'fallback';
 }
