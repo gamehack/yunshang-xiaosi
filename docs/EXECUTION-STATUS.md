@@ -4,7 +4,7 @@
 
 - 基于 `347134a`，在 `codex/blender-integration` 完成参考、规范和可漫游切片。远端 `develop` 基线仍为 `4b2cd93`，其里程碑验证通过。
 - Windows 本地完成 Blender 导出与 GLB 校验、两种桌面分辨率前后对照、开发预览交互与失败回退、原有浏览器回归、单测及构建。见 [切片报告](R0-TEAHOUSE-REPORT.md)。
-- 已补近景植物、岸线和铺地，并归档本机 Radeon 与 SwiftShader 双分辨率对照。Radeon 无头样本约 30 FPS。下一批继续完善白墙、树冠与檐下光照，并复测前台硬件 Chrome 与云端 Chromium。未进行推送或部署。
+- 已补近景植物、岸线和铺地，并完成白墙、树冠、椽檩与檐下光照。桌面 Radeon Chrome 实走进入茶室并转身望池，主机位约 30 FPS。后续继续细化人物、远亭和植被，复测 60 FPS 目标及云端 Chromium。未进行推送或部署。
 
 ## 2026-11-12 · M2.2 R0 Blender 管线检查点
 

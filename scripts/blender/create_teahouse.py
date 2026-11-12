@@ -25,6 +25,29 @@ def palette(prefix, colors, roughness):
     return result
 
 
+def make_soffit_material():
+    """Pack original timber grain into the source for an offline glTF export."""
+    material = palette("SoffitTimber", [(.43, .32, .235)], .82)[0]
+    image = bpy.data.images.new("SoffitTimberGrain", width=128, height=128)
+    pixels = []
+    for y in range(128):
+        v = y * 2 * pi / 128
+        for x in range(128):
+            u = x * 2 * pi / 128
+            grain = sin(v*18 + .9*sin(u) + .4*cos(u*3))
+            bands = .54*sin(v*5 + .46*cos(u*2)) + .28*cos(v*12 - u)
+            tone = .017*grain + .027*bands + .009*sin(v*37 + u*3)
+            pixels.extend((.43 + tone, .32 + tone, .235 + .82*tone, 1))
+    image.pixels.foreach_set(pixels)
+    image.update()
+    image.pack()
+    tree = material.node_tree
+    grain_texture = tree.nodes.new("ShaderNodeTexImage")
+    grain_texture.image = image
+    tree.links.new(grain_texture.outputs["Color"], tree.nodes["Principled BSDF"].inputs["Base Color"])
+    return material
+
+
 def add(part, vertices, faces, material):
     points, polygons, surfaces = geometry[part]
     polygons.extend(tuple(len(points) + index for index in face) for face in faces)
@@ -66,7 +89,23 @@ def elevation(distance, x):
     return 4.20 - 1.25*t + .30*t*t + .20*(abs(x)/4.34)**8
 
 
-def make_roof(tile, ridge, timber):
+def make_rafters(sign, soffit, timber):
+    distances = (.045, .62, 1.2, 1.78, 2.34, 2.85)
+    for column in range(15):
+        x = (column - 7) * .565
+        points = [(x + dx, sign*y, elevation(y, x) - .13 + dz)
+                  for y in distances for dx, dz in ((-.046,-.061),(.046,-.061),(.046,.061),(-.046,.061))]
+        faces = [(0,1,2,3), (23,22,21,20)]
+        for i in range(len(distances) - 1):
+            for side in range(4):
+                a, b = i * 4 + side, i * 4 + (side + 1) % 4
+                faces.append((a, a+4, b+4, b))
+        add("Rafters", points, faces if sign > 0 else [tuple(reversed(face)) for face in faces], soffit)
+    for y in (.83, 1.84):
+        box("Rafters", (0,sign*y,elevation(y, 0)-.22), (8.25,.14,.20), timber[1])
+
+
+def make_roof(tile, ridge, timber, soffit):
     width = 4.34
     for sign in (-1, 1):
         samples = (-4.34, -4.1, -3.7, -3, -2, 0, 2, 3, 3.7, 4.1, 4.34)
@@ -74,7 +113,8 @@ def make_roof(tile, ridge, timber):
         stride = len(samples)
         faces = [(i, i+stride, i+stride+1, i+1) for row in range(6)
                  for i in range(row*stride, row*stride+stride-1)]
-        add("RoofDeck", deck, faces if sign > 0 else [tuple(reversed(face)) for face in faces], timber[0])
+        add("RoofDeck", deck, faces if sign > 0 else [tuple(reversed(face)) for face in faces], soffit)
+        make_rafters(sign, soffit, timber)
         for column in range(60):
             x = -width + (column + .5) * 2 * width / 60
             for row in range(10):
@@ -102,6 +142,7 @@ def make_roof(tile, ridge, timber):
                           (0, .45, .9, 1.35, 1.8, 2.25, 2.65, 2.94)], .07, ridge[0])
     tube("Eaves", [(x, 0, elevation(0, x)+.085+(.1 if abs(x)>4.3 else 0))
                   for x in (-4.40, -4.25, -3.8, -2, 0, 2, 3.8, 4.25, 4.40)], .097, ridge[0])
+    box("Rafters", (0,0,3.96), (8.3,.18,.18), timber[1])
 
 
 def make_hall(stone, timber, plaster, ceramic):
@@ -218,6 +259,11 @@ def finish_scene(output):
         for polygon, material in zip(mesh.polygons, surfaces):
             polygon.material_index = slots[material]
             polygon.use_smooth = part in {"Eaves", "TeaWare", "Rockery"}
+        if part in {"RoofDeck", "Rafters"}:
+            uv = mesh.uv_layers.new(name="Grain")
+            for loop in mesh.loops:
+                x, y, z = mesh.vertices[loop.vertex_index].co
+                uv.uv[loop.index].vector = (x / 3.2, y / .8) if part == "RoofDeck" else (y / 3.2, x / .8 + z / .56)
         if part in {"Masonry", "TimberFrame", "Furniture"}:
             bevel = obj.modifiers.new("Worn edges", "BEVEL")
             bevel.width = .016
@@ -247,7 +293,7 @@ rock = palette("WeatheredLimestone", [(.47,.48,.43),(.43,.45,.40),(.53,.52,.46),
 foliage = palette("SedgeGreen", [(.30,.38,.20),(.39,.44,.24),(.32,.42,.24)], .92)
 for material in foliage:
     material.use_backface_culling = False
-make_roof(tile, ridge, timber)
+make_roof(tile, ridge, timber, make_soffit_material())
 make_hall(stone, timber, plaster, ceramic)
 make_rockery(rock, foliage)
 make_pond_leaves(foliage)

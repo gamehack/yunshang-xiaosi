@@ -3,6 +3,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import type { buildGarden } from '../world/garden';
 import { TEAHOUSE } from '../world/layout';
 import { addBambooGrove } from '../world/bamboo';
+import { addCourtyardCanopies, dressCourtyardWalls } from './courtyard-backdrop';
 import { addCourtyardPaving, addPondEdge } from './courtyard-details';
 
 function makeWaterNormal() {
@@ -83,7 +84,7 @@ export async function previewTeahouse(scene: THREE.Scene, garden: ReturnType<typ
   asset.name = 'BlenderTeahouse';
   asset.position.set(TEAHOUSE.x, 0, TEAHOUSE.z);
   const shadowCasters = new Set(['TiledRoof', 'TimberFrame', 'Rockery']);
-  const shadowReceivers = new Set(['Paving', 'Lattice', 'Plaster', 'Furniture']);
+  const shadowReceivers = new Set(['Paving', 'Lattice', 'Plaster', 'Furniture', 'TimberFrame', 'Masonry', 'Rafters']);
   for (const part of asset.children) {
     part.traverse(object => {
       if (object instanceof THREE.Mesh) {
@@ -100,10 +101,12 @@ export async function previewTeahouse(scene: THREE.Scene, garden: ReturnType<typ
   addBambooGrove(scene, garden.bambooPositions, true);
   addCourtyardPaving(scene);
   addPondEdge(scene);
+  dressCourtyardWalls(scene, garden.wallVisuals);
+  addCourtyardCanopies(scene);
   garden.water.color.set('#527d72');
-  garden.water.roughness = 0.29;
+  garden.water.roughness = .36;
   garden.water.normalMap = makeWaterNormal();
-  garden.water.normalScale.set(.45, .45);
+  garden.water.normalScale.set(.34, .34);
   garden.ground.material.color.set('#ffffff');
   garden.ground.material.map = makeGroundMap();
 
@@ -112,9 +115,10 @@ export async function previewTeahouse(scene: THREE.Scene, garden: ReturnType<typ
   if (sun && sky) {
     const center = new THREE.Vector3(TEAHOUSE.x + 3, 0, TEAHOUSE.z + 3);
     sun.target.position.copy(center);
-    sun.position.copy(center).add(new THREE.Vector3(-9, 17, 8));
-    sun.shadow.camera.left = sun.shadow.camera.bottom = -14;
-    sun.shadow.camera.right = sun.shadow.camera.top = 14;
+    sun.position.copy(center).add(new THREE.Vector3(-11, 12, 7));
+    sun.color.set('#fff0d8');
+    sun.shadow.camera.left = sun.shadow.camera.bottom = -12;
+    sun.shadow.camera.right = sun.shadow.camera.top = 12;
     sun.shadow.camera.far = 45;
     sun.shadow.camera.updateProjectionMatrix();
     sun.shadow.mapSize.set(1024, 1024);
@@ -125,7 +129,9 @@ export async function previewTeahouse(scene: THREE.Scene, garden: ReturnType<typ
       sun.shadow.needsUpdate = true;
     });
     sun.castShadow = true;
-    sky.intensity = 1.1;
+    sky.color.set('#e9f1ff');
+    sky.groundColor.set('#ad9c84');
+    sky.intensity = 1.28;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFShadowMap;
     scene.add(sun.target);

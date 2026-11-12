@@ -48,10 +48,14 @@ export function buildGarden(scene: THREE.Scene) {
     centerWalk.push(tiles);
   });
   // Shared footprints keep the visible walls and visitor collision aligned.
-  for(const wall of WALLS){
-    box(wall.width,2.8,wall.depth,wall.x,1.4,wall.z,white);
-    box(wall.width===.35?.75:wall.width,.22,wall.depth===.35?.75:wall.depth,wall.x,2.9,wall.z,roof);
-  }
+  const wallVisuals = WALLS.map(footprint => {
+    const { width, depth, x, z } = footprint;
+    return {
+      footprint,
+      body: box(width,2.8,depth,x,1.4,z,white),
+      cap: box(width===.35?.75:width,.22,depth===.35?.75:depth,x,2.9,z,roof),
+    };
+  });
   for(const column of GATE_COLUMNS)box(column.width,3.1,column.depth,column.x,1.55,column.z,white);
   box(6.6,.55,1.4,0,3.3,15.6,roof);box(4.2,.6,.15,0,2.75,15.15,timber);
   // Teahouse in north-west, with open doorway facing central garden.
@@ -222,6 +226,6 @@ export function buildGarden(scene: THREE.Scene) {
   }
   const bambooStart = scene.children.length;
   addBambooGrove(scene,bambooPositions);
-  return { teahouseVisuals, rockeryVisuals, water, ground: floor, centerWalk, bank,
+  return { teahouseVisuals, rockeryVisuals, water, ground: floor, centerWalk, bank, wallVisuals,
     bambooPositions, bambooVisuals: scene.children.slice(bambooStart) };
 }

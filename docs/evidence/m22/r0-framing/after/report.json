@@ -1,0 +1,110 @@
+{
+  "browser": "157.0.8103.78",
+  "headless": false,
+  "renderer": "ANGLE (AMD, AMD Radeon(TM) Graphics (0x00001681) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+  "comparisons": [
+    {
+      "width": 1366,
+      "height": 768,
+      "variant": "before",
+      "screenshot": "before-1366x768.jpg",
+      "glb": [],
+      "errors": [],
+      "frames": {
+        "frames": 150,
+        "elapsedMs": 5005,
+        "fps": 30,
+        "p95Ms": 33.5
+      },
+      "metrics": "FPS ≈ 30 · P95 33.5ms · Draw calls 151 · 三角形 31290"
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "variant": "after",
+      "screenshot": "after-1366x768.jpg",
+      "glb": [
+        200
+      ],
+      "errors": [],
+      "frames": {
+        "frames": 150,
+        "elapsedMs": 5005,
+        "fps": 30,
+        "p95Ms": 33.5
+      },
+      "metrics": "FPS ≈ 30 · P95 33.5ms · Draw calls 154 · 三角形 78236"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "variant": "before",
+      "screenshot": "before-1920x1080.jpg",
+      "glb": [],
+      "errors": [],
+      "frames": {
+        "frames": 150,
+        "elapsedMs": 5005,
+        "fps": 30,
+        "p95Ms": 33.5
+      },
+      "metrics": "FPS ≈ 30 · P95 33.6ms · Draw calls 151 · 三角形 31290"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "variant": "after",
+      "screenshot": "after-1920x1080.jpg",
+      "glb": [
+        200
+      ],
+      "errors": [],
+      "frames": {
+        "frames": 150,
+        "elapsedMs": 5005,
+        "fps": 30,
+        "p95Ms": 33.5
+      },
+      "metrics": "FPS ≈ 30 · P95 33.5ms · Draw calls 154 · 三角形 78236"
+    }
+  ],
+  "route": [
+    {
+      "screenshot": "pondside-approach.jpg",
+      "x": 0,
+      "z": -4.6,
+      "yaw": 1.16,
+      "pitch": 0.29,
+      "distance": 12.5,
+      "frames": {
+        "frames": 60,
+        "elapsedMs": 2002,
+        "fps": 30,
+        "p95Ms": 33.8
+      },
+      "metrics": "FPS ≈ 30 · P95 33.8ms · Draw calls 166 · 三角形 81544"
+    },
+    {
+      "screenshot": "under-eaves-facing-pond.jpg",
+      "x": -6.10000067529967,
+      "z": -8.599999658457016,
+      "yaw": -2.1160000000000005,
+      "pitch": 0.1979999999999999,
+      "distance": 5,
+      "frames": {
+        "frames": 60,
+        "elapsedMs": 2002,
+        "fps": 30,
+        "p95Ms": 33.5
+      },
+      "metrics": "FPS ≈ 30 · P95 33.5ms · Draw calls 138 · 三角形 56182"
+    }
+  ],
+  "interaction": [
+    "pondside ground click reaches teahouse deck, camera turns back toward the pond",
+    "sit, reload, stand, keyboard movement, reset",
+    "asset request failure leaves original garden playable"
+  ],
+  "assetBytes": 1076024,
+  "routeErrors": []
+}

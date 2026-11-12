@@ -6,7 +6,8 @@
 
 - 新增原创 Blender 茶室与岩石地被，在 Vite 开发模式复用正式游戏交互，并保留 GLB 失败回退。
 - 补近景细竹枝、岸石草簇和错缝石板。简化瓦面和倒角后茶室 GLB 减小约 39%，至 0.98 MB。
-- Windows Chrome 通过 Radeon 与 SwiftShader 双分辨率预览，原有浏览器回归、99 项单测及构建通过。60 FPS 目标、云端浏览器与高保真美术仍待验收。见 [切片报告](R0-TEAHOUSE-REPORT.md)。
+- 增加灰泥、墙帽和树冠，以及 Blender 制作的檐下椽子、檩条与内嵌木纹。当前 GLB 为 1.08 MB。
+- Windows 桌面 Chrome 和 SwiftShader 通过双分辨率预览及池岸至茶室的实走检查。60 FPS 目标、云端浏览器与高保真美术仍待验收。见 [切片报告](R0-TEAHOUSE-REPORT.md)。
 
 ## 2026-11-12 · M2.2 Blender 管线验证
 
