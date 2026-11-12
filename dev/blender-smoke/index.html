@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="/favicon.svg">
+  <title>Blender 资产管线验证 · 摸鱼山</title>
+  <style>
+    body { margin: 0; background: #17221f; color: #edf2ef; font: 16px/1.6 system-ui, sans-serif; }
+    main { max-width: 72rem; margin: auto; padding: 1.25rem; }
+    h1 { font-size: 1.5rem; margin: 0; }
+    p { margin: .4rem 0; }
+    #viewport { height: clamp(18rem, 68vh, 45rem); margin-top: 1rem; background: #242e2c; }
+    canvas { display: block; width: 100%; height: 100%; }
+    [data-state="error"] { color: #ffcaac; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Blender 资产管线验证</h1>
+    <p>开发测试资产 · 拖动旋转，滚轮缩放</p>
+    <p id="status" role="status" data-state="loading">正在加载 GLB…</p>
+    <div id="viewport"></div>
+  </main>
+  <script type="module" src="/src/dev/blender-smoke.ts"></script>
+</body>
+</html>

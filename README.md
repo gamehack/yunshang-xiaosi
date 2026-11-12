@@ -29,6 +29,8 @@ npm run build
 npm run dev
 ```
 
+Blender 5.2 LTS 可在 Windows 本地生成和校验 GLB。测试资产通过独立开发页加载。操作见 [Blender 资产管线](docs/BLENDER-PIPELINE.md)。
+
 ## 开发与发布原则：代码和文档同步
 
 **每次涉及功能、行为、架构、界面、部署或验收状态的代码变更，必须在同一 PR / 同一开发批次更新相关文档。文档未同步，不视为开发完成。**

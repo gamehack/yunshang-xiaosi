@@ -6,3 +6,6 @@ dist/
 .DS_Store
 
 artifacts/
+
+/art/blender/**/*.blend[0-9]*
+/dev/blender-smoke/generated/

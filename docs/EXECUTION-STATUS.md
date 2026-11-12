@@ -1,5 +1,11 @@
 # 半日闲 M2.0 · 云端 Codex 执行状态
 
+## 2026-11-12 · M2.2 R0 Blender 管线检查点
+
+- Windows 本地功能分支 `codex/blender-integration`，基线为本地 `origin/develop` 引用 `4b2cd93`。正式构建逐字节匹配基线。
+- Blender 5.2.4 LTS 重复导出、GLB 校验和 Chrome 1366×768、1920×1080 渲染通过。`npm test` 99 项、`npm run build`、`npm run test:browser`、10 分钟 `npm run test:soak` 均有本地证据。
+- [操作及验收记录](BLENDER-PIPELINE.md)。下一步为高保真茶室或临水庭院切片，继续按 [M2.2 写实园林计划](M2-2-REALISTIC-SUZHOU-GARDEN.md) 执行。
+
 更新：2026-11-11。此文件由云端 Codex 按每个开发批次持续更新。**本轮已执行开发与自动回归，证据以文末检查点为准；不代表用户最终验收或生产发布。**
 
 ## 当前检查点

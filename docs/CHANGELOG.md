@@ -2,6 +2,12 @@
 
 记录规则：**提交/CI、生产部署、真机验收分开记录**。本文件由里程碑 PR 维护，发布后补充实际部署结果。
 
+## 2026-11-12 · M2.2 Blender 管线验证
+
+- 新增 Blender 5.2 LTS 后台导出、GLB 校验及 Three.js 独立开发页。
+- Windows 本地完成 Blender 导出、99 项 Vitest、TypeScript 检查、Vite 构建、两种桌面分辨率的 GLB 加载及原有浏览器回归。正式构建产物与接入前逐字节一致。
+- 验收范围与本地复现命令见 [Blender 资产管线](BLENDER-PIPELINE.md)。本批 GitHub CI 与 Cloudflare 部署未执行。
+
 
 
 
