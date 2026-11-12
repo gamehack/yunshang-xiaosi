@@ -7,11 +7,12 @@ import { waitForSceneReady } from '../browser-sync.mjs';
 const base = process.env.TEST_URL || 'http://127.0.0.1:5173';
 const output = process.env.ARTIFACT_DIR || 'artifacts/teahouse-review';
 const guest = 'banrixian.guest.v1';
+const hardware = process.env.REVIEW_RENDERER === 'hardware';
 const browser = await chromium.launch({
   executablePath: process.env.CHROMIUM_PATH || chromium.executablePath(),
-  args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'],
+  args: hardware ? [] : ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'],
 });
-const report = { browser: browser.version(), renderer: 'SwiftShader', comparisons: [], interaction: [] };
+const report = { browser: browser.version(), renderer: '', comparisons: [], interaction: [] };
 
 async function open(page, url, view) {
   await page.addInitScript(({ key, fixture }) => {
@@ -30,6 +31,32 @@ async function guestState(page) {
     dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true }));
     return state;
   }, guest);
+}
+
+async function measureFrames(page) {
+  return page.evaluate(async () => {
+    const gl = document.querySelector('canvas').getContext('webgl2');
+    const debug = gl.getExtension('WEBGL_debug_renderer_info');
+    const renderer = debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : 'unknown';
+    const frame = () => new Promise(resolve => requestAnimationFrame(resolve));
+    const start = await frame();
+    let previous = start;
+    const durations = [];
+    while (previous - start < 5000) {
+      const current = await frame();
+      durations.push(current - previous);
+      previous = current;
+    }
+    const elapsed = previous - start;
+    durations.sort((a, b) => a - b);
+    return {
+      renderer,
+      frames: durations.length,
+      elapsedMs: Math.round(elapsed),
+      fps: Math.round(10000 * durations.length / elapsed) / 10,
+      p95Ms: Math.round(durations[Math.ceil(durations.length * .95) - 1] * 10) / 10,
+    };
+  });
 }
 
 const overview = { x: -2.5, z: -5.4, yaw: 1.16, pitch: .29, distance: 12.5 };
@@ -58,10 +85,14 @@ try {
         assert.equal(await page.locator('#app').getAttribute('data-art'), variant === 'after' ? 'teahouse' : null);
         assert.deepEqual(glb, variant === 'after' ? [200] : []);
         await page.locator('#hud-toggle').click();
+        const { renderer, ...frames } = await measureFrames(page);
+        if (hardware) assert.doesNotMatch(renderer, /swiftshader|llvmpipe|software|warp|basic render|unknown/i);
+        if (report.renderer) assert.equal(renderer, report.renderer);
+        report.renderer = renderer;
         const screenshot = `${variant}-${width}x${height}.jpg`;
         await page.screenshot({ path: join(output, screenshot), quality: 88 });
         assert.deepEqual(errors, []);
-        report.comparisons.push({ width, height, variant, screenshot, glb, errors,
+        report.comparisons.push({ width, height, variant, screenshot, glb, errors, frames,
           metrics: await page.locator('#metrics').textContent() });
       } finally {
         await page.close();

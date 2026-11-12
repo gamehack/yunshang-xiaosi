@@ -1,0 +1,75 @@
+{
+  "browser": "157.0.8103.78",
+  "renderer": "ANGLE (AMD, AMD Radeon(TM) Graphics (0x00001681) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+  "comparisons": [
+    {
+      "width": 1366,
+      "height": 768,
+      "variant": "before",
+      "screenshot": "before-1366x768.jpg",
+      "glb": [],
+      "errors": [],
+      "frames": {
+        "frames": 150,
+        "elapsedMs": 5005,
+        "fps": 30,
+        "p95Ms": 33.6
+      },
+      "metrics": "FPS ≈ 30 · P95 33.6ms · Draw calls 151 · 三角形 31290"
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "variant": "after",
+      "screenshot": "after-1366x768.jpg",
+      "glb": [
+        200
+      ],
+      "errors": [],
+      "frames": {
+        "frames": 150,
+        "elapsedMs": 5006,
+        "fps": 30,
+        "p95Ms": 33.7
+      },
+      "metrics": "FPS ≈ 30 · P95 33.7ms · Draw calls 152 · 三角形 57340"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "variant": "before",
+      "screenshot": "before-1920x1080.jpg",
+      "glb": [],
+      "errors": [],
+      "frames": {
+        "frames": 150,
+        "elapsedMs": 5006,
+        "fps": 30,
+        "p95Ms": 33.9
+      },
+      "metrics": "FPS ≈ 30 · P95 34.0ms · Draw calls 151 · 三角形 31290"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "variant": "after",
+      "screenshot": "after-1920x1080.jpg",
+      "glb": [
+        200
+      ],
+      "errors": [],
+      "frames": {
+        "frames": 150,
+        "elapsedMs": 5005,
+        "fps": 30,
+        "p95Ms": 33.8
+      },
+      "metrics": "FPS ≈ 30 · P95 34.0ms · Draw calls 152 · 三角形 57340"
+    }
+  ],
+  "interaction": [
+    "sit, reload, stand, keyboard movement, reset",
+    "asset request failure leaves original garden playable"
+  ],
+  "assetBytes": 977988
+}

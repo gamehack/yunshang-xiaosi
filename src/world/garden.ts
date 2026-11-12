@@ -19,7 +19,7 @@ export function buildGarden(scene: THREE.Scene) {
   };
   const walk=(x:number,z:number,w:number,d:number)=>box(w,.035,d,x,.025,z,stone);
   // South entrance and the three court sequence; routes are deliberately open for M0 grid navigation.
-  walk(0,12,3.5,12);walk(0,1,3.5,12);walk(0,-11,3.5,10);
+  const centerWalk: THREE.Object3D[] = [walk(0,12,3.5,12), walk(0,1,3.5,12), walk(0,-11,3.5,10)];
   walk(-12,0,2.5,27);walk(18,0,2.5,27);
   walk(-6,-14,13,2.6);walk(7,-14,15,2.6);
   walk(-6,11,13,2);walk(7,11,15,2);
@@ -45,6 +45,7 @@ export function buildGarden(scene: THREE.Scene) {
       stoneTransform.updateMatrix();tiles.setMatrixAt(k,stoneTransform.matrix);
     }
     tiles.instanceMatrix.needsUpdate=true;scene.add(tiles);
+    centerWalk.push(tiles);
   });
   // Shared footprints keep the visible walls and visitor collision aligned.
   for(const wall of WALLS){
@@ -219,6 +220,8 @@ export function buildGarden(scene: THREE.Scene) {
     if(x>-12 && x<-4 && z<-7)continue;
     bambooPositions.push({x,z,h:3.5+(i%5)*.45});
   }
+  const bambooStart = scene.children.length;
   addBambooGrove(scene,bambooPositions);
-  return { teahouseVisuals, rockeryVisuals, water, ground: floor };
+  return { teahouseVisuals, rockeryVisuals, water, ground: floor, centerWalk, bank,
+    bambooPositions, bambooVisuals: scene.children.slice(bambooStart) };
 }

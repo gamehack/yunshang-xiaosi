@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import type { buildGarden } from '../world/garden';
 import { TEAHOUSE } from '../world/layout';
+import { addBambooGrove } from '../world/bamboo';
+import { addCourtyardPaving, addPondEdge } from './courtyard-details';
 
 function makeWaterNormal() {
   const size = 64;
@@ -80,13 +82,24 @@ export async function previewTeahouse(scene: THREE.Scene, garden: ReturnType<typ
   }
   asset.name = 'BlenderTeahouse';
   asset.position.set(TEAHOUSE.x, 0, TEAHOUSE.z);
-  asset.traverse(object => {
-    if (object instanceof THREE.Mesh) object.castShadow = object.receiveShadow = true;
-  });
+  const shadowCasters = new Set(['TiledRoof', 'TimberFrame', 'Rockery']);
+  const shadowReceivers = new Set(['Paving', 'Lattice', 'Plaster', 'Furniture']);
+  for (const part of asset.children) {
+    part.traverse(object => {
+      if (object instanceof THREE.Mesh) {
+        object.castShadow = shadowCasters.has(part.name);
+        object.receiveShadow = shadowReceivers.has(part.name);
+      }
+    });
+  }
 
   // Keep the original invisible meshes as camera raycast proxies.
-  for (const visual of [...garden.teahouseVisuals, ...garden.rockeryVisuals]) visual.visible = false;
+  for (const visual of [...garden.teahouseVisuals, ...garden.rockeryVisuals, ...garden.centerWalk,
+    ...garden.bambooVisuals, garden.bank]) visual.visible = false;
   scene.add(asset);
+  addBambooGrove(scene, garden.bambooPositions, true);
+  addCourtyardPaving(scene);
+  addPondEdge(scene);
   garden.water.color.set('#527d72');
   garden.water.roughness = 0.29;
   garden.water.normalMap = makeWaterNormal();

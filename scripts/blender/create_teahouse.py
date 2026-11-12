@@ -82,11 +82,11 @@ def make_roof(tile, ridge, timber):
                 end = min(2.94, start + .33)
                 vertices = []
                 for distance in (start, end):
-                    for u in (-1, -.55, 0, .55, 1):
+                    for u in (-1, -.55, .55, 1):
                         xx = x + u*.079
                         height = elevation(distance, xx) + .052*sqrt(1-u*u) + (.008 if distance == end else 0)
                         vertices.append((xx, distance*sign, height))
-                faces = [(k, k+1, k+6, k+5) for k in range(4)]
+                faces = [(k, k+1, k+5, k+4) for k in range(3)]
                 if sign < 0:
                     faces = [tuple(reversed(face)) for face in faces]
                 add("TiledRoof", vertices, faces, random.choice(tile))
@@ -218,10 +218,10 @@ def finish_scene(output):
         for polygon, material in zip(mesh.polygons, surfaces):
             polygon.material_index = slots[material]
             polygon.use_smooth = part in {"Eaves", "TeaWare", "Rockery"}
-        if part in {"Masonry", "TimberFrame", "Furniture", "Lattice"}:
+        if part in {"Masonry", "TimberFrame", "Furniture"}:
             bevel = obj.modifiers.new("Worn edges", "BEVEL")
             bevel.width = .016
-            bevel.segments = 2
+            bevel.segments = 1
     output.parent.mkdir(parents=True, exist_ok=True)
     if bpy.ops.wm.save_as_mainfile(filepath=str(output), compress=True) != {"FINISHED"}:
         raise RuntimeError(f"Could not save {output}")
