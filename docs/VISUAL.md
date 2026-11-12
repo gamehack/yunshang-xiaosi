@@ -2,6 +2,8 @@
 
 Blender 管线的测试几何用于核对比例、朝向与 PBR 材质传递。园林视觉验收仍按 M2.2 的茶室或临水庭院切片执行。见 [Blender 资产管线](BLENDER-PIPELINE.md)。
 
+R0 茶室首轮加入瓦垄、曲檐、木构、格窗、石板、山石地被和浅池浮叶。视觉目标、参考和主机位见 [苏州园林美术规范](REALISTIC-ART-DIRECTION.md)。
+
 > **现行决策 2026-11-11：A 写实苏州园林。** 下文低多边形/M0.9–M2.1 内容仅为历史开发记录，**不再是目标美术规范**。现行唯一美术计划：[M2-2-REALISTIC-SUZHOU-GARDEN.md](M2-2-REALISTIC-SUZHOU-GARDEN.md)。新规范由 R0 阶段产出 `docs/REALISTIC-ART-DIRECTION.md`。不得继续按照旧文“保持低多边形”的描述优化。
 
 # 半日闲视觉规范（M0.9 开发基线）

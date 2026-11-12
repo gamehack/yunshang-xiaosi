@@ -2,6 +2,8 @@
 
 > M2.2 开发已增加 [Blender 资产管线](BLENDER-PIPELINE.md)。本地后台导出经 GLB 结构校验后，由 Vite 开发页中的 Three.js `GLTFLoader` 加载。开发页独立于正式入口，生产构建和服务器无需 Blender。
 
+> R0 茶室切片在 Vite 开发模式通过 `?art=teahouse` 动态加载，复用现有场景、镜头和导航。加载失败时使用原场景。GLB 与开发预览模块均不进入生产构建。见 [切片报告](R0-TEAHOUSE-REPORT.md)。
+
 > **2026-11-11 现行说明：** 本文 M0.1–M1.6 的阶段性记录保留为工程历史，早期“未实现”并不代表当前状态。M2.0 的唯一执行计划见 [ROADMAP.md](ROADMAP.md)，验收见 [ACCEPTANCE.md](ACCEPTANCE.md)，当前代码以 develop HEAD 为准。云端 Codex 在 G0 阶段必须审计并更新当前模块快照，不得根据历史段落重复开发。
 
 > 本文替代早期 2.5D Phaser、宗教寺院和多人房间架构。当前不建设联机、聊天或服务端房间。

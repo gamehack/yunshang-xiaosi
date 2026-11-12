@@ -85,10 +85,20 @@ scene.add(new THREE.HemisphereLight('#ffffff', '#829185', 2));
 const sun = new THREE.DirectionalLight('#fff1d8', 2.5);
 sun.position.set(-12, 25, 8);
 scene.add(sun);
-buildGarden(scene);
+const garden = buildGarden(scene);
 buildExterior(scene);
 addSeats(scene);
 addLandscape(scene);
+if (import.meta.env.DEV && new URLSearchParams(location.search).get('art') === 'teahouse') {
+  try {
+    const { previewTeahouse } = await import('./dev/teahouse-preview');
+    await previewTeahouse(scene, garden, renderer);
+    root.dataset.art = 'teahouse';
+  } catch (error) {
+    root.dataset.art = 'fallback';
+    console.error('茶室美术预览未加载，继续使用现有园林', error);
+  }
+}
 const waterRipples: Array<{mesh:THREE.Mesh;baseScale:number;phase:number}> = [];
 scene.traverse(object=>{
   const ripple=object.userData.waterRipple as {baseScale:number;phase:number}|undefined;

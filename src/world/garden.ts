@@ -3,7 +3,7 @@ import { addBambooGrove } from './bamboo';
 import { BRIDGE, GARDEN, GATE_COLUMNS, PONDS, TEAHOUSE, WALLS } from './layout';
 
 /** M0.3 conceptual whitebox: garden footprint 42 x 36m, not the final 70 x 55m plan. */
-export function buildGarden(scene: THREE.Scene): void {
+export function buildGarden(scene: THREE.Scene) {
   const white = new THREE.MeshStandardMaterial({color:'#e9e7df',roughness:1});
   const roof = new THREE.MeshStandardMaterial({color:'#4e5653',roughness:1});
   const stone = new THREE.MeshStandardMaterial({color:'#c7bda9',roughness:1});
@@ -55,6 +55,7 @@ export function buildGarden(scene: THREE.Scene): void {
   box(6.6,.55,1.4,0,3.3,15.6,roof);box(4.2,.6,.15,0,2.75,15.15,timber);
   // Teahouse in north-west, with open doorway facing central garden.
   box(TEAHOUSE.width,TEAHOUSE.floorDepth,TEAHOUSE.depth,TEAHOUSE.x,TEAHOUSE.floorY,TEAHOUSE.z,stone);
+  const teahouseStart = scene.children.length;
   for(const x of TEAHOUSE.postXs)for(const z of TEAHOUSE.postZs)box(TEAHOUSE.postWidth,3,TEAHOUSE.postWidth,x,1.6,z,timber);
   // Clean double-pitched roof: no overlapping horizontal slab beneath the slopes.
   const roofPlane=new THREE.BoxGeometry(4.9,.16,6.6);
@@ -99,6 +100,7 @@ export function buildGarden(scene: THREE.Scene): void {
   const rear=TEAHOUSE.rearWall,table=TEAHOUSE.table;
   box(rear.width,2.4,rear.depth,rear.x,1.45,rear.z,white);
   box(table.width,.8,table.depth,table.x,.55,table.z,timber);
+  const teahouseVisuals = scene.children.slice(teahouseStart);
   // Water footprints are also used by navigation; only the bridge deck permits crossing.
   for(const pond of PONDS){
     const surface=new THREE.Mesh(new THREE.CircleGeometry(1,64),water);
@@ -148,10 +150,12 @@ export function buildGarden(scene: THREE.Scene): void {
   scene.add(railPosts);
   // Rockery on west side, pavilion beside pond.
   const rockmat=new THREE.MeshStandardMaterial({color:'#919b91',roughness:1,flatShading:true});
+  const rockeryStart = scene.children.length;
   for(const [x,z,s] of [[-16,-5,1.7],[-14,-3,2.3],[-16,-1,1.5],[-15,2,1.1]]){
     const rock=new THREE.Mesh(new THREE.DodecahedronGeometry(s,0),rockmat);
     rock.position.set(x,s*.55,z);rock.rotation.y=x*.3;scene.add(rock);
   }
+  const rockeryVisuals = scene.children.slice(rockeryStart);
   const pavilion=box(4,.2,4,16,.15,-11,stone);
   void pavilion;
   for(const x of [14.2,17.8])for(const z of [-12.8,-9.2])box(.22,2.8,.22,x,1.5,z,timber);
@@ -216,4 +220,5 @@ export function buildGarden(scene: THREE.Scene): void {
     bambooPositions.push({x,z,h:3.5+(i%5)*.45});
   }
   addBambooGrove(scene,bambooPositions);
+  return { teahouseVisuals, rockeryVisuals, water, ground: floor };
 }
