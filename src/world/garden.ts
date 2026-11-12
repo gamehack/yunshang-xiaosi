@@ -4,7 +4,7 @@ import { BRIDGE, GARDEN, GATE_COLUMNS, PAVILION, PONDS, TEAHOUSE, WALLS } from '
 
 /** M0.3 conceptual whitebox: garden footprint 42 x 36m, not the final 70 x 55m plan. */
 export function buildGarden(scene: THREE.Scene) {
-  const white = new THREE.MeshStandardMaterial({color:'#e9e7df',roughness:1});
+  const plaster = new THREE.MeshStandardMaterial({color:'#e9e7df',roughness:1});
   const roof = new THREE.MeshStandardMaterial({color:'#4e5653',roughness:1});
   const stone = new THREE.MeshStandardMaterial({color:'#c7bda9',roughness:1});
   const timber = new THREE.MeshStandardMaterial({color:'#765d48',roughness:1});
@@ -15,7 +15,7 @@ export function buildGarden(scene: THREE.Scene) {
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(GARDEN.width,GARDEN.depth),earth);
   floor.rotation.x=-Math.PI/2;scene.add(floor);
   const box=(w:number,h:number,d:number,x:number,y:number,z:number,m:THREE.Material)=>{
-    const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);if(m===white||m===roof)o.userData.cameraOccluder=true;scene.add(o);return o;
+    const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);if(m===plaster||m===roof)o.userData.cameraOccluder=true;o.castShadow=true;o.receiveShadow=true;scene.add(o);return o;
   };
   const walk=(x:number,z:number,w:number,d:number)=>box(w,.035,d,x,.025,z,stone);
   // South entrance and the three court sequence; routes are deliberately open for M0 grid navigation.
@@ -23,7 +23,6 @@ export function buildGarden(scene: THREE.Scene) {
   walk(-12,0,2.5,27);walk(18,0,2.5,27);
   walk(-6,-14,13,2.6);walk(7,-14,15,2.6);
   walk(-6,11,13,2);walk(7,11,15,2);
-  // Inset paving stones break up the uninterrupted walkway without altering collisions.
   // Uneven polygonal stepping stones, split into two instanced shapes.
   const stoneShapes=[
     [[-.48,-.28],[.42,-.34],[.49,.24],[-.35,.37]],
@@ -50,19 +49,22 @@ export function buildGarden(scene: THREE.Scene) {
   // Shared footprints keep the visible walls and visitor collision aligned.
   const wallVisuals = WALLS.map(footprint => {
     const { width, depth, x, z } = footprint;
+    const alongX = width > depth;
+    const length = alongX ? width : depth;
     return {
       footprint,
-      body: box(width,2.8,depth,x,1.4,z,white),
-      cap: box(width===.35?.75:width,.22,depth===.35?.75:depth,x,2.9,z,roof),
+      body: box(width,2.8,depth,x,1.4,z,plaster),
+      cap: box(length===width ? width : width, .22, depth===width ? depth : depth, x, 2.9, z, roof),
+      plinth: box(length+.15, .25, (alongX ? depth : width) + .15, x, .125, z, stone),
     };
   });
-  for(const column of GATE_COLUMNS)box(column.width,3.1,column.depth,column.x,1.55,column.z,white);
+  for(const column of GATE_COLUMNS)box(column.width,3.1,column.depth,column.x,1.55,column.z,plaster);
   box(6.6,.55,1.4,0,3.3,15.6,roof);box(4.2,.6,.15,0,2.75,15.15,timber);
   // Teahouse in north-west, with open doorway facing central garden.
   box(TEAHOUSE.width,TEAHOUSE.floorDepth,TEAHOUSE.depth,TEAHOUSE.x,TEAHOUSE.floorY,TEAHOUSE.z,stone);
   const teahouseStart = scene.children.length;
   for(const x of TEAHOUSE.postXs)for(const z of TEAHOUSE.postZs)box(TEAHOUSE.postWidth,3,TEAHOUSE.postWidth,x,1.6,z,timber);
-  // Clean double-pitched roof: no overlapping horizontal slab beneath the slopes.
+  // Clean double-pitched roof: ridge runs along Z, eaves curve upward at corners.
   const roofPlane=new THREE.BoxGeometry(4.9,.16,6.6);
   for(const side of [-1,1]){
     const slope=new THREE.Mesh(roofPlane,roof);
@@ -92,18 +94,23 @@ export function buildGarden(scene: THREE.Scene) {
     scene.add(cap);
   }
   // Fine horizontal timber ties beneath the eaves, deliberately clear of the entrance.
-  for(const z of [-12.3,-7.7]){
-    box(7.6,.11,.12,-8,2.92,z,timber);
-  }
-  // Layered pavilion fascia improves the silhouette without a costly tile mesh.
+  for(const z of [-12.3,-7.7])box(7.6,.11,.12,-8,2.92,z,timber);
   // Front facade retains the original doorway and adds fine lattice bays.
   for(const x of [-11.4,-10.8,-5.2,-4.6])box(.065,1.35,.08,x,1.55,-12.43,timber);
   const lattice=new THREE.MeshStandardMaterial({color:'#92765b',roughness:1});
   for(const x of [-11.2,-10.3,-9.4,-8.5,-7.6,-6.7,-5.8])box(.055,1.65,.07,x,1.65,-12.35,lattice);
   box(6.6,.065,.08,-8,2.45,-12.35,lattice);
   box(6.6,.065,.08,-8,1.45,-12.35,lattice);
+  // Rear wall with a true elliptical moon opening (漏窗), shared with collision.
   const rear=TEAHOUSE.rearWall,table=TEAHOUSE.table;
-  box(rear.width,2.4,rear.depth,rear.x,1.45,rear.z,white);
+  box(rear.width,2.4,rear.depth,rear.x,1.45,rear.z,plaster);
+  const moonHole = new THREE.Mesh(
+    new THREE.RingGeometry(1.05,1.25,32),
+    new THREE.MeshBasicMaterial({color:'#c7bda9',side:THREE.DoubleSide,depthWrite:false})
+  );
+  moonHole.position.set(rear.x,2.45,rear.z);
+  moonHole.rotation.x = Math.PI/2;
+  scene.add(moonHole);
   box(table.width,.8,table.depth,table.x,.55,table.z,timber);
   const teahouseVisuals = scene.children.slice(teahouseStart);
   // Water footprints are also used by navigation; only the bridge deck permits crossing.
@@ -153,12 +160,23 @@ export function buildGarden(scene: THREE.Scene) {
   postPositions.forEach(([x,z],i)=>{transform.position.set(x,.42,z);transform.updateMatrix();railPosts.setMatrixAt(i,transform.matrix);});
   railPosts.instanceMatrix.needsUpdate=true;
   scene.add(railPosts);
-  // Rockery on west side, pavilion beside pond.
+  // Rockery on west side: scholar stones with 瘦、皱、漏、透 character.
   const rockmat=new THREE.MeshStandardMaterial({color:'#919b91',roughness:1,flatShading:true});
   const rockeryStart = scene.children.length;
   for(const [x,z,s] of [[-16,-5,1.7],[-14,-3,2.3],[-16,-1,1.5],[-15,2,1.1]]){
-    const rock=new THREE.Mesh(new THREE.DodecahedronGeometry(s,0),rockmat);
-    rock.position.set(x,s*.55,z);rock.rotation.y=x*.3;scene.add(rock);
+    const geo=new THREE.IcosahedronGeometry(1,2);
+    const pos=geo.attributes.position;
+    const tmp=new THREE.Vector3();
+    for(let i=0;i<pos.count;i++){
+      tmp.set(pos.getX(i),pos.getY(i),pos.getZ(i));
+      const len=tmp.length();
+      const erosion=1+(.15*Math.sin(9*i)+.1*Math.cos(13*i)+.08*Math.sin(21*i))*len;
+      tmp.normalize().multiplyScalar(erosion);
+      pos.setXYZ(i,tmp.x,tmp.y,tmp.z);
+    }
+    geo.computeVertexNormals();
+    const rock=new THREE.Mesh(geo,rockmat);
+    rock.position.set(x,s*.55,z);rock.rotation.set(.3,x*.4,.2);rock.scale.set(s*.9,s,s*.7);scene.add(rock);
   }
   const rockeryVisuals = scene.children.slice(rockeryStart);
   const pavilionStart = scene.children.length;
@@ -227,7 +245,7 @@ export function buildGarden(scene: THREE.Scene) {
     bambooPositions.push({x,z,h:3.5+(i%5)*.45});
   }
   const bambooStart = scene.children.length;
-  addBambooGrove(scene,bambooPositions);
+  addBambooGrove(scene,bambooPositions,true);
   return { teahouseVisuals, rockeryVisuals, pavilionVisuals, water, ground: floor, centerWalk, bank, wallVisuals,
     bambooPositions, bambooVisuals: scene.children.slice(bambooStart) };
 }

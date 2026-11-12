@@ -147,3 +147,12 @@
 - 全量93项、构建通过；完整2项Chromium同步+17交互+WebGL回退+两处座椅几何通过。
 - 两分辨率V1共16张专项截图，pageerror/console.error/requestfailed/WebGL error均0。新增console监听抓到原favicon.ico 404，已定位并补原创favicon.svg；修复后全量V1截图重跑通过，未忽略错误。
 - 下一步：V2构图/建筑/铺装/植被层次，保持现有导航与存档。
+
+## M2.2 R1–R4 进度（2026-11-12）
+
+- R0 茶室切片：已在 `codex/blender-integration` 提交 `5205125`，含 Blender 茶室/亭台源文件、导出脚本、开发预览及 courtyard 细化。未推送 develop。
+- R1 建筑与园林空间重建：`src/world/garden.ts`、`src/world/exterior.ts` 重建为更真实的苏式园林比例：白墙带勒脚与瓦帽、双坡黛瓦屋顶带屋脊封头与檐下木梁、后墙真实椭圆漏窗、茶桌与茶凳、木桥带护栏与铺板、池亭四柱攒尖顶、园门与围墙按共享导航足迹构建。可见几何与 `layout.ts` 导航数据保持一致，不穿墙、不浮空。
+- R2 植物、太湖石与地表：`src/world/bamboo.ts` natural 模式用于花园与外部竹林，带节间、分枝、下垂叶片；太湖石改为擦伤多面体体现瘦皱漏透；苔藓/土地/岸石分层材质；`src/world/landscape.ts` 树冠比例更自然。
+- R3 水、材质与自然光照：`src/main.ts` 开启 PCFSoftShadowMap 与方向光阴影，HemisphereLight 调为偏暖自然光；建筑与地面开启 cast/receive Shadow；水面粗糙度与法线保留；三档画质 DPR 上限不变，禁止高成本 SSR。
+- R4 人物与沉浸一致性：现有 `src/avatar/visitor.ts` 髋膝分节、肩肘手连续、坐起/转向按 dt 过渡、脚底贴地与座面贴合单测已通过；无需额外改动。
+- R5 全流程 PC 浏览器验收与交付：待真实 Chromium/Playwright 环境执行，无法在此环境完成。

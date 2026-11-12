@@ -72,7 +72,8 @@ try {
 }
 renderer.setPixelRatio(qualityPixelRatio(quality, window.devicePixelRatio));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.shadowMap.enabled = false;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 mount.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
@@ -81,9 +82,17 @@ scene.fog=new THREE.Fog('#c9d9d7',35,155);
 const camera = new THREE.PerspectiveCamera(62, 1, 0.1, 300);
 camera.position.set(14, 13, 20);
 camera.lookAt(0, 0, 0);
-scene.add(new THREE.HemisphereLight('#ffffff', '#829185', 2));
-const sun = new THREE.DirectionalLight('#fff1d8', 2.5);
-sun.position.set(-12, 25, 8);
+scene.add(new THREE.HemisphereLight('#ffffff', '#829185', 1.5));
+const sun = new THREE.DirectionalLight('#fff1d8', 2.2);
+sun.position.set(-12, 28, 8);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.camera.left = -22;
+sun.shadow.camera.right = 22;
+sun.shadow.camera.top = 22;
+sun.shadow.camera.bottom = -22;
+sun.shadow.camera.far = 60;
+sun.shadow.bias = -0.0005;
 scene.add(sun);
 const garden = buildGarden(scene);
 buildExterior(scene);
