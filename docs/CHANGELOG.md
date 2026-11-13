@@ -144,3 +144,11 @@
 ## M2.1 Visual RC 开发
 - V0：两PC目标分辨率28张可复现基线。
 - V1：局部植被遮挡剔除、肩肘手/髋膝踝连续性；93项测试与实际浏览器专项回归通过，原有交互保留。
+
+## 2026-11-13｜M2.2 R5 审计与 M2.3 ULTRA 规划基线
+
+- 核验 codex/blender-integration 与 develop：ahead 6 / behind 0；Preview 来源 commit 61db07d。
+- Cloudflare Pages Preview c1b36841 部署成功；生产仍保持 main / M1.3。
+- 记录当前 Preview HUD 单次读数及 R0 Radeon 历史性能数据；均不冒充完整性能验收。
+- 新增 M2.3 ULTRA 临水茶室—庭院垂直切片计划，明确资产规范、质量评分、初始性能预算和验收门槛。
+- R5 的真实 Chromium 双分辨率交互、截图、360°巡检仍待具备可执行浏览器的环境完成。
