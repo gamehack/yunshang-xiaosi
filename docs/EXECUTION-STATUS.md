@@ -180,10 +180,13 @@
 - M2.2 R5 双分辨率/真实 Radeon 验收仍待 Windows 本地环境执行。
 
 
-## 2026-11-13｜单 main 工作流迁移候选
+## 2026-11-13｜单 main 整合与生产部署完成
 
-- 用户确认本仓库仅保留 main 作为开发分支；当前正在把 develop 的既有历史、codex/blender-integration 的 M2.2/Blender/M2.3 资产与文档成果，以及 feature/moyushan-v2-free 的独立 V2 方案文档整合到 main。
-- README 已更新为单 main 工作流；原 V2 方案以历史决策记录保留，旧的隔离分支约束已标记为被后续决定取代。
-- 当前整合候选头：等待 PR #28 最新 CI。PR #28 已改为 main 为目标，尚未合并。
-- 注意：Cloudflare Pages 的 production_branch 当前是 main；合并 PR #28 会触发生产环境构建/部署。需要用户对该部署副作用明确授权后再执行最终合并。
-- 在验证与合并完成前，不删除任何分支。
+- 用户明确确认：仅处理 `yunshang-xiaosi`；所有开发成果合并到 `main`；验证后删除其他开发分支。用户另明确授权合并后自动触发 Cloudflare Pages 生产部署，以便线上验收。
+- PR #28（Blender/M2.2/M2.3 主线）已合并到 `main`，merge commit：`3d8fa71548b53617c4e2716582747afcfc70979f`。保留原提交历史，未 force-push。
+- PR #28 合并前 CI 全部通过：文档检查、`npm test`、`npm run build)、Chromium PC 交互/截图/WebGL 回归；Cloudflare Pages PR 检查也通过。
+- `feature/moyushan-v2-free` 独有的 V2 方案已复制到 `docs/V2-FREE-REBUILD.md`，并标注为历史决策记录；README 已切换为单 main 工作流。
+- Cloudflare Pages `banrixian` 生产部署成功：deployment ID `c6fa58f4-a952-4de5-85c1-316c784f7a92`，commit 与 main 一致；build、deploy 阶段均 success。生产地址：https://banrixian.pages.dev；本次部署地址：https://c6fa58f4.banrixian.pages.dev。
+- PR #27（develop -> main）在其全部提交已由 PR #28 包含后关闭；GitHub 将其识别为已包含/merged。
+- **待完成：删除三个历史开发分支** `develop`、`codex/blender-integration`、`feature/moyushan-v2-free`。当前 GitHub 连接器提供分支读取和更新，但不提供删除 ref 的操作；不能声称已删除。删除前再次确认 main SHA 为上述 merge commit，随后用有权限的 Git CLI 执行远端分支删除。
+- 旧记录中“未合并 main / 未触发生产发布 / 继续使用 develop 或 codex 分支”的状态均为历史快照，以本节为当前状态。
