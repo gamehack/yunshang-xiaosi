@@ -83,3 +83,10 @@ TEST_URL=http://127.0.0.1:4173 npm run test:soak
 浏览器同步回归：`npm run test:browser:sync` 包含2项独立Chromium测试，验证自定义超时和延迟音频按钮；`npm run test:browser` 会先执行这两项，再运行完整游戏交互。完整游戏测试对真实AudioContext切换注入150ms延迟，以捕获过早读取状态的竞态。
 
 完整交付见[M2.0 RC验收报告](docs/M2-RC-REPORT.md)：最终应用f843894的GitHub Actions全部成功；原12张截图复核并补2张侧视，共14张带哈希证据。未合并或生产发布。
+
+## 当前开发基线（2026-11-13）
+
+- 当前美术工作分支：codex/blender-integration，HEAD 61db07d；相对 develop ahead 6 / behind 0。不得将该分支误写成已合并 develop。
+- Cloudflare Pages banrixian 已为该分支生成成功的 Preview：https://c1b36841.banrixian.pages.dev；当前生产仍为 main 的 M1.3，不因 Preview 成功而视为发布。
+- M2.2 R1–R4 已有代码实现；R5 的完整 PC Chromium/Playwright 截图验收仍未完成。当前下一阶段执行基线见 [M2.3 ULTRA 垂直切片计划](docs/M2.3-ULTRA-VERTICAL-SLICE.md)。
+- ULTRA 先做临水茶室—庭院垂直切片，不扩整园、不推倒 Three.js，不重写导航/碰撞/座椅/存档。
