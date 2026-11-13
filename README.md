@@ -33,15 +33,16 @@ Blender 5.2 LTS 可在 Windows 本地生成和校验 GLB。测试资产通过独
 
 M2.2 临水茶室切片可在 Vite 开发模式查看。导出方法、同机位截图和验证范围见 [R0 茶室切片报告](docs/R0-TEAHOUSE-REPORT.md)。
 
-## 开发与发布原则：代码和文档同步
+## 开发与发布原则：单一 main 工作流
 
-**每次涉及功能、行为、架构、界面、部署或验收状态的代码变更，必须在同一 PR / 同一开发批次更新相关文档。文档未同步，不视为开发完成。**
+**当前测试阶段，本仓库只使用 `main` 作为唯一开发、集成和验收分支。** 不再建立长期 `develop`、`feature/*` 或 `codex/*` 分支；ChatGPT 与 Kilo GUI 均直接在 main 上协作。每批代码、测试、资产和文档同步提交。
 
-1. 日常开发提交到 `develop`，更新代码、测试及相关文档；不直接向 `main` 推送功能。
-2. 每个里程碑通过 GitHub Actions 的 `npm test`、`npm run build`，并核对文档。
-3. 里程碑集中合并到 `main`，触发一次 Cloudflare Pages 生产构建；发布后记录部署结果与实测范围。
-4. Cloudflare Pages 预览构建保持关闭，避免消耗免费构建额度。
-5. 实测、自动化测试、部署成功分别记录，不能相互替代。
+1. 所有开发提交直接进入 `main`；开始操作前先同步远端并检查工作区，禁止覆盖未提交改动。
+2. 每批必须通过文档检查、`npm test`、`npm run build`；适用时运行 Chromium 浏览器回归。
+3. Blender 源文件、GLB、资产统计、许可证和视觉证据与运行时代码一并维护。
+4. Cloudflare Pages 当前以 `main` 为生产分支。合并/推送 main 会触发生产环境部署；任何正式发布仍须单独取得用户明确授权。
+5. 自动化测试、真实硬件性能、人工审美验收和部署状态分别记录，不能相互替代。
+6. 只有在本批代码和文档已进入 main、验证结果已记录后，才清理历史分支。
 
 云端 Codex 持续开发请先阅读 [M2.0 开发交接单](docs/CODEX-HANDOFF.md)，并按其中的安全边界执行。
 
@@ -49,7 +50,7 @@ M2.2 临水茶室切片可在 Vite 开发模式查看。导出方法、同机位
 
 ## 部署
 
-- GitHub：`gamehack/yunshang-xiaosi`；生产分支：`main`；开发分支：`develop`。
+- GitHub：`gamehack/yunshang-xiaosi`；生产分支：`main`；开发分支：`main`（唯一开发分支）。
 - Cloudflare Pages 项目：`banrixian`。
 - 构建：`npm test && npm run build`；产物目录：`dist`。
 - GitHub Actions：PR 验证；Cloudflare Pages：生产构建和托管。
