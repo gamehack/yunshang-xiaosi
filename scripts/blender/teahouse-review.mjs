@@ -71,8 +71,8 @@ function recordRenderer(renderer) {
 const overview = { x: -2.5, z: -5.4, yaw: 1.16, pitch: .29, distance: 12.5 };
 const pavilionView = { x: 14.3, z: -8.1, yaw: -.5, pitch: .22, distance: 6.2 };
 const preview = new URL('/?art=teahouse', base).href;
-const glbPath = '/dev/art-preview/generated/teahouse.glb';
-const pavilionPath = '/dev/art-preview/generated/pavilion.glb';
+const glbPath = '/art-preview/generated/teahouse.glb';
+const pavilionPath = '/art-preview/generated/pavilion.glb';
 
 function observeAssets(page) {
   const errors = [];

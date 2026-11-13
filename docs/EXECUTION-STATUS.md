@@ -190,3 +190,13 @@
 - PR #27（develop -> main）在其全部提交已由 PR #28 包含后关闭；GitHub 将其识别为已包含/merged。
 - **待完成：删除三个历史开发分支** `develop`、`codex/blender-integration`、`feature/moyushan-v2-free`。当前 GitHub 连接器提供分支读取和更新，但不提供删除 ref 的操作；不能声称已删除。删除前再次确认 main SHA 为上述 merge commit，随后用有权限的 Git CLI 执行远端分支删除。
 - 旧记录中“未合并 main / 未触发生产发布 / 继续使用 develop 或 codex 分支”的状态均为历史快照，以本节为当前状态。
+
+
+## 2026-11-13｜M2.3 首个工程批次：生产可访问的茶室审阅入口
+
+- 已确认根因：`src/main.ts` 的 `?art=teahouse` 入口被 `import.meta.env.DEV` 限制；线上 production build 永远不执行 Blender 茶室审阅模式。
+- 已将审阅入口改为显式 query 开关：`/?art=teahouse`；默认用户体验不变。
+- Blender 预览 GLB 运行时路径统一为 `/art-preview/generated/teahouse.glb` 与 `/art-preview/generated/pavilion.glb`，目标目录为 `public/art-preview/generated/`，可随静态站点部署。
+- 已将 GitHub Actions validation 增加 `push: main` 触发器，保证单 main 工作流每次提交均执行文档检查、单测、构建及 Chromium 回归。
+- 当前 main 仍缺少两份可部署 GLB；预览入口上线后，在 GLB 入库前访问审阅模式会明确 fallback。不得把该阶段称为茶室资产已接入。
+- 下一步：Windows Kilo 使用 Blender 5.2.4 从已入库 v01 源文件复制制作候选 v02，输出两个自包含 GLB（茶室和池亭）到 public 路径，完成校验、浏览器三机位截图与统计，再提交 main。

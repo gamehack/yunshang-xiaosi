@@ -98,7 +98,9 @@ const garden = buildGarden(scene);
 buildExterior(scene);
 addSeats(scene);
 addLandscape(scene);
-if (import.meta.env.DEV && new URLSearchParams(location.search).get('art') === 'teahouse') {
+// Explicit art-review query is available in both local builds and Cloudflare production.
+// The default visitor experience remains unchanged unless the user requests this preview.
+if (new URLSearchParams(location.search).get('art') === 'teahouse') {
   try {
     const { previewTeahouse } = await import('./dev/teahouse-preview');
     root.dataset.pavilion = await previewTeahouse(scene, garden, renderer);

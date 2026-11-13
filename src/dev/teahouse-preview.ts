@@ -76,7 +76,7 @@ function makeGroundMap() {
 
 async function loadPavilion(loader: GLTFLoader) {
   try {
-    const { scene } = await loader.loadAsync('/dev/art-preview/generated/pavilion.glb');
+    const { scene } = await loader.loadAsync('/art-preview/generated/pavilion.glb');
     const bounds = new THREE.Box3().setFromObject(scene);
     const size = bounds.getSize(new THREE.Vector3());
     if (!scene.getObjectByName('PavilionRoof') || !scene.getObjectByName('PavilionTimber')
@@ -118,7 +118,7 @@ export async function previewTeahouse(scene: THREE.Scene, garden: ReturnType<typ
   renderer: THREE.WebGLRenderer) {
   const loader = new GLTFLoader();
   const [{ scene: asset }, pavilion] = await Promise.all([
-    loader.loadAsync('/dev/art-preview/generated/teahouse.glb'),
+    loader.loadAsync('/art-preview/generated/teahouse.glb'),
     loadPavilion(loader),
   ]);
   const bounds = new THREE.Box3().setFromObject(asset);

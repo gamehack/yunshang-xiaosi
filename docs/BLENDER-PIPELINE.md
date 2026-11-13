@@ -1,6 +1,6 @@
 # 摸鱼山 Blender 资产管线
 
-Blender 在美术工作站离线处理 `.blend`，输出自包含的 GLB。导出脚本先校验候选文件，再替换目标文件。浏览器通过 Three.js `GLTFLoader` 加载导出资产，镜头、灯光和交互由游戏控制。当前接入点是独立的 Vite 开发页，线上服务器只需提供静态文件。
+Blender 在美术工作站离线处理 `.blend`，输出自包含的 GLB。导出脚本先校验候选文件，再替换目标文件。浏览器通过 Three.js `GLTFLoader` 加载导出资产，镜头、灯光和交互由游戏控制。茶室审阅模式通过 `/?art=teahouse` 显式开启，本地 Vite 与 Cloudflare Pages 生产构建均可访问；普通访问不改变默认游戏体验。审阅资产从 `public/art-preview/generated/` 提供静态文件。
 
 ## Windows 本地执行
 
@@ -72,3 +72,13 @@ if (-not $blender) { $blender = 'C:\Program Files\Blender Foundation\Blender 5.2
 ## 正式园林的下一步
 
 按 [M2.2 写实园林计划](M2-2-REALISTIC-SUZHOU-GARDEN.md) 先做临水茶室或庭院的高保真切片。以人物与座椅校准尺度，先在现有漫游镜头里检查连廊、漏窗、水岸和太湖石形成的框景，再打磨灰泥、黛瓦、木材及植被的色彩、粗糙度和法线。用两种目标桌面分辨率记录同机位对照与动态回归，测量下载体积、首帧、draw calls 和 P95 帧时间后确定资源预算。切片通过后，再分批扩展到园门、池塘回廊、竹林和望湖台。
+
+
+## Cloudflare 线上茶室审阅模式
+
+- 审阅入口：`https://banrixian.pages.dev/?art=teahouse`。
+- 静态资产目录：`public/art-preview/generated/`。
+- 运行时文件名固定为 `teahouse.glb`、`pavilion.glb`；不得把 GLB 留在被 Git 忽略的本地临时目录。
+- 本地导出后，先运行 `node scripts/blender/validate-glb.mjs <asset.glb>`，再复制到上述 public 目录并提交 main。
+- 缺少 GLB 时，审阅模式会在控制台报告错误并回退，不影响默认游戏；不得把 fallback 误报为 Blender 资产已加载。
+- 发布验收须核对网络请求状态为 200、页面 `#app[data-art="teahouse"]` 与 `#app[data-pavilion="loaded"]`，并在浏览器检查三个固定机位。
