@@ -1,0 +1,140 @@
+{
+  "version": "2.0.0-rc.1",
+  "buildMain": "main-BFOHP6CT.js",
+  "baseScreenshotCount": 12,
+  "supplementalSeatViews": 2,
+  "screenshotCount": 14,
+  "runtimeSourceSha256": {
+    "src/audio/ambient.ts": "cdb4b16d73e3d4e20984f96e228c36e6aed402745d87b15f409caf189807b1d9",
+    "src/avatar/visitor.ts": "b1a1c98cd195019aaa8c0a430ac7479d9820ffe11231a83a96ae4e9af3dfff72",
+    "src/bootstrap.ts": "17af4a031ee9d0330f641ae3b17b190619883aaf7ebbd0b1f09f20d4c1235f1c",
+    "src/engine-resources.ts": "2170f332027415183aef42ee6a343b5ec22e3b034500e0e6ad2319bd960f60dd",
+    "src/main.ts": "e2db906520260d5c463968d4cc05b1ca3eaec6eea4613620be16c5a546549499",
+    "src/navigation/keyboard.ts": "b9e11e322a5c9ff122230afff2cf972860dcd2e94286effb70c569c2b1794ec4",
+    "src/navigation/seats.ts": "5a470f3f3a0f0f009c15cd8b71f7774105def1b12b0b8f53f8455d6a63174459",
+    "src/navigation/walk-controller.ts": "91c583e5fb4db471fc63323223c14990d16b271220e166c6ad39babc81ebf553",
+    "src/performance/frame-stats.ts": "7f4212b3713c8805eeb8121862ff7a2347fb6e3d323789e6b0adf849d5fc8b3c",
+    "src/performance/quality.ts": "28c8c303337bef41812332a85e3bcd1e7dfd3ac8c99d997b5b27e0391478080b",
+    "src/persistence/guest-save.ts": "3c705bbc7192bf8436fafd19cbb6074259856dd5a511f1d24ff2c4ccae09aa08",
+    "src/world/bamboo.ts": "5325d178c624f47afabb07074b828d024cb8befcac901b667544519d5fadfe0e",
+    "src/world/exterior.ts": "c563dc4b7e5c89b3e735d9c75ec8c6cb1a2412b04aa918d8f76918e96e7bc2ac",
+    "src/world/garden.ts": "f53fcaa0a300d1bd978ee7038f169617b038be5ef5a77a9f61521531a96b8d69",
+    "src/world/landscape.ts": "e0d9dcb01aa91622feb46f2eb5f66acc971679a94b10c84f3a513fd7b1ba216b",
+    "src/world/layout.ts": "d107263cdc15a0ae786040d184551bdfae0c93d8fe03bfee3d545fce2892a821",
+    "src/world/seating.ts": "e7803407fba58e95387ec81f96c74afc8e7a99cfdda9bb39e9d89f509f107aea"
+  },
+  "screenshots": [
+    {
+      "file": "01-entrance.png",
+      "width": 1280,
+      "height": 720,
+      "bytes": 221267,
+      "sha256": "3be47378da7dc122388318bb17e0196d567d9fcc720f34fcff291100272adac8",
+      "origin": "current resumed Chromium validation"
+    },
+    {
+      "file": "02-overview.png",
+      "width": 1280,
+      "height": 720,
+      "bytes": 249450,
+      "sha256": "4613077b25e7e1993b00214ac36a0026d057dbbfef1b12f90e384b606b979743",
+      "origin": "current resumed Chromium validation"
+    },
+    {
+      "file": "03-teahouse-exterior.png",
+      "width": 1280,
+      "height": 720,
+      "bytes": 257879,
+      "sha256": "3dff8603687d34a9ddd6b208f7311c992417e803ba1df6cd339ec8bab1f85216",
+      "origin": "current resumed Chromium validation"
+    },
+    {
+      "file": "04-teahouse-interior.png",
+      "width": 1280,
+      "height": 720,
+      "bytes": 151404,
+      "sha256": "49dcaf67e40cf191d581617e4e4de9b055dbfcb52677d5a58bd73cde1e18862b",
+      "origin": "current resumed Chromium validation"
+    },
+    {
+      "file": "05-bamboo.png",
+      "width": 1280,
+      "height": 720,
+      "bytes": 302277,
+      "sha256": "95c4ddf9f978edecf78fa0246e2bd9dae2b73da82ea38957bce4823f40cab2a0",
+      "origin": "current resumed Chromium validation"
+    },
+    {
+      "file": "06-bridge-pond.png",
+      "width": 1280,
+      "height": 720,
+      "bytes": 196019,
+      "sha256": "01d00f75938aa02e40941d10088d61a7785ec032d7a183d4c7edb2686830ad91",
+      "origin": "current resumed Chromium validation"
+    },
+    {
+      "file": "07-lookout.png",
+      "width": 1280,
+      "height": 720,
+      "bytes": 97155,
+      "sha256": "8d66e896bde138bf776fb8015dfbb795d692598db100506a78af4905f138ee03",
+      "origin": "current resumed Chromium validation"
+    },
+    {
+      "file": "08-walking.png",
+      "width": 1280,
+      "height": 720,
+      "bytes": 225495,
+      "sha256": "04affed07118d0170c1ed708c68dc62ccc7b61aa54fb64f3e53012f268936501",
+      "origin": "current resumed Chromium validation"
+    },
+    {
+      "file": "09-seated-lake.png",
+      "width": 1280,
+      "height": 720,
+      "bytes": 75790,
+      "sha256": "1cd414e5cd4dbb05628637a8d403bff94d68c3bb2c6bd16176aaf2a71d5c4d99",
+      "origin": "current resumed Chromium validation"
+    },
+    {
+      "file": "09-seated-tea.png",
+      "width": 1280,
+      "height": 720,
+      "bytes": 298236,
+      "sha256": "114ca5c2220945093af00e6a0ee4e8e4d5db5c131a7333d229e184d8de7815e1",
+      "origin": "current resumed Chromium validation"
+    },
+    {
+      "file": "10-webgl-unavailable.png",
+      "width": 1280,
+      "height": 720,
+      "bytes": 14133,
+      "sha256": "325aff2c0e0e781ab44f62ae3c80fdc0e2b1a14503a167e8056df31de43cdc4f",
+      "origin": "current resumed Chromium validation"
+    },
+    {
+      "file": "seat-details/lake-side.png",
+      "width": 1280,
+      "height": 720,
+      "bytes": 94324,
+      "sha256": "a6fcec11ce756130c0bf2df22cb1cfd4704b58e2ac8201b3893439c36dbbdf4f",
+      "origin": "current resumed Chromium validation"
+    },
+    {
+      "file": "seat-details/tea-side.png",
+      "width": 1280,
+      "height": 720,
+      "bytes": 145830,
+      "sha256": "079c9822cc1a78ac324c64d9b569474de4fe551a22f57d3156bda41132953060",
+      "origin": "current resumed Chromium validation"
+    },
+    {
+      "file": "soak-final.png",
+      "width": 960,
+      "height": 600,
+      "bytes": 117541,
+      "sha256": "bbd1cda8a97891322b4ed8bbf5387a07eef3d9aa41273c325395b40018ca1e5f",
+      "origin": "retained 602.456s run before seat color adjustment"
+    }
+  ]
+}

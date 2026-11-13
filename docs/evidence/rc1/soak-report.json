@@ -1,0 +1,312 @@
+{
+  "elapsedMs": 602456,
+  "browser": "156.0.8078.79",
+  "renderer": "SwiftShader software; NOT real PC performance",
+  "viewport": "960x600",
+  "dpr": 1,
+  "quality": "均衡",
+  "scenario": "5 minutes northward W from entry through bamboo to lookout, 5 minutes southward S back to entry",
+  "samples": [
+    {
+      "position": {
+        "version": 1,
+        "x": 0,
+        "z": -11.198080000001022,
+        "seated": false,
+        "yaw": 0,
+        "pitch": 0.43,
+        "distance": 11,
+        "savedAt": 1794390037029
+      },
+      "elapsedMs": 31013,
+      "hud": "FPS ≈ 3 · P95 466.6ms · Draw calls 181 · 三角形 53146",
+      "jsHeapUsed": 7207220
+    },
+    {
+      "position": {
+        "version": 1,
+        "x": 0,
+        "z": -32.16727000000184,
+        "seated": false,
+        "yaw": 0,
+        "pitch": 0.43,
+        "distance": 11,
+        "savedAt": 1794390067092
+      },
+      "elapsedMs": 61053,
+      "hud": "FPS ≈ 8 · P95 616.5ms · Draw calls 117 · 三角形 47462",
+      "jsHeapUsed": 8247960
+    },
+    {
+      "position": {
+        "version": 1,
+        "x": 0,
+        "z": -79.43878000000146,
+        "seated": false,
+        "yaw": 0,
+        "pitch": 0.43,
+        "distance": 11,
+        "savedAt": 1794390097134
+      },
+      "elapsedMs": 91110,
+      "hud": "FPS ≈ 15 · P95 200.1ms · Draw calls 50 · 三角形 17948",
+      "jsHeapUsed": 8523244
+    },
+    {
+      "position": {
+        "version": 1,
+        "x": 0,
+        "z": -96.09090999999907,
+        "seated": false,
+        "yaw": 0,
+        "pitch": 0.43,
+        "distance": 11,
+        "savedAt": 1794390127187
+      },
+      "elapsedMs": 121154,
+      "hud": "FPS ≈ 29 · P95 50.1ms · Draw calls 28 · 三角形 6860",
+      "jsHeapUsed": 7936952
+    },
+    {
+      "position": {
+        "version": 1,
+        "x": 0,
+        "z": -96.09090999999907,
+        "seated": false,
+        "yaw": 0,
+        "pitch": 0.43,
+        "distance": 11,
+        "savedAt": 1794390157275
+      },
+      "elapsedMs": 151237,
+      "hud": "FPS ≈ 22 · P95 100.0ms · Draw calls 28 · 三角形 6860",
+      "jsHeapUsed": 8000544
+    },
+    {
+      "position": {
+        "version": 1,
+        "x": 0,
+        "z": -96.09090999999907,
+        "seated": false,
+        "yaw": 0,
+        "pitch": 0.43,
+        "distance": 11,
+        "savedAt": 1794390187289
+      },
+      "elapsedMs": 181252,
+      "hud": "FPS ≈ 28 · P95 66.6ms · Draw calls 28 · 三角形 6860",
+      "jsHeapUsed": 7948452
+    },
+    {
+      "position": {
+        "version": 1,
+        "x": 0,
+        "z": -96.09090999999907,
+        "seated": false,
+        "yaw": 0,
+        "pitch": 0.43,
+        "distance": 11,
+        "savedAt": 1794390217325
+      },
+      "elapsedMs": 211287,
+      "hud": "FPS ≈ 30 · P95 66.6ms · Draw calls 28 · 三角形 6860",
+      "jsHeapUsed": 7635340
+    },
+    {
+      "position": {
+        "version": 1,
+        "x": 0,
+        "z": -96.09090999999907,
+        "seated": false,
+        "yaw": 0,
+        "pitch": 0.43,
+        "distance": 11,
+        "savedAt": 1794390247360
+      },
+      "elapsedMs": 241320,
+      "hud": "FPS ≈ 31 · P95 50.1ms · Draw calls 28 · 三角形 6860",
+      "jsHeapUsed": 7849728
+    },
+    {
+      "position": {
+        "version": 1,
+        "x": 0,
+        "z": -96.09090999999907,
+        "seated": false,
+        "yaw": 0,
+        "pitch": 0.43,
+        "distance": 11,
+        "savedAt": 1794390277400
+      },
+      "elapsedMs": 271367,
+      "hud": "FPS ≈ 26 · P95 66.7ms · Draw calls 28 · 三角形 6860",
+      "jsHeapUsed": 7662248
+    },
+    {
+      "position": {
+        "version": 1,
+        "x": 0,
+        "z": -96.09090999999907,
+        "seated": false,
+        "yaw": 0,
+        "pitch": 0.43,
+        "distance": 11,
+        "savedAt": 1794390307457
+      },
+      "elapsedMs": 301419,
+      "hud": "FPS ≈ 29 · P95 50.0ms · Draw calls 28 · 三角形 6860",
+      "jsHeapUsed": 7767876
+    },
+    {
+      "position": {
+        "version": 1,
+        "x": 0,
+        "z": -36.76846000000376,
+        "seated": false,
+        "yaw": 0,
+        "pitch": 0.43,
+        "distance": 11,
+        "savedAt": 1794390337493
+      },
+      "elapsedMs": 331456,
+      "hud": "FPS ≈ 9 · P95 133.3ms · Draw calls 106 · 三角形 42718",
+      "jsHeapUsed": 7816784
+    },
+    {
+      "position": {
+        "version": 1,
+        "x": 0,
+        "z": -1.2736600000029585,
+        "seated": false,
+        "yaw": 0,
+        "pitch": 0.43,
+        "distance": 11,
+        "savedAt": 1794390367530
+      },
+      "elapsedMs": 361490,
+      "hud": "FPS ≈ 6 · P95 233.3ms · Draw calls 211 · 三角形 58014",
+      "jsHeapUsed": 8153452
+    },
+    {
+      "position": {
+        "version": 1,
+        "x": 0,
+        "z": 16.50376999999729,
+        "seated": false,
+        "yaw": 0,
+        "pitch": 0.43,
+        "distance": 11,
+        "savedAt": 1794390397554
+      },
+      "elapsedMs": 391515,
+      "hud": "FPS ≈ 2 · P95 350.0ms · Draw calls 237 · 三角形 61090",
+      "jsHeapUsed": 7875592
+    },
+    {
+      "position": {
+        "version": 1,
+        "x": 0,
+        "z": 16.50376999999729,
+        "seated": false,
+        "yaw": 0,
+        "pitch": 0.43,
+        "distance": 11,
+        "savedAt": 1794390427589
+      },
+      "elapsedMs": 421551,
+      "hud": "FPS ≈ 2 · P95 583.3ms · Draw calls 237 · 三角形 61090",
+      "jsHeapUsed": 7802780
+    },
+    {
+      "position": {
+        "version": 1,
+        "x": 0,
+        "z": 16.50376999999729,
+        "seated": false,
+        "yaw": 0,
+        "pitch": 0.43,
+        "distance": 11,
+        "savedAt": 1794390457653
+      },
+      "elapsedMs": 451617,
+      "hud": "FPS ≈ 4 · P95 700.0ms · Draw calls 237 · 三角形 61090",
+      "jsHeapUsed": 8347912
+    },
+    {
+      "position": {
+        "version": 1,
+        "x": 0,
+        "z": 16.50376999999729,
+        "seated": false,
+        "yaw": 0,
+        "pitch": 0.43,
+        "distance": 11,
+        "savedAt": 1794390487692
+      },
+      "elapsedMs": 481656,
+      "hud": "FPS ≈ 6 · P95 333.3ms · Draw calls 237 · 三角形 61090",
+      "jsHeapUsed": 7750080
+    },
+    {
+      "position": {
+        "version": 1,
+        "x": 0,
+        "z": 16.50376999999729,
+        "seated": false,
+        "yaw": 0,
+        "pitch": 0.43,
+        "distance": 11,
+        "savedAt": 1794390517730
+      },
+      "elapsedMs": 511691,
+      "hud": "FPS ≈ 7 · P95 200.0ms · Draw calls 237 · 三角形 61090",
+      "jsHeapUsed": 8296704
+    },
+    {
+      "position": {
+        "version": 1,
+        "x": 0,
+        "z": 16.51498999999698,
+        "seated": false,
+        "yaw": 0,
+        "pitch": 0.43,
+        "distance": 11,
+        "savedAt": 1794390547762
+      },
+      "elapsedMs": 541722,
+      "hud": "FPS ≈ 6 · P95 233.3ms · Draw calls 237 · 三角形 61090",
+      "jsHeapUsed": 7850748
+    },
+    {
+      "position": {
+        "version": 1,
+        "x": 0,
+        "z": 16.51498999999698,
+        "seated": false,
+        "yaw": 0,
+        "pitch": 0.43,
+        "distance": 11,
+        "savedAt": 1794390577794
+      },
+      "elapsedMs": 571754,
+      "hud": "FPS ≈ 7 · P95 266.6ms · Draw calls 237 · 三角形 61090",
+      "jsHeapUsed": 8143896
+    },
+    {
+      "position": {
+        "version": 1,
+        "x": 0,
+        "z": 16.51498999999698,
+        "seated": false,
+        "yaw": 0,
+        "pitch": 0.43,
+        "distance": 11,
+        "savedAt": 1794390607829
+      },
+      "elapsedMs": 601789,
+      "hud": "FPS ≈ 6 · P95 316.6ms · Draw calls 237 · 三角形 61090",
+      "jsHeapUsed": 8339572
+    }
+  ],
+  "errors": []
+}

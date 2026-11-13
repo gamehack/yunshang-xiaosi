@@ -4,3 +4,10 @@ dist/
 .env.*
 !.env.example
 .DS_Store
+
+artifacts/
+
+/art/blender/**/*.blend[0-9]*
+/scripts/blender/__pycache__/
+/dev/blender-smoke/generated/
+/dev/art-preview/generated/

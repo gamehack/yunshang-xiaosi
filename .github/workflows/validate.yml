@@ -14,10 +14,35 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
       # Repository currently has no committed package-lock.json.
       - run: npm install --no-package-lock
+      - run: node scripts/check-docs.mjs
       - run: npm test
       - run: npm run build
+
+      - name: Install Chromium for PC regression
+        run: npx playwright-core install --with-deps chromium
+      - name: PC interaction, screenshot and WebGL regression
+        env:
+          TEST_URL: http://127.0.0.1:4173
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/banrixian-preview.log 2>&1 &
+          preview_pid=$!
+          trap 'kill "$preview_pid"' EXIT
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent "$TEST_URL" > /dev/null; then break; fi
+            sleep 1
+          done
+          npm run test:browser
+      - name: Retain browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pc-chromium-evidence
+          path: artifacts/browser
+          if-no-files-found: ignore

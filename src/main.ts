@@ -5,18 +5,39 @@ import { FrameStats } from './performance/frame-stats';
 import { buildExterior } from './world/exterior';
 import { buildGarden } from './world/garden';
 import { WalkController } from './navigation/walk-controller';
+import { SEATS, findNearbySeat, type SeatAnchor } from './navigation/seats';
+import { AmbientSound } from './audio/ambient';
+import { createVisitor, animateVisitor, turnVisitor } from './avatar/visitor';
 import * as THREE from 'three';
 import './style.css';
+import {disposeScene} from './engine-resources';
+import {addLandscape} from './world/landscape';
+import {addSeats} from './world/seating';
 
 const root = document.querySelector<HTMLDivElement>('#app');
 if (!root) throw new Error('Missing #app');
-root.innerHTML = `<div id="hud"><div class="hud-heading"><strong>半日闲 · M${__APP_VERSION__.split('.').slice(0, 2).join('.')} 园林漫游</strong><button id="hud-toggle" type="button" aria-expanded="true" aria-controls="hud-details" aria-label="收起操作面板">收起</button></div><div id="hud-details"><span>电脑：WASD / 方向键移动 · Esc 停止 · 拖动旋转 · 滚轮缩放<br>手机：轻点行走 · 停止行走按钮 · 拖动旋转 · 双指缩放</span><span id="metrics">初始化中…</span><button id="seat" type="button" hidden>坐下</button><button id="reset" type="button">回到入口</button><button id="stop" type="button" aria-label="停止当前自动行走" hidden>停止行走</button><button id="quality" type="button">画质：均衡</button></div></div><div id="scene"></div>`;
+root.innerHTML = `<div id="hud"><div class="hud-heading"><strong>半日闲 · M${__APP_VERSION__.split('.').slice(0, 2).join('.')} 园林漫游</strong><button id="hud-toggle" type="button" aria-expanded="true" aria-controls="hud-details" aria-label="收起操作面板">收起</button></div><div id="hud-details"><span>电脑：WASD / 方向键移动 · Esc 停止 · 拖动旋转 · 滚轮缩放<br>点击地面自动寻路<br>手机：轻点行走 · 停止行走按钮 · 拖动旋转 · 双指缩放</span><span id="metrics">初始化中…</span><button id="seat" type="button" hidden>坐下</button><button id="reset" type="button">回到入口</button><button id="stop" type="button" aria-label="停止当前自动行走" hidden>停止行走</button><button id="quality" type="button">画质：均衡</button><button id="ambient" type="button" aria-pressed="false">风声：关闭</button><label class="ambient-volume-label" for="ambient-volume">音量</label><input id="ambient-volume" type="range" min="0" max="100" step="5" value="18" aria-label="风声音量"></div></div><div id="scene"></div>`;
 const mount = document.querySelector<HTMLDivElement>('#scene')!;
 const metrics = document.querySelector<HTMLSpanElement>('#metrics')!;
 const seatButton = document.querySelector<HTMLButtonElement>('#seat')!;
 const resetButton = document.querySelector<HTMLButtonElement>('#reset')!;
 const stopButton = document.querySelector<HTMLButtonElement>('#stop')!;
 const qualityButton = document.querySelector<HTMLButtonElement>('#quality')!;
+const ambientButton = document.querySelector<HTMLButtonElement>('#ambient')!;
+const ambient = new AmbientSound();
+const volumeSlider=document.querySelector<HTMLInputElement>('#ambient-volume')!;
+volumeSlider.addEventListener('input',()=>ambient.setVolume(Number(volumeSlider.value)/100));
+ambientButton.addEventListener('click',async()=>{
+  ambientButton.disabled=true;
+  try {
+    let playing=await ambient.toggle();
+    if(document.hidden){await ambient.pause();playing=false;}
+    ambientButton.textContent=playing?'风声：开启':'风声：关闭';
+    ambientButton.setAttribute('aria-pressed',String(playing));
+  } catch {
+    ambientButton.textContent='风声不可用';
+  } finally { ambientButton.disabled=false; }
+});
 const hudToggle = document.querySelector<HTMLButtonElement>('#hud-toggle')!;
 const hudDetails = document.querySelector<HTMLDivElement>('#hud-details')!;
 let hudCollapsed = window.matchMedia('(max-width: 600px)').matches;
@@ -42,65 +63,126 @@ qualityButton.addEventListener('click',()=>{
   writeQuality(quality, safeStorage());
   applyQuality();
 });
-const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'default' });
+let renderer: THREE.WebGLRenderer;
+try {
+  renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'default' });
+} catch {
+  mount.innerHTML = '<div class="scene-error" role="alert">当前浏览器无法启动 3D 场景。请开启硬件加速，或使用新版 Chrome / Safari。</div>';
+  throw new Error('WebGL initialization failed');
+}
 renderer.setPixelRatio(qualityPixelRatio(quality, window.devicePixelRatio));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.shadowMap.enabled = false;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 mount.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color('#c9d9d7');
+scene.fog=new THREE.Fog('#c9d9d7',35,155);
 const camera = new THREE.PerspectiveCamera(62, 1, 0.1, 300);
 camera.position.set(14, 13, 20);
 camera.lookAt(0, 0, 0);
-scene.add(new THREE.HemisphereLight('#ffffff', '#829185', 2));
-const sun = new THREE.DirectionalLight('#fff1d8', 2.5);
-sun.position.set(-12, 25, 8);
+scene.add(new THREE.HemisphereLight('#ffffff', '#829185', 1.5));
+const sun = new THREE.DirectionalLight('#fff1d8', 2.2);
+sun.position.set(-12, 28, 8);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.camera.left = -22;
+sun.shadow.camera.right = 22;
+sun.shadow.camera.top = 22;
+sun.shadow.camera.bottom = -22;
+sun.shadow.camera.far = 60;
+sun.shadow.bias = -0.0005;
 scene.add(sun);
-buildGarden(scene);
+const garden = buildGarden(scene);
 buildExterior(scene);
-const marker = new THREE.Mesh(new THREE.CapsuleGeometry(0.42, 1.05, 4, 8), new THREE.MeshStandardMaterial({ color: '#617e76' }));
+addSeats(scene);
+addLandscape(scene);
+if (import.meta.env.DEV && new URLSearchParams(location.search).get('art') === 'teahouse') {
+  try {
+    const { previewTeahouse } = await import('./dev/teahouse-preview');
+    root.dataset.pavilion = await previewTeahouse(scene, garden, renderer);
+    root.dataset.art = 'teahouse';
+  } catch (error) {
+    root.dataset.art = 'fallback';
+    console.error('茶室美术预览未加载，继续使用现有园林', error);
+  }
+}
+const waterRipples: Array<{mesh:THREE.Mesh;baseScale:number;phase:number}> = [];
+scene.traverse(object=>{
+  const ripple=object.userData.waterRipple as {baseScale:number;phase:number}|undefined;
+  if(ripple && object instanceof THREE.Mesh)waterRipples.push({mesh:object,baseScale:ripple.baseScale,phase:ripple.phase});
+});
+const marker = createVisitor();
 marker.position.set(0, 1, 8);
 scene.add(marker);
 
+scene.updateMatrixWorld(true);
 const walking = new WalkController(marker, camera, renderer, scene);
 stopButton.addEventListener('click',()=>walking.stop());
 const saved=readGuestSave();
 let seated=false;
-const seatSpots=[{x:-8,z:-10,standX:-8,standZ:-6.5},{x:0,z:-97,standX:0,standZ:-94}];
+let activeSeat:SeatAnchor|null=null;
+function nearestSeat(x:number,z:number,range=2.4){
+  return findNearbySeat(SEATS,x,z,range);
+}
+function snapToSeat(spot:SeatAnchor){
+  marker.position.set(spot.x,1,spot.z);
+  marker.rotation.y=spot.yaw??Math.atan2(spot.standX-spot.x,spot.standZ-spot.z);
+}
+function standFromSeat(spot:SeatAnchor){
+  marker.position.set(spot.standX,1,spot.standZ);
+}
 if(saved){
   marker.position.set(saved.x,1,saved.z);
   walking.restoreViewState(saved);
-  seated=saved.seated;
+  activeSeat=saved.seated?nearestSeat(saved.x,saved.z,4):null;
+  seated=Boolean(activeSeat);
+  if(activeSeat)snapToSeat(activeSeat);
   walking.setSeated(seated);
-  marker.scale.y=seated?0.72:1;
+  animateVisitor(marker,0,false,seated,1/60,activeSeat);
 }
-function nearbySeat(){return seatSpots.find(s=>Math.hypot(marker.position.x-s.standX,marker.position.z-s.standZ)<2.4);}
+function nearbySeat(){return nearestSeat(marker.position.x,marker.position.z);}
 function persist(){const v=walking.getViewState();writeGuestSave({version:1,x:marker.position.x,z:marker.position.z,seated,yaw:v.yaw,pitch:v.pitch,distance:v.distance,savedAt:Date.now()});}
 seatButton.addEventListener('click',()=>{
   const spot=nearbySeat();
   if(!spot && !seated)return;
-  seated=!seated;
+  if(seated){
+    seated=false;
+    if(activeSeat)standFromSeat(activeSeat);
+    activeSeat=null;
+  }else{
+    if(!spot)return;
+    walking.stop();
+    activeSeat=spot;
+    seated=true;
+    snapToSeat(spot);
+  }
   walking.setSeated(seated);
-  marker.scale.y=seated?.72:1;
+  animateVisitor(marker,0,false,seated,1/60,activeSeat);
   persist();
 });
 resetButton.addEventListener('click',()=>{
   walking.stop();
   seated=false;
+  activeSeat=null;
   walking.setSeated(false);
-  marker.scale.y=1;
+  animateVisitor(marker,0,false,false);
   marker.position.set(0,1,8);
   walking.restoreViewState({yaw:0,pitch:0.43,distance:11});
   persist();
 });
 const saveInterval=window.setInterval(persist,5000);
 const onVisibilityChange=()=>{
-  if(document.visibilityState==='hidden')persist();
+  cancelAnimationFrame(raf);
+  walking.stop();
+  if(document.visibilityState==='hidden'){persist();void ambient.pause().catch(()=>{});ambientButton.textContent='风声：关闭';ambientButton.setAttribute('aria-pressed','false');}
   previousFrame=0;
   frameStats.clear();
   frame=0;
   last=performance.now();
+  clock.getDelta();
+  if(!document.hidden && !contextLost)raf=requestAnimationFrame(tick);
 };
 document.addEventListener('visibilitychange',onVisibilityChange);
 const clock = new THREE.Clock();
@@ -109,6 +191,28 @@ let last = performance.now();
 const frameStats = new FrameStats(180);
 let previousFrame = 0;
 let raf = 0;
+let contextLost = false;
+const onContextLost = (event: Event) => {
+  event.preventDefault();
+  contextLost = true;
+  cancelAnimationFrame(raf);
+  walking.stop();
+  persist();
+  metrics.textContent = '图形设备暂时不可用，正在等待恢复…';
+};
+const onContextRestored = () => {
+  contextLost = false;
+  walking.stop();
+  frame=0;last=performance.now();
+  previousFrame = 0;
+  frameStats.clear();
+  applyQuality();
+  clock.getDelta();
+  cancelAnimationFrame(raf);
+  if(!document.hidden)raf=requestAnimationFrame(tick);
+};
+renderer.domElement.addEventListener('webglcontextlost', onContextLost);
+renderer.domElement.addEventListener('webglcontextrestored', onContextRestored);
 function resize() {
   const width = Math.max(1, mount.clientWidth);
   const height = Math.max(1, mount.clientHeight);
@@ -127,7 +231,20 @@ function tick(now: number) {
     else frameStats.record(delta);
   }
   previousFrame=now;
-  walking.update(Math.min(clock.getDelta(), 0.05));
+  const dt = Math.min(clock.getDelta(), 0.05);
+  if (document.hidden || contextLost) return;
+  const oldX=marker.position.x,oldZ=marker.position.z;
+  walking.update(dt);
+  const dx=marker.position.x-oldX,dz=marker.position.z-oldZ;
+  const moving=dx*dx+dz*dz>0.000001;
+  if(moving)turnVisitor(marker,Math.atan2(dx,dz),dt);
+  animateVisitor(marker,now*.001,moving,seated,dt,activeSeat);
+  // Low-cost, deterministic water motion: no textures or per-frame geometry allocation.
+  const t=now*.00045;
+  for(const {mesh,baseScale,phase} of waterRipples){
+    const cycle=(t+phase)%1;
+    mesh.scale.setScalar(baseScale*(.85+.4*cycle));
+  }
   const spot=nearbySeat();
   stopButton.hidden=!walking.isMoving;
   seatButton.hidden=!seated&&!spot;
@@ -142,4 +259,6 @@ function tick(now: number) {
   }
 }
 raf = requestAnimationFrame(tick);
-window.addEventListener('pagehide', () => { cancelAnimationFrame(raf); window.clearInterval(saveInterval); document.removeEventListener('visibilitychange',onVisibilityChange); persist(); walking.dispose(); renderer.dispose(); }, { once: true });
+window.addEventListener('pagehide', (event) => { if(event.persisted){persist();walking.stop();cancelAnimationFrame(raf);return;}  cancelAnimationFrame(raf); window.clearInterval(saveInterval); document.removeEventListener('visibilitychange',onVisibilityChange); persist(); walking.dispose(); void ambient.dispose().catch(()=>{}); renderer.domElement.removeEventListener('webglcontextlost',onContextLost); renderer.domElement.removeEventListener('webglcontextrestored',onContextRestored); window.removeEventListener('resize',resize); disposeScene(scene); renderer.dispose(); });
+
+window.addEventListener('pageshow',event=>{if(event.persisted)onVisibilityChange();});

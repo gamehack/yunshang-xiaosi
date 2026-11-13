@@ -1,42 +1,52 @@
 import * as THREE from 'three';
+import {updateFoliageView} from '../world/foliage-view';
+import {SEATS} from './seats';
 import {shouldHandleMovementKey,shouldStopWalking} from './keyboard';
 
+import { BRIDGE, EXTERIOR, GARDEN, GATE_COLUMNS, NAVIGATION, PONDS, TEAHOUSE, WALLS, SEAT_GEOMETRY, type Footprint } from '../world/layout';
+
 type Cell = { x: number; z: number };
-const STEP = 1;
-const HALF_X = 20;
-const MIN_Z = -101;
-const MAX_Z = 17;
-const walls = [
-  [-20.5,-10,.35,12],[-20.5,10,.35,12],[20.5,-10,.35,12],[20.5,10,.35,12],
-  [-12,-16.5,16,.35],[12,-16.5,16,.35],[-12,16.5,16,.35],[12,16.5,16,.35],
-  [-2.7,15.6,1.1,.7],[2.7,15.6,1.1,.7]
-] as const;
+const STEP = NAVIGATION.step;
 const KEY = (c: Cell) => c.x + ',' + c.z;
-// Bridge deck has collision priority over the pond surface, not over walls.
-const onBridge=(x:number,z:number)=>x>=1.1&&x<=17.9&&z>=1.1&&z<=2.9;
-const blocked = (x: number, z: number): boolean =>
-  Math.abs(x) > HALF_X || z < MIN_Z || z > MAX_Z ||
-  (z < -17 && Math.abs(x) > 2.1 && z > -90) ||
-  (z <= -90 && Math.abs(x) > 5.5) ||
-  (!onBridge(x,z) && (((x-9)/8.3)**2 + (z/5.2)**2 < 1)) || // main pond
-  (!onBridge(x,z) && (((x-7)/3.5)**2 + ((z+4)/3.1)**2 < 1)) || // northern bay
-  // The tea table is a solid obstacle, while the eastern frontage stays open.
-  (Math.abs(x+8)<.6 && Math.abs(z+10)<.6) ||
-  // Teahouse has open east frontage; block only its rear wall and support posts.
-  (x > -12 && x < -4 && z > -12.6 && z < -12.25) ||
-  ([-11.7,-4.3].some(cx=>[-12.2,-7.8].some(cz=>Math.abs(x-cx)<.13&&Math.abs(z-cz)<.13))) ||
-  walls.some(([cx,cz,w,d])=>Math.abs(x-cx)<w/2 && Math.abs(z-cz)<d/2);
+const obstacles: readonly Footprint[] = [
+  ...WALLS, ...GATE_COLUMNS, TEAHOUSE.table, TEAHOUSE.rearWall,
+  ...SEATS.map((seat,i)=>({x:seat.x,z:seat.z,width:i===0?SEAT_GEOMETRY.tea.width:SEAT_GEOMETRY.lake.width,depth:i===0?SEAT_GEOMETRY.tea.depth:SEAT_GEOMETRY.lake.depth})),
+  ...TEAHOUSE.postXs.flatMap(x=>TEAHOUSE.postZs.map(z=>({x,z,width:TEAHOUSE.postWidth,depth:TEAHOUSE.postWidth})))
+];
+const onBridge=(x:number,z:number)=>x>=BRIDGE.minX&&x<=BRIDGE.maxX&&Math.abs(z-BRIDGE.z)<=BRIDGE.walkWidth/2;
+const outsideGround=(x:number,z:number)=>
+  Math.abs(x)>GARDEN.halfWalkWidth || z<EXTERIOR.minZ || z>GARDEN.southLimitZ ||
+  (z<GARDEN.northExitZ && z>EXTERIOR.trailEndZ && Math.abs(x)>EXTERIOR.trailHalfWidth) ||
+  (z<=EXTERIOR.trailEndZ && Math.hypot(x-EXTERIOR.lookout.x,z-EXTERIOR.lookout.z)>EXTERIOR.lookout.radius*Math.cos(Math.PI/16));
 
 export function isWalkable(x: number, z: number): boolean {
-  const radius = 0.48;
+  if(!Number.isFinite(x) || !Number.isFinite(z))return false;
+  const radius=NAVIGATION.radius;
+  // Test the complete visitor footprint against thin walls and support posts.
+  if(obstacles.some(o=>Math.abs(x-o.x)<o.width/2+radius && Math.abs(z-o.z)<o.depth/2+radius))return false;
   return ![[-radius,-radius],[-radius,radius],[radius,-radius],[radius,radius],[0,0]]
-    .some(([dx,dz]) => blocked(x+dx,z+dz));
+    .some(([dx,dz])=>{
+      const px=x+dx,pz=z+dz;
+      return outsideGround(px,pz) || (!onBridge(px,pz) && PONDS.some(p=>((px-p.x)/p.radiusX)**2+((pz-p.z)/p.radiusZ)**2<1));
+    });
+}
+function safeSegment(from: THREE.Vector3, to: THREE.Vector3): boolean {
+  const steps=Math.max(1,Math.ceil(Math.hypot(to.x-from.x,to.z-from.z)/NAVIGATION.segmentStep));
+  for(let i=0;i<=steps;i++){
+    const t=i/steps;
+    if(!isWalkable(from.x+(to.x-from.x)*t,from.z+(to.z-from.z)*t))return false;
+  }
+  return true;
 }
 function toCell(v: THREE.Vector3): Cell { return { x: Math.round(v.x / STEP), z: Math.round(v.z / STEP) }; }
 function center(c: Cell): THREE.Vector3 { return new THREE.Vector3(c.x*STEP,0,c.z*STEP); }
 export function findPath(from: THREE.Vector3, to: THREE.Vector3): THREE.Vector3[] {
+  if(![from.x,from.y,from.z,to.x,to.y,to.z].every(Number.isFinite) ||
+    !isWalkable(from.x,from.z) || !isWalkable(to.x,to.z))return [];
   const start = toCell(from), goal = toCell(to);
   if (!isWalkable(start.x,start.z) || !isWalkable(goal.x,goal.z)) return [];
+  if(!safeSegment(from,center(start)) || !safeSegment(center(goal),to))return [];
+  if(from.x===to.x && from.z===to.z)return [];
   const open: Cell[] = [start];
   const visited = new Set<string>();
   const cost = new Map<string,number>([[KEY(start),0]]);
@@ -56,11 +66,16 @@ export function findPath(from: THREE.Vector3, to: THREE.Vector3): THREE.Vector3[
         route.push(center(nodes.get(at)!));
         at=parent.get(at)!;
       }
-      return route.reverse();
+      route.reverse();
+      const startCenter=center(start);
+      if(from.x!==startCenter.x || from.z!==startCenter.z)route.unshift(startCenter);
+      const destination=new THREE.Vector3(to.x,0,to.z);
+      if(!route.length || !route[route.length-1].equals(destination))route.push(destination);
+      return route;
     }
     for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1]]) {
       const next={x:current.x+dx,z:current.z+dz};
-      if(!isWalkable(next.x,next.z)) continue;
+      if(!isWalkable(next.x,next.z) || !safeSegment(center(current),center(next))) continue;
       const nid=KEY(next), candidate=cost.get(id)!+1;
       if(candidate<(cost.get(nid)??Infinity)) {
         cost.set(nid,candidate); parent.set(nid,id);nodes.set(nid,next);open.push(next);
@@ -82,10 +97,14 @@ export class WalkController {
   }
   private route: THREE.Vector3[] = [];
   get isMoving(): boolean { return this.route.length > 0; }
-  stop(): void { this.route = []; this.keys.clear(); }
+  stop(): void {
+    this.route=[];this.keys.clear();this.pointerStart=null;
+    this.activePointers.clear();this.pinchDistance=null;
+  }
   private raycaster = new THREE.Raycaster();
   private cameraRaycaster = new THREE.Raycaster();
   private cameraOccluders: THREE.Object3D[] = [];
+  private foliage: THREE.MeshStandardMaterial[] = [];
   private pointer = new THREE.Vector2();
   private ground = new THREE.Plane(new THREE.Vector3(0,1,0),0);
   private target = new THREE.Vector3();
@@ -102,6 +121,8 @@ export class WalkController {
     if(shouldStopWalking(e.key,options)){this.stop();return;}
     if(!shouldHandleMovementKey(e.key,options))return;
     if(e.key.startsWith('Arrow'))e.preventDefault();
+    if(this.seated)return;
+    this.route=[];this.pointerStart=null;
     this.keys.add(e.key.toLowerCase());
   };
   private readonly onUp = (e: KeyboardEvent) => { this.keys.delete(e.key.toLowerCase()); };
@@ -141,12 +162,16 @@ export class WalkController {
     if(this.renderer.domElement.hasPointerCapture(e.pointerId))this.renderer.domElement.releasePointerCapture(e.pointerId);
     if(!p || p.id!==e.pointerId)return;
     this.pointerStart=null;
-    if(p.dragged || e.type==='pointercancel' || this.seated)return;
+    if(p.dragged || e.type==='pointercancel' || this.seated || this.activePointers.size>0)return;
     const rect=this.renderer.domElement.getBoundingClientRect();
+    if(rect.width<=0 || rect.height<=0)return;
     this.pointer.set(((e.clientX-rect.left)/rect.width)*2-1,-((e.clientY-rect.top)/rect.height)*2+1);
     this.raycaster.setFromCamera(this.pointer,this.camera);
     if(this.raycaster.ray.intersectPlane(this.ground,this.target)){
-      this.route=findPath(this.avatar.position,this.target);
+      const next=findPath(this.avatar.position,this.target);
+      // Invalid targets must not unexpectedly cancel an existing route.
+      if(next.length || (isWalkable(this.target.x,this.target.z) &&
+        Math.hypot(this.avatar.position.x-this.target.x,this.avatar.position.z-this.target.z)<.001))this.route=next;
     }
   };
   private readonly onWheel = (e: WheelEvent) => {
@@ -154,7 +179,13 @@ export class WalkController {
     this.distance=THREE.MathUtils.clamp(this.distance+Math.sign(e.deltaY)*.8,5,19);
   };
   constructor(private avatar: THREE.Object3D, private camera: THREE.PerspectiveCamera, private renderer: THREE.WebGLRenderer, scene?: THREE.Scene) {
-    if(scene)scene.traverse(o=>{if(o.userData.cameraOccluder)this.cameraOccluders.push(o);});
+    if(scene)scene.traverse(o=>{
+      if(o.userData.cameraOccluder)this.cameraOccluders.push(o);
+      if(o instanceof THREE.InstancedMesh){
+        for(const material of Array.isArray(o.material)?o.material:[o.material])
+          if(material instanceof THREE.MeshStandardMaterial && material.userData.foliageView && !this.foliage.includes(material))this.foliage.push(material);
+      }
+    });
     window.addEventListener('keydown',this.onDown);
     window.addEventListener('keyup',this.onUp);
     window.addEventListener('blur',this.onBlur);
@@ -167,6 +198,14 @@ export class WalkController {
     canvas.addEventListener('wheel',this.onWheel,{passive:false});
   }
   update(dt: number) {
+    if(!Number.isFinite(dt) || dt<0)return;
+    dt=Math.min(dt,.1);
+    const position=this.avatar.position;
+    if(![position.x,position.y,position.z].every(Number.isFinite) ||
+      (!this.seated && !isWalkable(position.x,position.z))){
+      this.stop();
+      position.set(NAVIGATION.entry.x,NAVIGATION.entry.y,NAVIGATION.entry.z);
+    }
     const dx=Number(this.keys.has('d')||this.keys.has('arrowright'))-Number(this.keys.has('a')||this.keys.has('arrowleft'));
     const dz=Number(this.keys.has('s')||this.keys.has('arrowdown'))-Number(this.keys.has('w')||this.keys.has('arrowup'));
     const speed=3.3;
@@ -180,8 +219,12 @@ export class WalkController {
       this.move(right.multiplyScalar(manual.x*speed*dt).addScaledVector(forward,-manual.z*speed*dt));
     } else if(this.route.length){
       const target=this.route[0],delta=target.clone().sub(this.avatar.position);delta.y=0;
-      if(delta.length()<0.14)this.route.shift();
-      else this.move(delta.normalize().multiplyScalar(Math.min(speed*dt,delta.length())));
+      const remaining=delta.length();
+      if(remaining<=speed*dt){
+        this.move(delta);
+        if(Math.hypot(target.x-position.x,target.z-position.z)<.001)this.route.shift();
+        else this.route=[];
+      }else this.move(delta.multiplyScalar(speed*dt/remaining));
     }
     const offset=new THREE.Vector3(
       Math.sin(this.yaw)*Math.cos(this.pitch)*this.distance,
@@ -206,11 +249,18 @@ export class WalkController {
     const inward=desired.distanceTo(focus)<this.camera.position.distanceTo(focus);
     this.camera.position.lerp(desired,inward?1:Math.min(1,dt*7));
     this.camera.lookAt(focus);
+    for(const material of this.foliage)updateFoliageView(material,this.camera.position,focus);
   }
+
   private move(delta: THREE.Vector3) {
     const p=this.avatar.position;
-    if(isWalkable(p.x+delta.x,p.z))p.x+=delta.x;
-    if(isWalkable(p.x,p.z+delta.z))p.z+=delta.z;
+    if(![delta.x,delta.z].every(Number.isFinite))return;
+    const steps=Math.max(1,Math.ceil(Math.max(Math.abs(delta.x),Math.abs(delta.z))/NAVIGATION.segmentStep));
+    const dx=delta.x/steps,dz=delta.z/steps;
+    for(let i=0;i<steps;i++){
+      if(isWalkable(p.x+dx,p.z))p.x+=dx;
+      if(isWalkable(p.x,p.z+dz))p.z+=dz;
+    }
   }
   dispose(){
     window.removeEventListener('keydown',this.onDown);

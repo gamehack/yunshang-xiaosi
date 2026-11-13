@@ -1,0 +1,51 @@
+{
+  "browser": "157.0.8103.50",
+  "renderer": "SwiftShader",
+  "comparisons": [
+    {
+      "width": 1366,
+      "height": 768,
+      "variant": "before",
+      "screenshot": "before-1366x768.jpg",
+      "glb": [],
+      "errors": [],
+      "metrics": "FPS ≈ 11 · P95 283.4ms · Draw calls 151 · 三角形 31290"
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "variant": "after",
+      "screenshot": "after-1366x768.jpg",
+      "glb": [
+        200
+      ],
+      "errors": [],
+      "metrics": "FPS ≈ 6 · P95 350.0ms · Draw calls 149 · 三角形 62158"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "variant": "before",
+      "screenshot": "before-1920x1080.jpg",
+      "glb": [],
+      "errors": [],
+      "metrics": "FPS ≈ 9 · P95 300.0ms · Draw calls 151 · 三角形 31290"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "variant": "after",
+      "screenshot": "after-1920x1080.jpg",
+      "glb": [
+        200
+      ],
+      "errors": [],
+      "metrics": "FPS ≈ 6 · P95 400.0ms · Draw calls 149 · 三角形 62158"
+    }
+  ],
+  "interaction": [
+    "sit, reload, stand, keyboard movement, reset",
+    "asset request failure leaves original garden playable"
+  ],
+  "assetBytes": 1606476
+}

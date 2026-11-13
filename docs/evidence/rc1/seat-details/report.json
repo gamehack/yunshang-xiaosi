@@ -1,0 +1,85 @@
+{
+  "browser": "156.0.8078.79",
+  "viewport": "1280x720",
+  "dpr": 1,
+  "renderer": "SwiftShader software",
+  "results": [
+    {
+      "seat": "tea",
+      "screenshot": "tea-side.png",
+      "view": "right side",
+      "settlingCondition": "observed pelvis rests on rendered seat within 1mm",
+      "geometry": {
+        "avatar": [
+          -8,
+          0.7701723693113522,
+          -8.3
+        ],
+        "seatBlend": 0.9997568002250717,
+        "pelvisMin": [
+          -8.209999993443489,
+          0.5901723678212362,
+          -8.450000005960465
+        ],
+        "benches": [
+          {
+            "position": [
+              -8,
+              0.52,
+              -8.3
+            ],
+            "min": [
+              -8.699999988079071,
+              0.4499999997019768,
+              -8.675
+            ],
+            "max": [
+              -7.300000011920929,
+              0.5900000002980232,
+              -7.925000000000001
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "seat": "lake",
+      "screenshot": "lake-side.png",
+      "view": "right side",
+      "settlingCondition": "observed pelvis rests on rendered seat within 1mm",
+      "geometry": {
+        "avatar": [
+          0,
+          1.055189475959977,
+          -97
+        ],
+        "seatBlend": 0.9992266287347877,
+        "pelvisMin": [
+          -0.2099999934434891,
+          0.8751894744698608,
+          -97.15000000596046
+        ],
+        "benches": [
+          {
+            "position": [
+              0,
+              0.65,
+              -97
+            ],
+            "min": [
+              -1.399999976158142,
+              0.4250000059604645,
+              -97.42500001192093
+            ],
+            "max": [
+              1.399999976158142,
+              0.8749999940395355,
+              -96.57499998807907
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "errors": []
+}

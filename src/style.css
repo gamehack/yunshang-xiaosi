@@ -18,3 +18,30 @@
 #hud-toggle{pointer-events:auto;border:1px solid #80968a;border-radius:7px;background:rgba(250,251,246,.92);color:#31493e;padding:5px 10px;font-size:12px;cursor:pointer}
 #hud-toggle:focus-visible{outline:2px solid #244d3e;outline-offset:2px}
 @media(max-width:600px){#hud{max-width:min(290px,calc(100vw - 24px));padding:8px 10px}#hud .hud-heading strong{font-size:12px}}
+
+/* M1.4: minimum mobile touch targets, safe-area margins and WebGL fallback. */
+#hud{right:auto;max-height:calc(100dvh - 24px - env(safe-area-inset-top,0px));overflow-y:auto}
+#hud button{min-height:40px}
+#hud-toggle{min-width:52px}
+#hud-details button{min-height:44px}
+.scene-error{display:grid;place-items:center;min-height:100%;padding:28px;color:#30483d;background:#e9e7df;text-align:center;font-size:15px;line-height:1.8}
+@media(max-width:600px){#hud{left:calc(8px + env(safe-area-inset-left,0px));max-width:calc(100vw - 16px - env(safe-area-inset-left,0px) - env(safe-area-inset-right,0px))}}
+
+#ambient{pointer-events:auto;align-self:flex-start;border:1px solid #80968a;border-radius:7px;background:rgba(250,251,246,.92);color:#31493e;padding:7px 12px;font-size:12px;cursor:pointer}
+#ambient:focus-visible{outline:2px solid #244d3e;outline-offset:2px}
+#ambient[disabled]{opacity:.6;cursor:wait}
+
+.ambient-volume-label{font-size:12px;color:#34483f;align-self:center}
+#ambient-volume{width:96px;min-height:28px;accent-color:#496f60;touch-action:pan-x}
+#ambient-volume:focus-visible{outline:2px solid #244d3e;outline-offset:2px}
+
+/* Desktop controls form a compact toolbar; the scene retains most of the viewport. */
+#ambient-volume{pointer-events:auto}
+@media(min-width:900px){
+ #hud{max-width:500px;background:rgba(248,247,240,.92);box-shadow:0 4px 24px #253e321a}
+ #hud #hud-details{display:grid;grid-template-columns:repeat(3,max-content);gap:8px}
+ #hud-details>span{grid-column:1/-1}
+ #hud strong{font-size:15px;letter-spacing:.08em}
+ #hud-details button{align-self:stretch}
+}
+#hud button:focus-visible,#hud input:focus-visible{outline:3px solid #244d3e;outline-offset:3px}
