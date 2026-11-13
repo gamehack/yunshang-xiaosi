@@ -156,3 +156,16 @@
 - R3 水、材质与自然光照：`src/main.ts` 开启 PCFSoftShadowMap 与方向光阴影，HemisphereLight 调为偏暖自然光；建筑与地面开启 cast/receive Shadow；水面粗糙度与法线保留；三档画质 DPR 上限不变，禁止高成本 SSR。
 - R4 人物与沉浸一致性：现有 `src/avatar/visitor.ts` 髋膝分节、肩肘手连续、坐起/转向按 dt 过渡、脚底贴地与座面贴合单测已通过；无需额外改动。
 - R5 全流程 PC 浏览器验收与交付：待真实 Chromium/Playwright 环境执行，无法在此环境完成。
+
+## 2026-11-13｜M2.2 R5 复核与 M2.3 启动基线
+
+- 仓库：gamehack/yunshang-xiaosi。
+- 工作分支：codex/blender-integration；Preview 触发 commit：61db07dba2b8989e4deec72d4fbb7ab5098c21e1。
+- 分支比较：相对 develop（4b2cd936599250bbc9097894f52ea253b2dd5e42）ahead 6 / behind 0；尚未合并。
+- Cloudflare Pages：项目 banrixian；Preview https://c1b36841.banrixian.pages.dev，部署 ID c1b36841-16f0-45c8-b3d0-6c1c0fbeb05d，2026-11-13 02:42 UTC deploy success；Preview branch include 为 develop 与 codex/blender-integration。
+- 生产：仍为 main commit b668659afbaa907c214fa69e6351686450697c3d，没有进行生产部署。
+- 当前已打开 Preview 页 HUD 文本快照：约 32 FPS、P95 33.5ms、130 Draw Calls、22,980 triangles。硬件、分辨率、DPR、画质与采样窗口未确认；只作为运行时观察。
+- R0 历史 Radeon Chrome 数据：约 30 FPS / P95 33.5ms；主机位 154 Draw Calls / 78,236 triangles；GLB 1,076,024 bytes、14 meshes、22 materials、1 embedded texture。SwiftShader 1920×1080 样本约 4.2 FPS / P95 250ms。数据见 R0-TEAHOUSE-REPORT.md，不外推为全设备性能。
+- 本次浏览器连接器仅能读取当前标签页文本，无法控制页面、保存截图或执行 Playwright。因此 R5 的双分辨率截图、完整路线交互、360° 遮挡巡检、错误监听与性能复测未完成；没有将其写成通过。
+- 下一步：按 M2.3 ULTRA 垂直切片计划完成资产规范与范围冻结，再在本地 Kilo/Blender 工作站执行资产制作和可执行浏览器验收。
+- 安全边界：未合并 develop、未合并 main、未触发生产发布。
