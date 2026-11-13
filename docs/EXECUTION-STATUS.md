@@ -169,3 +169,12 @@
 - 本次浏览器连接器仅能读取当前标签页文本，无法控制页面、保存截图或执行 Playwright。因此 R5 的双分辨率截图、完整路线交互、360° 遮挡巡检、错误监听与性能复测未完成；没有将其写成通过。
 - 下一步：按 M2.3 ULTRA 垂直切片计划完成资产规范与范围冻结，再在本地 Kilo/Blender 工作站执行资产制作和可执行浏览器验收。
 - 安全边界：未合并 develop、未合并 main、未触发生产发布。
+
+
+## 2026-11-13｜M2.3 Preview 1 可见场景增量
+
+- 在 `codex/blender-integration` 增加茶室双坡屋面 180 个实例化灰瓦片和四个石质柱础，形成可在游戏镜头中观察的真实场景增量。
+- 新增几何采用 InstancedMesh，预计新增 2 draw calls；未修改 layout、导航、碰撞、座椅、访客状态机、存档和音景。
+- Preview package version 为 `2.3.0-preview.1`，HUD 应显示 M2.3。
+- 该批为 Three.js 程序化视觉增量，不冒充 Blender ULTRA v02；实际观感、构建、测试和 Cloudflare Preview 均以新 commit 对应部署核验为准。
+- M2.2 R5 双分辨率/真实 Radeon 验收仍待 Windows 本地环境执行。

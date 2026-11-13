@@ -84,6 +84,45 @@ export function buildGarden(scene: THREE.Scene) {
     ribTransform.updateMatrix();roofRibs.setMatrixAt(i,ribTransform.matrix);
   }
   roofRibs.instanceMatrix.needsUpdate=true;scene.add(roofRibs);
+  // M2.3 Preview 1: individually articulated tile courses make the roof read as
+  // overlapping Suzhou grey tiles instead of two featureless roof slabs.
+  const roofTileMaterial=new THREE.MeshStandardMaterial({color:'#414b47',roughness:.94,metalness:.015});
+  const roofTileGeometry=new THREE.BoxGeometry(.46,.065,.58);
+  const roofTiles=new THREE.InstancedMesh(roofTileGeometry,roofTileMaterial,180);
+  const tileTransform=new THREE.Object3D();
+  let tileIndex=0;
+  for(const side of [-1,1]){
+    for(let row=0;row<9;row++){
+      const offset=.32+row*.52;
+      for(let col=0;col<10;col++){
+        const z=-13.0+col*.65;
+        tileTransform.position.set(-8+side*offset,3.94-offset*.19+.105,z);
+        tileTransform.rotation.set(0,0,-side*.19);
+        tileTransform.scale.set(.96+(col%3)*.015,1,.94+(row%2)*.025);
+        tileTransform.updateMatrix();
+        roofTiles.setMatrixAt(tileIndex++,tileTransform.matrix);
+      }
+    }
+  }
+  roofTiles.instanceMatrix.needsUpdate=true;
+  roofTiles.castShadow=true;
+  roofTiles.receiveShadow=true;
+  scene.add(roofTiles);
+  // Stone column plinths visually ground the four timber posts.
+  const columnFootingMaterial=new THREE.MeshStandardMaterial({color:'#aaa391',roughness:1});
+  const columnFootings=new THREE.InstancedMesh(new THREE.BoxGeometry(.42,.22,.42),columnFootingMaterial,TEAHOUSE.postXs.length*TEAHOUSE.postZs.length);
+  let footingIndex=0;
+  for(const x of TEAHOUSE.postXs)for(const z of TEAHOUSE.postZs){
+    tileTransform.position.set(x,.11,z);
+    tileTransform.rotation.set(0,0,0);
+    tileTransform.scale.set(1,1,1);
+    tileTransform.updateMatrix();
+    columnFootings.setMatrixAt(footingIndex++,tileTransform.matrix);
+  }
+  columnFootings.instanceMatrix.needsUpdate=true;
+  columnFootings.castShadow=true;
+  columnFootings.receiveShadow=true;
+  scene.add(columnFootings);
   for(const x of [-12.75,-3.25])box(.15,.12,6.7,x,3.03,-10,roof);
   // M1.5: restrained ridge caps and end finials add roof silhouette without extra assets.
   const ridgeCap=new THREE.MeshStandardMaterial({color:'#394441',roughness:1});
