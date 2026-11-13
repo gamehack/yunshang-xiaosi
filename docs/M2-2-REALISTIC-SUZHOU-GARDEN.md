@@ -54,3 +54,12 @@
 
 ## 连续执行约束
 每个可验证批次：修改→测试→构建→浏览器截图/操作→同步文档→commit/push develop→检查 CI。已有 M2.1 代码可保留功能修复，但不得继续按照其低模审美目标推进。云端时间耗尽前更新进度检查点。不得编造测试、素材授权或视觉结果；只有真正需要付费、授权、产品方向重大决策、不可逆操作时才暂停。
+
+## 2026-11-13 R5 状态复核与下一阶段衔接
+
+- 远端工作分支 codex/blender-integration 当前 HEAD 为 61db07d；与 develop 比较 ahead 6 / behind 0。当前分支尚未合并 develop。
+- Cloudflare Pages banrixian Preview 部署 c1b36841 来源为该分支 commit 61db07d，deploy stage 为 success。生产仍指向 main 的 M1.3 commit b668659。
+- 当前已打开 Preview 页可读取 HUD 单次快照：FPS≈32、P95≈33.5ms、Draw Calls=130、Triangles=22,980。设备/分辨率/DPR/采样窗口未知，不能作为 60 FPS 性能验收结论。
+- R0 报告中已有 Windows Radeon Chrome 数据：新版茶室主机位约 30 FPS / P95 33.5ms，154 Draw Calls、78,236 triangles；GLB 1.08 MB、14 meshes、22 materials、1 embedded texture。该证据说明美术切片已有可用基础，但 60 FPS 目标尚未达到/证实。
+- 已连接浏览器工具目前只提供当前标签页文本上下文，不提供截图捕获、键鼠控制或 Playwright 执行能力。因此本次不伪造 R5 的截图、360° 巡检或交互通过结果；这些仍待可执行 Chromium/Playwright 的环境完成。
+- 后续 ULTRA 工作按 [M2.3 ULTRA 垂直切片计划](M2.3-ULTRA-VERTICAL-SLICE.md) 执行，先建立一个高质量可实时运行的临水茶室—庭院切片。
