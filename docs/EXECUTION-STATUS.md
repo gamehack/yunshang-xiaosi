@@ -178,3 +178,12 @@
 - Preview package version 为 `2.3.0-preview.1`，HUD 应显示 M2.3。
 - 该批为 Three.js 程序化视觉增量，不冒充 Blender ULTRA v02；实际观感、构建、测试和 Cloudflare Preview 均以新 commit 对应部署核验为准。
 - M2.2 R5 双分辨率/真实 Radeon 验收仍待 Windows 本地环境执行。
+
+
+## 2026-11-13｜单 main 工作流迁移候选
+
+- 用户确认本仓库仅保留 main 作为开发分支；当前正在把 develop 的既有历史、codex/blender-integration 的 M2.2/Blender/M2.3 资产与文档成果，以及 feature/moyushan-v2-free 的独立 V2 方案文档整合到 main。
+- README 已更新为单 main 工作流；原 V2 方案以历史决策记录保留，旧的隔离分支约束已标记为被后续决定取代。
+- 当前整合候选头：等待 PR #28 最新 CI。PR #28 已改为 main 为目标，尚未合并。
+- 注意：Cloudflare Pages 的 production_branch 当前是 main；合并 PR #28 会触发生产环境构建/部署。需要用户对该部署副作用明确授权后再执行最终合并。
+- 在验证与合并完成前，不删除任何分支。
